@@ -15,7 +15,7 @@ The pack is designed to make outputs safer, more reproducible, and easier to aud
 ## Release Metadata
 - Current version: `1.0.0` (see [VERSION](./skills/VERSION))
 - Change history: [CHANGELOG.md](./skills/CHANGELOG.md)
-- License: [LICENSE](.skills/LICENSE)
+- License: [LICENSE](./skills/LICENSE)
 
 ## Skillset Overview
 The pack currently contains 21 skills:
@@ -70,7 +70,7 @@ The skillpack is intentionally layered to avoid overlap and conflicting ownershi
 ### Layer 7: Product and UX Value
 - `thoughtful-approach`, `ui-design-skills`, and `ui-spatial-canvas` drive user-value decisions and coherent interaction architecture.
 
-The canonical cross-skill routing source is [docs/skill-index.md](./docs/skill-index.md), with execution scenarios in [SKILL-MAP.md](./SKILL-MAP.md).
+The canonical cross-skill routing source is [/skills/docs/skill-index.md](./skills/docs/skill-index.md), with execution scenarios in [SKILL-MAP.md](./skills/SKILL-MAP.md).
 
 ## Governance System
 Governance is not optional in risky or multi-step work.
