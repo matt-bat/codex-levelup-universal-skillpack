@@ -1,0 +1,68 @@
+name: Skills Governance CI
+
+on:
+  pull_request:
+    paths:
+      - '.codex/skills/**'
+      - 'docs/governance/**'
+      - 'docs/project-index.md'
+      - 'AGENTS.md'
+  push:
+    branches:
+      - main
+    paths:
+      - '.codex/skills/**'
+      - 'docs/governance/**'
+      - 'docs/project-index.md'
+      - 'AGENTS.md'
+
+jobs:
+  governance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compile governance scripts
+        run: |
+          python3 -m py_compile \
+            .codex/skills/skill-governance/scripts/validate_skill_policy.py \
+            .codex/skills/skill-governance/scripts/validate_skill_order_sync.py \
+            .codex/skills/skill-governance/scripts/validate_governance_artifact.py \
+            .codex/skills/skill-governance/scripts/enforce_governance_ci.py
+
+      - name: Run governance validator regression tests
+        run: |
+          python3 -m unittest discover \
+            -s .codex/skills/skill-governance/tests \
+            -p 'test_*.py' -v
+
+      - name: Enforce governance and skill policy (pull request)
+        if: github.event_name == 'pull_request'
+        run: |
+          python3 .codex/skills/skill-governance/scripts/enforce_governance_ci.py \
+            --base-sha "${{ github.event.pull_request.base.sha }}" \
+            --head-sha "${{ github.event.pull_request.head.sha }}" \
+            --strict \
+            --require-recommendation go
+
+      - name: Enforce governance and skill policy (push)
+        if: github.event_name == 'push'
+        run: |
+          python3 .codex/skills/skill-governance/scripts/enforce_governance_ci.py \
+            --base-sha "${{ github.event.before }}" \
+            --head-sha "${{ github.sha }}" \
+            --strict \
+            --require-recommendation go
+
+      - name: Direct skill ordering sync check
+        run: |
+          python3 .codex/skills/skill-governance/scripts/validate_skill_order_sync.py \
+            --skills-root .codex/skills
