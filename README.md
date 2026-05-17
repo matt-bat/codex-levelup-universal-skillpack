@@ -13,9 +13,9 @@ It combines:
 The pack is designed to make outputs safer, more reproducible, and easier to audit.
 
 ## Release Metadata
-- Current version: `1.0.0` (see [VERSION](./VERSION))
-- Change history: [CHANGELOG.md](./CHANGELOG.md)
-- License: [LICENSE](./LICENSE)
+- Current version: `1.0.0` (see [VERSION](./skills/VERSION))
+- Change history: [CHANGELOG.md](./skills/CHANGELOG.md)
+- License: [LICENSE](.skills/LICENSE)
 
 ## Skillset Overview
 The pack currently contains 21 skills:
