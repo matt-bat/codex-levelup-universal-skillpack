@@ -118,15 +118,6 @@ This skillpack is intended to produce:
 5. durable documentation and instruction-state continuity
 6. faster task completion without reducing safety standards
 
-## Public Release Readiness Criteria
-Recommended checklist before publishing this skillpack externally:
-1. all governance validators pass
-2. governance validator unit tests pass
-3. `SKILL-MAP.md` and `docs/skill-index.md` are synchronized
-4. `AGENTS.md` and this README reflect current skill behavior
-5. packaging includes explicit versioning and changelog
-6. packaging includes a license file for external reuse clarity
-
 ## Maintenance Notes
 When adding or changing skills:
 1. update `SKILL-MAP.md` and `docs/skill-index.md` in the same change
