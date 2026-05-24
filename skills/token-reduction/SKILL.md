@@ -359,3 +359,5 @@ Track, when practical:
 - [Scripted Command Execution](../scripted-command-execution/SKILL.md): low-overhead deterministic command workflows.
 - [Regression Prevention](../regression-prevention/SKILL.md): retain safety coverage while minimizing unnecessary verbosity.
 - [Project Backup](../project-backup/SKILL.md): enforce backup gates without bloated process narration.
+- [Artifact Budget Enforcement](../artifact-budget-enforcement/SKILL.md): keep cached summaries, notes, and tables bounded.
+- [Conversation Retention Summary](../conversation-retention-summary/SKILL.md): maintain a small rolling recent-history cache.

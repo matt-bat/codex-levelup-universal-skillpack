@@ -1,0 +1,31 @@
+# OS and editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python caches and local envs
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Test and coverage artifacts
+.coverage
+htmlcov/
+
+# Temp and logs
+tmp/
+temp/
+*.log
+
+# Build and package artifacts
+dist/
+build/
+*.tar
+*.zip

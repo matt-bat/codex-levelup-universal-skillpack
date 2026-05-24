@@ -20,25 +20,33 @@ Apply these when conditions match:
    - when generating/validating governance artifacts or running CI policy enforcement checks
 3. `requirement-clarifier`
    - when request ambiguity, missing acceptance criteria, or unclear non-goals could cause misbuilds
-4. `semantic-policy-audit`
+4. `diagnose-before-fix`
+   - when a bug report may describe symptoms rather than the verified root cause, or a user-suggested cause still needs independent verification
+5. `semantic-policy-audit`
    - when intent-level policy/gate correctness must be audited beyond text snippet checks
-5. `regression-prevention`
+6. `interdependent-change-planning`
+   - when changes touch coupled files, flows, or data paths that must remain coherent together
+7. `regression-prevention`
    - non-trivial code changes, refactors, dependency updates, auth/payment/data/API changes
-6. `project-backup` + `restore-drill`
+8. `project-backup` + `restore-drill`
    - critical/high-risk changes with rollback or recovery risk
-7. `thoughtful-approach`
+9. `thoughtful-approach`
    - feature planning/implementation that should model end-user expectations and scope-safe enhancements
-8. `thoroughly-rate-review`
+10. `thoroughly-rate-review`
    - any request to review, rate, score, assess, evaluate, grade, benchmark, or compare quality
-9. `user-instructions-tracker`
+11. `user-instructions-tracker`
    - when directives are added/changed or when fulfillment/progress/status audit is requested
-10. `history-indexing`
+12. `history-indexing`
    - when long-session indexing/retrieval artifact maintenance is needed
-11. `ui-spatial-canvas`
+13. `conversation-retention-summary`
+   - when a bounded summary of the last 10 conversations needs to be refreshed or continued
+14. `artifact-budget-enforcement`
+   - when cached artifacts, summaries, indexes, or notes need hard limits and pruning
+15. `ui-spatial-canvas`
    - frontend UX, layout, navigation, interaction, visual system work
-12. `scripted-command-execution`
+16. `scripted-command-execution`
    - deterministic local command workflows
-13. `pseudo-agentic-automation`
+17. `pseudo-agentic-automation`
    - browser/GUI automation or dynamic runtime interaction
 
 ### Trigger Matrix (Explicit Include/Exclude)
@@ -47,13 +55,17 @@ Apply these when conditions match:
 | `skill-governance` | Cross-cutting risk, multiple skills, release impact | Tiny isolated text-only change with no behavior impact |
 | `governance-enforcement` | Governance scripts/validators/CI enforcement are being run or debugged | Policy-only/risk-model decisions with no tooling execution |
 | `requirement-clarifier` | Request ambiguity could alter implementation outcome | Requirements are already explicit, testable, and bounded |
+| `diagnose-before-fix` | Debugging or remediation needs verified root cause | User already has a proven cause and only wants a direct patch, though verification is still preferred |
 | `semantic-policy-audit` | Need intent-level policy conformance assessment | Only mechanical snippet/schema checks are needed |
+| `interdependent-change-planning` | Several coupled files, flows, or data paths must change together | Tiny isolated text-only change with no downstream effect |
 | `regression-prevention` | Logic/refactor/dependency/API/auth/payment/data changes | Pure copy/style-only edits with no behavior shift |
 | `project-backup` + `restore-drill` | Critical/high-risk or rollback-sensitive mutation | Low-risk reversible local edits |
 | `thoughtful-approach` | Feature tasks needing must-have/nice-to-have/end-user expectation balancing | Narrow mechanical tasks with fixed requirements and no product decisions |
 | `thoroughly-rate-review` | User asks for review/rating/scoring/evaluation (or synonym) | User asks for implementation only with no evaluation intent |
 | `user-instructions-tracker` | New/changed directives or progress/fulfillment tracking is needed | No user directives or status tracking requirement in scope |
 | `history-indexing` | Long-session retrieval/indexing overhead exists | Short sessions where direct retrieval is cheaper |
+| `conversation-retention-summary` | Recent-context handoff needs the latest 10 conversations only | Full transcript retention or long archive reconstruction is needed |
+| `artifact-budget-enforcement` | Cached artifacts or summaries need explicit size caps | No bounded-cache surface exists |
 | `ui-spatial-canvas` | Frontend IA, layout, interaction, visual-system work | Backend-only or CLI-only tasks |
 | `scripted-command-execution` | Deterministic local shell workflows | Dynamic browser flows requiring runtime adaptation |
 | `pseudo-agentic-automation` | Authenticated/dynamic browser or GUI interaction | Deterministic shell/API/file-only work |

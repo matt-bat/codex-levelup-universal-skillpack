@@ -130,7 +130,7 @@ Required actions:
 5. provide explicit rerun command for full verification when environment is fixed
 
 Reference runbook:
-- `.codex/skills/docs/verification/constrained-environment-verification.md`
+- `skills/docs/verification/constrained-environment-verification.md`
 
 ## Coverage-to-Change Map
 For medium/high-risk changes, provide:

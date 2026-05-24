@@ -4,7 +4,7 @@ Copyright (c) 2026 Matt
 All rights reserved.
 
 1. Definitions
-- "Skillpack" means all files distributed under `.codex/skills/`.
+- "Skillpack" means all files distributed in this repository's `skills/` directory or copied into an installed `.codex/skills/` directory.
 - "Attribution" means clear credit to the original author in a visible location, including:
   - author name: Matt
   - project name: Level-Up Codex Skillpack

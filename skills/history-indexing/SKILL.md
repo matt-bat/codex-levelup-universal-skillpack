@@ -76,3 +76,4 @@ When applying this skill, provide:
 - [Skill Index](../docs/skill-index.md): canonical cross-skill routing index for trigger decisions.
 - [Token Reduction](../token-reduction/SKILL.md): response and execution efficiency discipline.
 - [Doc Maintenance](../doc-maintenance/SKILL.md): keep index artifact synchronized when decision context changes.
+- [Conversation Retention Summary](../conversation-retention-summary/SKILL.md): maintain the rolling last-10 summary alongside the detailed index.

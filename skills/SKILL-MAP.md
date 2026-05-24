@@ -26,24 +26,28 @@ Quick routing guide for when to apply each skill and how multiple skills should 
 1. `skill-governance`
 2. `governance-enforcement`
 3. `requirement-clarifier`
-4. `semantic-policy-audit`
-5. `thoughtful-approach`
-6. `thoroughly-rate-review`
-7. `user-instructions-tracker`
-8. `history-indexing`
-9. `ui-spatial-canvas`
-10. `ui-design-skills`
-11. `effective-testing-methods`
-12. `scripted-command-execution`
-13. `pseudo-agentic-automation`
-14. `token-reduction`
-15. `order-of-operations`
-16. `regression-prevention`
-17. `file-structure-optimization`
-18. `doc-maintenance`
-19. `file-maintenance`
-20. `project-backup`
-21. `restore-drill`
+4. `diagnose-before-fix`
+5. `semantic-policy-audit`
+6. `interdependent-change-planning`
+7. `thoughtful-approach`
+8. `thoroughly-rate-review`
+9. `user-instructions-tracker`
+10. `history-indexing`
+11. `conversation-retention-summary`
+12. `ui-spatial-canvas`
+13. `ui-design-skills`
+14. `effective-testing-methods`
+15. `scripted-command-execution`
+16. `pseudo-agentic-automation`
+17. `token-reduction`
+18. `artifact-budget-enforcement`
+19. `order-of-operations`
+20. `regression-prevention`
+21. `file-structure-optimization`
+22. `doc-maintenance`
+23. `file-maintenance`
+24. `project-backup`
+25. `restore-drill`
 
 ## Trigger Matrix
 | Skill | Primary Trigger | Typical Output |
@@ -51,17 +55,21 @@ Quick routing guide for when to apply each skill and how multiple skills should 
 | `skill-governance` | multi-skill or risk-sensitive tasks | selected mode + required gates + go/no-go |
 | `governance-enforcement` | governance tooling, validators, CI policy checks | artifact generation/validation + enforcement pass/fail remediation |
 | `requirement-clarifier` | ambiguous requests or missing acceptance criteria | clarified scope/assumptions/non-goals/acceptance contract |
+| `diagnose-before-fix` | bug reports or failures with unverified causes | symptom vs cause verification + verified root cause or safe mitigation |
 | `semantic-policy-audit` | intent-level policy compliance review | expected-vs-observed skill/gate audit + gap classification |
+| `interdependent-change-planning` | changes that touch connected system parts | coupled-surface map + coherent update plan |
 | `thoughtful-approach` | feature planning requiring end-user expectation modeling | must-have/nice-to-have/deferred map + scope-safe enhancement decisions |
 | `thoroughly-rate-review` | review/rate/score/assess/evaluate intent | weighted scoring model + category breakdown + final score + action plan |
 | `user-instructions-tracker` | new directives, status tracking, fulfillment audit requests | updated `user-instructions.md` rows + status/evidence transitions |
 | `history-indexing` | long-session context retrieval and indexing | `docs/chat-history-index.md` updates + targeted retrieval map |
+| `conversation-retention-summary` | rolling summary of the last 10 conversations | `docs/chat-history-summary.md` updates + refresh/trim logic |
 | `ui-spatial-canvas` | frontend UI/UX architecture or redesign | no-scrollbar-first viewport interaction model + flow-level UX decisions |
 | `ui-design-skills` | need a trusted-source UX principles framework | source-grounded design checklist + acceptance gates + references |
 | `effective-testing-methods` | feature/behavior change requiring robust test updates | unit + Playwright change-to-test coverage map and quality gates |
 | `scripted-command-execution` | deterministic shell/setup/batch tasks | executed command plan + validation |
 | `pseudo-agentic-automation` | dynamic browser/GUI automation | script loop artifacts + pass/fail |
 | `token-reduction` | long/expensive chats, concise-result preference | compressed context + concise result |
+| `artifact-budget-enforcement` | cached artifacts or summaries need hard limits | caps, pruning rules, and trimmed artifact evidence |
 | `order-of-operations` | multi-step requests with dependencies | dependency-correct execution order |
 | `regression-prevention` | risky code changes, upgrades, refactors | risk map + test evidence + release recommendation |
 | `file-structure-optimization` | repo architecture drift or duplication risk | structure audit + consolidation/migration plan |
@@ -206,6 +214,24 @@ When local environment limitations block required test layers (for example missi
 5. `regression-prevention` (if structural moves affect runtime/test wiring)
 6. `token-reduction`
 
+### Scenario K: Debugging and Root Cause Verification
+1. `skill-governance`
+2. `order-of-operations`
+3. `diagnose-before-fix`
+4. `regression-prevention`
+5. `effective-testing-methods`
+6. `scripted-command-execution`
+7. `doc-maintenance`
+8. `token-reduction`
+
+### Scenario L: Recent Memory and Cache Boundedness
+1. `order-of-operations`
+2. `history-indexing`
+3. `conversation-retention-summary`
+4. `artifact-budget-enforcement`
+5. `file-maintenance`
+6. `token-reduction`
+
 ## Conflict Resolution Rules
 1. Safety-first skills override speed-first skills:
    - `project-backup`, `restore-drill`, `regression-prevention` take precedence over shortcuts.
@@ -234,13 +260,15 @@ When local environment limitations block required test layers (for example missi
 11. If user asks to review/rate/score/assess/evaluate quality: add `thoroughly-rate-review`.
 12. If user gives directives or asks fulfillment/progress status: add `user-instructions-tracker`.
 13. If long-history retrieval overhead exists: add `history-indexing`.
-14. If task is frontend interaction/layout architecture: add `ui-spatial-canvas`.
-15. If task needs trusted UX standards and cross-platform design heuristics: add `ui-design-skills`.
-16. If features/behavior changed and tests must be amended or added: add `effective-testing-methods`.
-17. If repository layout has drift/duplication or poor discoverability: add `file-structure-optimization`.
-18. If file factuality/correctness/staleness maintenance is required: add `file-maintenance`.
-19. If outputs are getting verbose or context is ballooning: add `token-reduction`.
-20. If any behavior/process changed: add `doc-maintenance`.
+14. If the request needs a bounded rolling summary of the last 10 conversations: add `conversation-retention-summary`.
+15. If cached artifacts or metadata need hard size limits: add `artifact-budget-enforcement`.
+16. If task is frontend interaction/layout architecture: add `ui-spatial-canvas`.
+17. If task needs trusted UX standards and cross-platform design heuristics: add `ui-design-skills`.
+18. If features/behavior changed and tests must be amended or added: add `effective-testing-methods`.
+19. If repository layout has drift/duplication or poor discoverability: add `file-structure-optimization`.
+20. If file factuality/correctness/staleness maintenance is required: add `file-maintenance`.
+21. If outputs are getting verbose or context is ballooning: add `token-reduction`.
+22. If any behavior/process changed: add `doc-maintenance`.
 
 ## Completion Gate
 A multi-skill task should not be considered complete until:
@@ -254,4 +282,4 @@ A multi-skill task should not be considered complete until:
 ## Canonical Routing Artifact
 1. `docs/skill-index.md` is the authoritative cross-skill trigger index.
 2. If `SKILL-MAP.md` and `docs/skill-index.md` differ, update both in the same change.
-3. CI validator: `.codex/skills/skill-governance/scripts/validate_skill_order_sync.py`.
+3. CI validator: `skills/skill-governance/scripts/validate_skill_order_sync.py`.

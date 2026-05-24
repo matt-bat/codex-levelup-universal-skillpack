@@ -270,7 +270,7 @@ If a required layer cannot run because of host/runtime constraints:
 5. provide exact rerun command for full validation once dependency is available
 
 Reference:
-- `.codex/skills/docs/verification/constrained-environment-verification.md`
+- `skills/docs/verification/constrained-environment-verification.md`
 
 ### Step 6B: Coverage Mapping Artifact (Required for Medium/High Risk)
 Create a change-to-test map:

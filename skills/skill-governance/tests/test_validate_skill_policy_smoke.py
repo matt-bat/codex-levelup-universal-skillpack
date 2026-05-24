@@ -10,7 +10,14 @@ SKILLS_ROOT = Path(__file__).resolve().parents[2]
 class TestValidateSkillPolicySmoke(unittest.TestCase):
     def test_policy_validator_passes_on_current_tree(self) -> None:
         result = subprocess.run(
-            ["python3", str(SCRIPT), "--skills-root", str(SKILLS_ROOT)],
+            [
+                "python3",
+                str(SCRIPT),
+                "--skills-root",
+                str(SKILLS_ROOT),
+                "--repo-root",
+                str(SKILLS_ROOT.parent),
+            ],
             capture_output=True,
             text=True,
             check=False,

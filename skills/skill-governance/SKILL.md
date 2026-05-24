@@ -85,7 +85,7 @@ Minimum workflow:
 
 Example:
 ```bash
-python .codex/skills/skill-governance/scripts/generate_governance_artifact.py \
+python skills/skill-governance/scripts/generate_governance_artifact.py \
   --task-id TASK-123 \
   --project-id universal-app \
   --profile internal \
@@ -104,7 +104,7 @@ python .codex/skills/skill-governance/scripts/generate_governance_artifact.py \
   --recoverability 1 \
   --behavior-or-workflow-changed
 
-python .codex/skills/skill-governance/scripts/validate_governance_artifact.py \
+python skills/skill-governance/scripts/validate_governance_artifact.py \
   --artifact docs/governance/TASK-123.governance.json
 ```
 
@@ -114,7 +114,7 @@ Generator behavior:
 
 Strict release-gate validation example:
 ```bash
-python .codex/skills/skill-governance/scripts/validate_governance_artifact.py \
+python skills/skill-governance/scripts/validate_governance_artifact.py \
   --artifact docs/governance/TASK-123.governance.json \
   --strict \
   --require-recommendation go
@@ -122,7 +122,7 @@ python .codex/skills/skill-governance/scripts/validate_governance_artifact.py \
 
 CI enforcement example:
 ```bash
-python .codex/skills/skill-governance/scripts/enforce_governance_ci.py \
+python skills/skill-governance/scripts/enforce_governance_ci.py \
   --base-sha <base_sha> \
   --head-sha <head_sha> \
   --strict \
@@ -136,7 +136,7 @@ CI behavior:
 4. in strict mode, fail if recommendation is below required threshold
 5. validate skill policy artifacts (`AGENTS.md` + startup declaration sections in governance artifacts)
 6. fail when `SKILL-MAP.md` and `docs/skill-index.md` skill ordering diverges
-7. governed files include `.codex/skills/**`, `docs/governance/**`, `docs/project-index.md`, `AGENTS.md`, `.github/workflows/**`
+7. governed files include `skills/**`, `.codex/skills/**`, `docs/governance/**`, `docs/project-index.md`, `AGENTS.md`, `.github/workflows/**`
 
 ## Step 1: Repository Profile
 Set profile first:
@@ -255,6 +255,14 @@ Add these gates when conditions match:
    - include when repository layout refactors or duplicate-file cleanup are part of scope
 8. `file-maintenance`
    - include when file-level factuality, staleness, or documentation accuracy maintenance is requested
+9. `diagnose-before-fix`
+   - include when a failure report may be symptom-only or a user-suggested cause still needs independent verification
+10. `interdependent-change-planning`
+   - include when changes touch coupled files, flows, or data paths that must stay coherent together
+11. `conversation-retention-summary`
+   - include when a bounded summary of the last 10 conversations needs to be refreshed or continued
+12. `artifact-budget-enforcement`
+   - include when cached artifacts, summaries, indexes, or notes need hard maximums and pruning rules
 
 Before adding conditional gates:
 1. consult `docs/skill-index.md`
@@ -304,7 +312,7 @@ Deduplication rule:
 Constrained-environment addendum (all modes):
 1. if any required validation layer is blocked by host/runtime limitations:
    - record exact blocker command and exact error message
-   - run fallback evidence path from `.codex/skills/docs/verification/constrained-environment-verification.md`
+   - run fallback evidence path from `skills/docs/verification/constrained-environment-verification.md`
    - downgrade recommendation to `go-with-risk` or `no-go` when blocked layer affects critical flows
 
 Artifact policy:

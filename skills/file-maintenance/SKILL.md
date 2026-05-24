@@ -135,3 +135,4 @@ Primary references:
 - [File Structure Optimization](../file-structure-optimization/SKILL.md): repository architecture hygiene.
 - [User Instructions Tracker](../user-instructions-tracker/SKILL.md): track directive-driven maintenance obligations.
 - [Governance Enforcement](../governance-enforcement/SKILL.md): validate policy-file correctness through tooling.
+- [Artifact Budget Enforcement](../artifact-budget-enforcement/SKILL.md): keep cached artifacts and tables from growing without limits.

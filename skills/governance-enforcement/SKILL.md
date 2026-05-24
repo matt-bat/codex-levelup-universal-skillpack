@@ -41,12 +41,13 @@ Use this skill when:
 4. debugging governance check failures
 
 ## Primary Tooling
-1. `.codex/skills/skill-governance/scripts/generate_governance_artifact.py`
-2. `.codex/skills/skill-governance/scripts/validate_governance_artifact.py`
-3. `.codex/skills/skill-governance/scripts/enforce_governance_ci.py`
-4. `.codex/skills/skill-governance/scripts/validate_skill_policy.py`
-5. `.codex/skills/skill-governance/scripts/validate_skill_order_sync.py`
-6. `.codex/skills/docs/ci/skills-governance-ci.yml` (repository-root workflow template)
+1. `skills/skill-governance/scripts/generate_governance_artifact.py`
+2. `skills/skill-governance/scripts/validate_governance_artifact.py`
+3. `skills/skill-governance/scripts/enforce_governance_ci.py`
+4. `skills/skill-governance/scripts/validate_skill_policy.py`
+5. `skills/skill-governance/scripts/validate_skill_order_sync.py`
+6. `.github/workflows/skills-governance-ci.yml` (active repository workflow)
+7. `skills/docs/ci/skills-governance-ci.yml` (copyable workflow template)
 
 ## Enforcement Workflow
 1. generate artifact at task start with required intake/startup fields
@@ -65,12 +66,12 @@ Use this skill when:
 5. startup declaration completeness
 6. project-index consistency checks
 7. skill-catalog consistency checks (`*/SKILL.md` vs `SKILL-MAP.md` vs `docs/skill-index.md`)
-8. governed-path scope checks (`.codex/skills/**`, `docs/governance/**`, `docs/project-index.md`, `AGENTS.md`, `.github/workflows/**`)
+8. governed-path scope checks (`skills/**`, `.codex/skills/**`, `docs/governance/**`, `docs/project-index.md`, `AGENTS.md`, `.github/workflows/**`)
 
 ## Regression Test Command
 Run after governance-script changes:
 ```bash
-python3 -m unittest discover -s .codex/skills/skill-governance/tests -p 'test_*.py' -v
+python3 -m unittest discover -s skills/skill-governance/tests -p 'test_*.py' -v
 ```
 
 ## Failure Handling

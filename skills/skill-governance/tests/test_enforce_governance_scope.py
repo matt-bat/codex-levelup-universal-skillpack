@@ -17,6 +17,7 @@ spec.loader.exec_module(module)
 class TestGovernedScope(unittest.TestCase):
     def test_governed_paths(self) -> None:
         self.assertTrue(module.is_governed_change(".codex/skills/SKILL-MAP.md"))
+        self.assertTrue(module.is_governed_change("skills/SKILL-MAP.md"))
         self.assertTrue(module.is_governed_change("docs/governance/TASK-1.governance.json"))
         self.assertTrue(module.is_governed_change("docs/project-index.md"))
         self.assertTrue(module.is_governed_change("AGENTS.md"))

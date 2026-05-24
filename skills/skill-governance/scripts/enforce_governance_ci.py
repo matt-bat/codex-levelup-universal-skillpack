@@ -14,6 +14,7 @@ DEFAULT_SKILLS_ROOT = SCRIPT_PATH.parents[2]
 
 GOVERNED_PATH_PREFIXES = (
     ".codex/skills/",
+    "skills/",
     "docs/governance/",
     ".github/workflows/",
 )

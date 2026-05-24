@@ -1,0 +1,77 @@
+{
+  "task_id": "PUSH-READY-20260524",
+  "project_id": "codex-levelup-skillpack",
+  "created_at_utc": "2026-05-24T12:50:38.203844+00:00",
+  "profile": "internal",
+  "project_language": "Markdown/Python",
+  "project_description_max4": "Codex skillpack governance",
+  "model_runs_test_build_default": "yes",
+  "execution_scope": "local_only",
+  "deployment_requested": false,
+  "execution_skill": "scripted-command-execution",
+  "behavior_or_workflow_changed": true,
+  "scores": {
+    "data_impact": 0,
+    "business_impact": 1,
+    "change_complexity": 2,
+    "dependency_uncertainty": 1,
+    "recoverability": 1
+  },
+  "total_score": 5,
+  "base_mode": "standard",
+  "mode_after_profile": "standard",
+  "selected_mode": "standard",
+  "critical_overrides": [],
+  "required_gates": [
+    "order-of-operations",
+    "scripted-command-execution",
+    "regression-prevention",
+    "token-reduction",
+    "doc-maintenance"
+  ],
+  "gate_status": {
+    "order-of-operations": "pass",
+    "scripted-command-execution": "pass",
+    "regression-prevention": "pass",
+    "token-reduction": "pass",
+    "doc-maintenance": "pass"
+  },
+  "startup_declaration": {
+    "skills_in_use": [
+      "token-reduction",
+      "order-of-operations",
+      "skill-governance",
+      "interdependent-change-planning",
+      "regression-prevention",
+      "scripted-command-execution",
+      "doc-maintenance",
+      "user-instructions-tracker"
+    ],
+    "skills_selection_rationale": "Release-readiness work touching governed skillpack policy, CI, documentation, and validation surfaces.",
+    "skills_execution_order": [
+      "token-reduction",
+      "order-of-operations",
+      "skill-governance",
+      "interdependent-change-planning",
+      "regression-prevention",
+      "scripted-command-execution",
+      "doc-maintenance",
+      "user-instructions-tracker"
+    ]
+  },
+  "evidence_requirements": [
+    "mode + score",
+    "impact map",
+    "validation scope by layer",
+    "residual risks"
+  ],
+  "break_glass": {
+    "enabled": false,
+    "reason": "",
+    "risk_owner": "",
+    "remediation_ticket": "",
+    "expiry_hours": null
+  },
+  "recommendation": "go",
+  "notes": "Release-readiness changes were sequenced as repository inspection, governed cleanup, CI activation, documentation updates, governance artifact generation, instruction tracking, and validation. Validation scope: skill policy validator, skill ordering sync validator, governance unit tests, strict governance artifact validation, and governed-change CI enforcement. Residual risks: GitHub Actions must run after push in GitHub's hosted environment; local evidence covers repository scripts and workflow syntax paths."
+}
