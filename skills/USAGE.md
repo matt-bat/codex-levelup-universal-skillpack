@@ -47,6 +47,13 @@ The default baseline is:
 1. `token-reduction`
 2. `order-of-operations`
 
+Use the smallest skill set that covers the task. The practical routing shortcut is:
+1. answer-only request: `token-reduction`
+2. one deterministic local command: `token-reduction`, `scripted-command-execution`
+3. tiny isolated text edit: `token-reduction`, `order-of-operations`
+4. documentation-only update: `token-reduction`, `order-of-operations`, `doc-maintenance`
+5. release-sensitive change: full governance path
+
 When the task changes behavior, workflows, policy, or documentation, add:
 1. `doc-maintenance`
 
@@ -83,6 +90,9 @@ The main routing files are:
 3. `user-instructions.md` for directive tracking and fulfillment evidence
 4. `docs/cache-budgets.md` for bounded history and cached artifact limits
 5. `docs/governance-walkthrough.md` for the governed release-readiness workflow
+6. `docs/skill-decision-tree.md` for minimum viable skill selection
+7. `skill-catalog.json` for machine-readable skill inventory
+8. `docs/known-limitations.md` for explicit tradeoffs and residual limits
 
 When a skill trigger changes, update both:
 1. `SKILL-MAP.md`
@@ -123,10 +133,19 @@ When I add a skill, I keep the change connected across the pack:
 2. update `README.md`
 3. update `SKILL-MAP.md`
 4. update `docs/skill-index.md`
-5. update governance validation snippets if the new skill becomes required policy
-6. update `CHANGELOG.md`
-7. update `user-instructions.md` with evidence
-8. run the validation commands
+5. update `skill-catalog.json`
+6. update governance validation snippets if the new skill becomes required policy
+7. update `CHANGELOG.md`
+8. update `user-instructions.md` with evidence
+9. run the validation commands
+
+## Examples
+Use these examples to avoid over-applying skills:
+1. [simple-code-fix.md](./docs/examples/simple-code-fix.md)
+2. [bug-investigation.md](./docs/examples/bug-investigation.md)
+3. [release-readiness-change.md](./docs/examples/release-readiness-change.md)
+4. [frontend-layout-task.md](./docs/examples/frontend-layout-task.md)
+5. [documentation-only-update.md](./docs/examples/documentation-only-update.md)
 
 ## Licensing And Attribution
 This pack uses an attribution-required non-commercial license.

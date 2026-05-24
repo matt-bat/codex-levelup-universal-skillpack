@@ -53,6 +53,22 @@ Use [File Structure Optimization](../file-structure-optimization/SKILL.md) for:
 4. documentation claims require validation evidence
 5. maintenance outputs must be auditable
 
+## Anti-Overuse Rules
+Use when:
+1. the task is a file hygiene, factuality, freshness, or consistency audit
+2. duplicate or stale documents may conflict
+3. public docs or policy files need cross-file validation
+
+Do not use when:
+1. a single canonical doc is being updated as part of implementation
+2. no repository files are changing
+3. `doc-maintenance` already covers the necessary change-driven doc update
+
+Stop after:
+1. stale/conflicting files are corrected or explicitly tracked
+2. canonical sources are identified
+3. unresolved findings have owner, severity, and next action
+
 ## File Integrity Audit
 Audit file surfaces for:
 1. purpose clarity

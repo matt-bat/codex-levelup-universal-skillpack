@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "skills": [
+    {"name": "skill-governance", "trigger": "multi-step or risk-sensitive tasks", "dependencies": ["order-of-operations", "regression-prevention", "doc-maintenance"], "canonical_artifacts": ["docs/governance/*.governance.json", "docs/governance/*.governance.md"], "risk_level": "high"},
+    {"name": "governance-enforcement", "trigger": "governance tooling or CI policy checks", "dependencies": ["skill-governance"], "canonical_artifacts": ["skills/skill-governance/scripts/*", ".github/workflows/skills-governance-ci.yml"], "risk_level": "high"},
+    {"name": "requirement-clarifier", "trigger": "ambiguous requirements", "dependencies": ["order-of-operations"], "canonical_artifacts": ["acceptance contract"], "risk_level": "medium"},
+    {"name": "diagnose-before-fix", "trigger": "bug reports with unverified root cause", "dependencies": ["scripted-command-execution", "regression-prevention"], "canonical_artifacts": ["reproduction notes", "verified-cause notes"], "risk_level": "medium"},
+    {"name": "semantic-policy-audit", "trigger": "intent-level policy audit", "dependencies": ["skill-governance"], "canonical_artifacts": ["policy audit notes"], "risk_level": "medium"},
+    {"name": "interdependent-change-planning", "trigger": "coupled files, flows, or data paths", "dependencies": ["order-of-operations", "regression-prevention"], "canonical_artifacts": ["impact map"], "risk_level": "medium"},
+    {"name": "thoughtful-approach", "trigger": "end-user expectation modeling", "dependencies": ["regression-prevention"], "canonical_artifacts": ["feature expectation notes"], "risk_level": "medium"},
+    {"name": "thoroughly-rate-review", "trigger": "review, rate, score, assess, evaluate", "dependencies": ["token-reduction"], "canonical_artifacts": ["scoring report"], "risk_level": "low"},
+    {"name": "user-instructions-tracker", "trigger": "new directives or fulfillment audit", "dependencies": ["doc-maintenance"], "canonical_artifacts": ["skills/user-instructions.md"], "risk_level": "medium"},
+    {"name": "history-indexing", "trigger": "long-session context retrieval overhead", "dependencies": ["token-reduction"], "canonical_artifacts": ["docs/chat-history-index.md"], "risk_level": "low"},
+    {"name": "conversation-retention-summary", "trigger": "rolling summary of recent conversations", "dependencies": ["artifact-budget-enforcement"], "canonical_artifacts": ["docs/chat-history-summary.md"], "risk_level": "low"},
+    {"name": "ui-spatial-canvas", "trigger": "frontend UI or UX architecture", "dependencies": ["ui-design-skills", "regression-prevention"], "canonical_artifacts": ["UI architecture notes"], "risk_level": "medium"},
+    {"name": "ui-design-skills", "trigger": "trusted-source UX principle application", "dependencies": ["thoughtful-approach"], "canonical_artifacts": ["UX checklist"], "risk_level": "medium"},
+    {"name": "effective-testing-methods", "trigger": "test updates or coverage mapping", "dependencies": ["regression-prevention"], "canonical_artifacts": ["test impact map"], "risk_level": "medium"},
+    {"name": "scripted-command-execution", "trigger": "deterministic local shell workflows", "dependencies": ["order-of-operations"], "canonical_artifacts": ["command evidence"], "risk_level": "medium"},
+    {"name": "pseudo-agentic-automation", "trigger": "dynamic browser or GUI automation", "dependencies": ["regression-prevention"], "canonical_artifacts": ["automation logs"], "risk_level": "medium"},
+    {"name": "token-reduction", "trigger": "context or output compression needed", "dependencies": [], "canonical_artifacts": ["docs/project-index.md"], "risk_level": "low"},
+    {"name": "artifact-budget-enforcement", "trigger": "cached artifacts need hard limits", "dependencies": ["file-maintenance"], "canonical_artifacts": ["docs/cache-budgets.md"], "risk_level": "low"},
+    {"name": "order-of-operations", "trigger": "multi-step dependency sequencing", "dependencies": ["scripted-command-execution"], "canonical_artifacts": ["sequencing notes"], "risk_level": "medium"},
+    {"name": "regression-prevention", "trigger": "risky non-trivial changes", "dependencies": ["effective-testing-methods"], "canonical_artifacts": ["risk map", "test evidence"], "risk_level": "high"},
+    {"name": "file-structure-optimization", "trigger": "repository structure drift", "dependencies": ["doc-maintenance"], "canonical_artifacts": ["structure audit"], "risk_level": "medium"},
+    {"name": "doc-maintenance", "trigger": "behavior, workflow, or policy doc drift", "dependencies": ["file-maintenance"], "canonical_artifacts": ["README.md", "docs/*"], "risk_level": "medium"},
+    {"name": "file-maintenance", "trigger": "file correctness and freshness maintenance", "dependencies": ["doc-maintenance"], "canonical_artifacts": ["file audit report"], "risk_level": "low"},
+    {"name": "project-backup", "trigger": "high-risk mutation readiness", "dependencies": ["restore-drill"], "canonical_artifacts": ["backup evidence"], "risk_level": "high"},
+    {"name": "restore-drill", "trigger": "restore validation and freshness", "dependencies": ["project-backup"], "canonical_artifacts": ["drill evidence"], "risk_level": "high"}
+  ]
+}

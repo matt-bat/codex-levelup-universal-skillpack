@@ -43,6 +43,22 @@ This skill prevents:
 ## When to Use
 Use for any task that may involve multiple skills, risk-sensitive changes, or release-affecting work.
 
+## Anti-Overuse Rules
+Use when:
+1. the task is risky, ambiguous, multi-step, multi-skill, or release-affecting
+2. governed files or validation policy are changing
+3. a go/no-go recommendation is needed
+
+Do not use when:
+1. the task is answer-only
+2. the task is a tiny isolated non-governed text edit
+3. a single deterministic command has no durable side effects
+
+Stop after:
+1. the mode, gates, evidence, and recommendation are selected
+2. enforcement owns script execution and artifact validation
+3. residual risk is captured in the final handoff or artifact
+
 ## Scope Boundary
 This skill defines governance policy:
 1. risk scoring

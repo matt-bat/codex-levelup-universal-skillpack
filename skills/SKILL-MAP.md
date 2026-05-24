@@ -22,6 +22,24 @@ Quick routing guide for when to apply each skill and how multiple skills should 
 6. Cross-skill trigger routing:
    - when one skill triggers another, consult `docs/skill-index.md` first
 
+## Minimum Viable Skill Use
+Use the smallest skill set that satisfies the request and safety requirements.
+
+| Task Shape | Maximum Default Skill Set |
+|---|---|
+| Answer-only request | `token-reduction` |
+| One deterministic local command | `token-reduction`, `scripted-command-execution` |
+| Tiny isolated text edit | `token-reduction`, `order-of-operations` |
+| Small isolated code edit | `token-reduction`, `order-of-operations`, `scripted-command-execution`, optional `regression-prevention` |
+| Documentation-only update | `token-reduction`, `order-of-operations`, `doc-maintenance` |
+| Governed or release-affecting change | `token-reduction`, `order-of-operations`, `skill-governance`, required gates |
+
+Stop rules:
+1. add a skill only when it changes execution, validation, safety, or documentation evidence
+2. prefer one owner when skills overlap
+3. avoid history/cache skills unless the task explicitly needs retained context or artifact budgets
+4. avoid governance artifacts for tiny isolated non-governed changes
+
 ## Skill Index
 1. `skill-governance`
 2. `governance-enforcement`

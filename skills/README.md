@@ -18,6 +18,8 @@ This pack is built to improve:
 - Changelog: [CHANGELOG.md](./CHANGELOG.md)
 - License: [LICENSE](./LICENSE)
 - Governance walkthrough: [docs/governance-walkthrough.md](./docs/governance-walkthrough.md)
+- Decision tree: [docs/skill-decision-tree.md](./docs/skill-decision-tree.md)
+- Known limitations: [docs/known-limitations.md](./docs/known-limitations.md)
 
 ## Included Skills
 I currently include 25 interoperable skills:
@@ -83,6 +85,8 @@ I use layered ownership to reduce overlap and conflicts:
 Canonical routing references:
 - [docs/skill-index.md](./docs/skill-index.md)
 - [SKILL-MAP.md](./SKILL-MAP.md)
+- [skill-catalog.json](./skill-catalog.json)
+- [docs/skill-decision-tree.md](./docs/skill-decision-tree.md)
 
 ## Governance and Enforcement
 This is a governance-first pack. For risky or release-affecting tasks, I expect governance to be mandatory.
@@ -108,6 +112,12 @@ Default baseline:
 1. `token-reduction`
 2. `order-of-operations`
 3. `doc-maintenance` (when behavior/workflow/policy changes)
+
+Minimum viable use:
+1. answer-only request: `token-reduction`
+2. one deterministic local command: `token-reduction`, `scripted-command-execution`
+3. small isolated edit: `token-reduction`, `order-of-operations`, optional validation skill
+4. governed or release-affecting change: full governance path
 
 Conflict resolution order:
 1. `skill-governance`
@@ -142,7 +152,8 @@ Use these tags for better discoverability:
 ## Maintenance Checklist
 When updating the pack:
 1. update `SKILL-MAP.md` and `docs/skill-index.md` in the same change
-2. run governance validators and related tests
-3. update docs and release metadata when behavior changes
-4. update `user-instructions.md` for directive/fulfillment evidence
-5. include or update a strict-validating governance artifact for governed changes
+2. update `skill-catalog.json` when skill membership, triggers, dependencies, or artifacts change
+3. run governance validators and related tests
+4. update docs and release metadata when behavior changes
+5. update `user-instructions.md` for directive/fulfillment evidence
+6. include or update a strict-validating governance artifact for governed changes

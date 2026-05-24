@@ -12,6 +12,23 @@ Apply these by default unless clearly irrelevant:
 Apply when task changes behavior, workflows, or documentation:
 1. `doc-maintenance`
 
+### Minimum Viable Skill Use
+Use the smallest skill set that safely covers the task.
+
+Default caps:
+1. answer-only request: `token-reduction`
+2. one deterministic local command: `token-reduction`, `scripted-command-execution`
+3. tiny isolated text edit: `token-reduction`, `order-of-operations`
+4. small isolated code edit: `token-reduction`, `order-of-operations`, `scripted-command-execution`, plus `regression-prevention` when behavior can change
+5. documentation-only update: `token-reduction`, `order-of-operations`, `doc-maintenance`
+6. governed or release-affecting change: add `skill-governance` and the required gates it selects
+
+Stop rules:
+1. do not add a skill only because it is adjacent to the task
+2. do not generate governance artifacts for tiny isolated non-governed changes
+3. do not update history or cache artifacts unless long-session retrieval or bounded artifact maintenance is actually in scope
+4. if two skills overlap, use `SKILL-MAP.md` ownership boundaries to pick the owner
+
 ### Conditional Skill Triggers
 Apply these when conditions match:
 1. `skill-governance`

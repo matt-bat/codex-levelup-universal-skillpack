@@ -38,6 +38,21 @@ REQUIRED_AGENTS_SNIPPETS = [
 ]
 
 REQUIRED_FILE_SNIPPETS = {
+    "skill-catalog.json": [
+        "\"schema_version\"",
+        "\"skills\"",
+        "\"skill-governance\"",
+    ],
+    "docs/skill-decision-tree.md": [
+        "# Skill Decision Tree",
+        "Use the smallest skill set that covers the task.",
+        "## Stop Rules",
+    ],
+    "docs/known-limitations.md": [
+        "# Known Limitations",
+        "Model Compliance",
+        "Semantic Quality",
+    ],
     "thoroughly-rate-review/SKILL.md": [
         "Integration and Cohesiveness",
         "for multi-skill systems/frameworks, `Integration and Cohesiveness` is required and cannot be omitted",
@@ -129,6 +144,15 @@ REQUIRED_FILE_SNIPPETS = {
     "skill-governance/scripts/validate_skill_order_sync.py": [
         "Skill ordering sync validation passed.",
     ],
+}
+
+REQUIRED_ANTI_OVERUSE_SKILLS = {
+    "artifact-budget-enforcement",
+    "conversation-retention-summary",
+    "doc-maintenance",
+    "file-maintenance",
+    "history-indexing",
+    "skill-governance",
 }
 
 REQUIRED_USER_INSTRUCTIONS_COLUMNS = [
@@ -426,6 +450,70 @@ def validate_skill_catalog_sync(skills_root: Path) -> list[str]:
     return errors
 
 
+def validate_machine_readable_catalog(skills_root: Path) -> list[str]:
+    errors: list[str] = []
+    path = skills_root / "skill-catalog.json"
+    if not path.exists():
+        return [f"Missing required machine-readable catalog: {path}"]
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return [f"{path}: invalid JSON: {exc}"]
+
+    if data.get("schema_version") != 1:
+        errors.append(f"{path}: schema_version must be 1")
+    skills = data.get("skills")
+    if not isinstance(skills, list) or not skills:
+        errors.append(f"{path}: skills must be a non-empty list")
+        return errors
+
+    actual_skills, catalog_errors = load_skill_catalog(skills_root)
+    errors.extend(catalog_errors)
+    seen: set[str] = set()
+    allowed_risk = {"low", "medium", "high"}
+    for item in skills:
+        if not isinstance(item, dict):
+            errors.append(f"{path}: each skill entry must be an object")
+            continue
+        name = item.get("name")
+        if not isinstance(name, str) or not re.fullmatch(r"[a-z0-9-]+", name):
+            errors.append(f"{path}: skill entry has invalid name: {name}")
+            continue
+        if name in seen:
+            errors.append(f"{path}: duplicate skill entry: {name}")
+        seen.add(name)
+        for field in ("trigger", "dependencies", "canonical_artifacts", "risk_level"):
+            if field not in item:
+                errors.append(f"{path}: `{name}` missing field `{field}`")
+        if item.get("risk_level") not in allowed_risk:
+            errors.append(f"{path}: `{name}` has invalid risk_level `{item.get('risk_level')}`")
+        if not isinstance(item.get("dependencies"), list):
+            errors.append(f"{path}: `{name}` dependencies must be a list")
+        if not isinstance(item.get("canonical_artifacts"), list) or not item.get("canonical_artifacts"):
+            errors.append(f"{path}: `{name}` canonical_artifacts must be a non-empty list")
+
+    if actual_skills and seen != actual_skills:
+        errors.append(
+            "Skill mismatch between actual skill files and skill-catalog.json "
+            f"(actual={sorted(actual_skills)}, catalog={sorted(seen)})"
+        )
+    return errors
+
+
+def validate_anti_overuse_sections(skills_root: Path) -> list[str]:
+    errors: list[str] = []
+    for skill_name in sorted(REQUIRED_ANTI_OVERUSE_SKILLS):
+        path = skills_root / skill_name / "SKILL.md"
+        if not path.exists():
+            errors.append(f"Missing required skill file: {path}")
+            continue
+        content = path.read_text(encoding="utf-8")
+        for snippet in ("## Anti-Overuse Rules", "Use when:", "Do not use when:", "Stop after:"):
+            if snippet not in content:
+                errors.append(f"{path} missing anti-overuse snippet: {snippet}")
+    return errors
+
+
 def validate_skill_order_sync(skills_root: Path) -> list[str]:
     script_path = skills_root / "skill-governance/scripts/validate_skill_order_sync.py"
     if not script_path.exists():
@@ -555,6 +643,8 @@ def main() -> None:
     errors.extend(validate_agents(agents_path))
     errors.extend(validate_required_file_snippets(skills_root))
     errors.extend(validate_skill_catalog_sync(skills_root))
+    errors.extend(validate_machine_readable_catalog(skills_root))
+    errors.extend(validate_anti_overuse_sections(skills_root))
     errors.extend(validate_skill_order_sync(skills_root))
     errors.extend(validate_user_instructions(skills_root / "user-instructions.md"))
 

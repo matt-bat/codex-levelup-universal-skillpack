@@ -4,12 +4,19 @@ All notable changes to the Level-Up Codex Skillpack are documented in this file.
 
 ## [Unreleased]
 ### Added
+- Added root `.gitattributes` and `.editorconfig` to lock LF line endings and editor formatting.
+- Added `CONTRIBUTING.md` and `SECURITY.md` for contribution, validation, and policy-bypass reporting guidance.
+- Added `skill-catalog.json` as a machine-readable inventory of skill triggers, dependencies, artifacts, and risk levels.
+- Added `docs/skill-decision-tree.md`, `docs/known-limitations.md`, and five example workflows under `docs/examples/`.
 - Added `USAGE.md` with first-person setup, activation, validation, maintenance, and licensing guidance for people downloading the skillpack from Git.
 - Added active GitHub Actions governance CI at `.github/workflows/skills-governance-ci.yml`.
 - Added `docs/governance-walkthrough.md` with artifact generation, strict validation, CI, and ready-to-push checklist guidance.
 - Added root-level governance artifact and project index support for governed release-readiness changes.
 
 ### Changed
+- Added minimum viable skill-use rules to reduce over-governance on small tasks.
+- Added anti-overuse rules to high-overlap skills covering documentation, file maintenance, history/cache management, and governance.
+- Extended policy validation to check the machine-readable catalog and anti-overuse sections.
 - Updated `README.md` for stronger GitHub discoverability with codex/agent-skill keywords, refined summary language, and suggested topics/tags.
 - Added bounded-memory, root-cause verification, interdependent-change planning, and cache-budget skills; synced routing docs and governance policy for the expanded skillset.
 - Updated governance CI paths to support this repository's `skills/` layout directly.

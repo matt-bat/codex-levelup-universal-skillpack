@@ -61,6 +61,22 @@ Use this skill when requests involve:
 4. changes to skill-defined operational artifacts
 5. refactors that affect behavior, architecture, or usage
 
+## Anti-Overuse Rules
+Use when:
+1. behavior, workflow, policy, setup, validation, or user-facing usage changes
+2. a referenced documentation artifact must stay synchronized
+3. documentation is part of the user's requested deliverable
+
+Do not use when:
+1. the task is answer-only and no repo artifact changes
+2. a tiny internal code edit has no behavior or workflow impact
+3. another skill owns the artifact and no documentation drift exists
+
+Stop after:
+1. canonical affected docs are updated
+2. related references agree
+3. validation confirms paths and commands are plausible or explicitly blocked
+
 ## Required Documentation Inventory
 At task start, inventory doc surfaces likely impacted:
 1. `README.md` / `README`

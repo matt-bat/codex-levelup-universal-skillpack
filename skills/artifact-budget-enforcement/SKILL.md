@@ -33,6 +33,22 @@ Use this skill when:
 3. multiple files hold overlapping cached state
 4. a repo needs a repeatable rule for trimming low-value history
 
+## Anti-Overuse Rules
+Use when:
+1. an artifact has a real growth risk
+2. cache-like docs need explicit caps
+3. pruning or merging is part of the task
+
+Do not use when:
+1. no bounded artifact is being created or maintained
+2. a normal documentation edit has no cache behavior
+3. the relevant artifact already stays under its cap
+
+Stop after:
+1. caps are defined or confirmed
+2. oversized artifacts are pruned or merged
+3. remaining exceptions are recorded with rationale
+
 ## Budget Policy
 Every cache-like artifact must have:
 1. a hard item cap

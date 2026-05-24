@@ -34,6 +34,22 @@ Use this skill when:
 
 Do not use for short sessions where direct retrieval is cheaper.
 
+## Anti-Overuse Rules
+Use when:
+1. prior decisions must be retrieved repeatedly
+2. broad transcript reads would waste context
+3. the user requests historical traceability
+
+Do not use when:
+1. the session is short enough to inspect directly
+2. the task does not depend on prior decisions
+3. a rolling recent summary is enough
+
+Stop after:
+1. the index points to the smallest useful retrieval scope
+2. duplicate or superseded entries are marked
+3. summaries remain compact enough to scan
+
 ## Canonical Artifact
 1. `docs/chat-history-index.md`
 

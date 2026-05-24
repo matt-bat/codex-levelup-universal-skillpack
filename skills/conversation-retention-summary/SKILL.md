@@ -34,6 +34,22 @@ Use this skill when:
 
 This skill only maintains the last 10 conversations.
 
+## Anti-Overuse Rules
+Use when:
+1. a compact recent handoff is needed
+2. a resumed topic matches a recent conversation
+3. the last 10 conversations are enough context
+
+Do not use when:
+1. full historical indexing is required
+2. the session has no reusable recent context
+3. the task does not need a retained artifact
+
+Stop after:
+1. the matching row is refreshed or a new row is added
+2. the table is trimmed to 10 entries
+3. no transcript-level detail remains
+
 ## Canonical Artifact
 1. `docs/chat-history-summary.md`
 
