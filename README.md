@@ -16,6 +16,7 @@ This pack is built to improve:
 
 ## Release Metadata
 - Version: `1.0.0` ([VERSION](./skills/VERSION))
+- Start here: [START_HERE.md](./START_HERE.md)
 - Usage guide: [USAGE.md](./skills/USAGE.md)
 - Changelog: [CHANGELOG.md](./skills/CHANGELOG.md)
 - License: [LICENSE](./skills/LICENSE)
@@ -101,6 +102,10 @@ Canonical routing references:
 - [skill-decision-tree.md](./skills/docs/skill-decision-tree.md)
 - [install-profiles.md](./skills/docs/install-profiles.md)
 - [conflict-resolution-matrix.md](./skills/docs/conflict-resolution-matrix.md)
+- [validation-profiles.md](./skills/docs/validation-profiles.md)
+- [maturity-model.md](./skills/docs/maturity-model.md)
+- [pruning-policy.md](./skills/docs/pruning-policy.md)
+- [field-notes.md](./skills/docs/field-notes.md)
 
 ## Who This Is For
 This pack is best for people who want:

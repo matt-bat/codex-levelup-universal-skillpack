@@ -3,10 +3,12 @@
 I built this skillpack for Codex users who want a more consistent agent workflow without having to recreate the same process rules in every project.
 
 The short version:
-1. put these skill folders where Codex can read them
-2. add the default policy from this repository to your project instructions
-3. start a task and require Codex to declare which skills it is using
-4. keep the docs and governance checks in sync when you change the pack
+1. read `../START_HERE.md`
+2. choose an install profile
+3. put those skill folders where Codex can read them
+4. add the default policy from this repository to your project instructions
+5. start a task and require Codex to declare which skills it is using
+6. keep the docs and governance checks in sync when you change the pack
 
 ## What These Skills Are
 Each skill is a folder with a `SKILL.md` file.
@@ -101,6 +103,10 @@ The main routing files are:
 9. `docs/install-profiles.md` for staged adoption paths
 10. `docs/conflict-resolution-matrix.md` for owner decisions across overlapping skills
 11. `docs/validator-severity-levels.md` for blocking versus non-blocking validator guidance
+12. `docs/validation-profiles.md` for quick, standard, and release check depth
+13. `docs/maturity-model.md` for staged improvement levels
+14. `docs/pruning-policy.md` for controlled growth and removal criteria
+15. `docs/field-notes.md` for real-world usage evidence
 
 When a skill trigger changes, update both:
 1. `SKILL-MAP.md`
@@ -120,6 +126,9 @@ Lifecycle and quality review docs:
 3. `docs/rubrics/documentation-quality-rubric.md`
 4. `docs/adapters/codex.md`
 5. `docs/adapters/generic-agent.md`
+6. `docs/maturity-model.md`
+7. `docs/field-notes.md`
+8. `docs/pruning-policy.md`
 
 ## Validation Commands
 Run these from the `skills/` directory before publishing changes:

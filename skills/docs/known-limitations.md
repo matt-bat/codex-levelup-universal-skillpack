@@ -19,3 +19,6 @@ The license is intentionally restrictive and non-commercial without written perm
 
 ## Timestamp Maintenance
 `skills/docs/skill-index.md` includes `Last Updated UTC` fields. These are useful for auditability, but they require discipline when changing triggers or skill ownership.
+
+## Controlled Growth
+The pack can still become too broad if new ideas are always implemented as new skills. Use `skills/docs/pruning-policy.md`, `skills/docs/field-notes.md`, and `skill-usage-review` before adding more skills.

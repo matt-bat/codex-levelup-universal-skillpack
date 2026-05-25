@@ -55,6 +55,8 @@ Use `pass` only when the related evidence exists. Use `waived` only with a concr
 ## Validate Locally
 Run from the repository root:
 
+Use `skills/docs/validation-profiles.md` to choose `quick`, `standard`, or `release` validation depth.
+
 ```sh
 python3 skills/skill-governance/scripts/validate_skill_policy.py --skills-root skills --repo-root .
 python3 skills/skill-governance/scripts/validate_skill_order_sync.py --skills-root skills

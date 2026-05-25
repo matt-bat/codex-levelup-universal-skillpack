@@ -97,6 +97,10 @@ Canonical routing references:
 - [docs/skill-decision-tree.md](./docs/skill-decision-tree.md)
 - [docs/install-profiles.md](./docs/install-profiles.md)
 - [docs/conflict-resolution-matrix.md](./docs/conflict-resolution-matrix.md)
+- [docs/validation-profiles.md](./docs/validation-profiles.md)
+- [docs/maturity-model.md](./docs/maturity-model.md)
+- [docs/pruning-policy.md](./docs/pruning-policy.md)
+- [docs/field-notes.md](./docs/field-notes.md)
 
 ## Governance and Enforcement
 This is a governance-first pack. For risky or release-affecting tasks, I expect governance to be mandatory.

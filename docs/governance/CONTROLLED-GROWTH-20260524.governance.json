@@ -1,0 +1,74 @@
+{
+  "task_id": "CONTROLLED-GROWTH-20260524",
+  "project_id": "codex-levelup-skillpack",
+  "created_at_utc": "2026-05-25T04:00:06.694140+00:00",
+  "profile": "internal",
+  "project_language": "Markdown/Python",
+  "project_description_max4": "Codex skillpack governance",
+  "model_runs_test_build_default": "yes",
+  "execution_scope": "local_only",
+  "deployment_requested": false,
+  "execution_skill": "scripted-command-execution",
+  "behavior_or_workflow_changed": true,
+  "scores": {
+    "data_impact": 0,
+    "business_impact": 1,
+    "change_complexity": 1,
+    "dependency_uncertainty": 1,
+    "recoverability": 1
+  },
+  "total_score": 4,
+  "base_mode": "quick",
+  "mode_after_profile": "quick",
+  "selected_mode": "quick",
+  "critical_overrides": [],
+  "required_gates": [
+    "order-of-operations",
+    "scripted-command-execution",
+    "doc-maintenance"
+  ],
+  "gate_status": {
+    "order-of-operations": "pass",
+    "scripted-command-execution": "pass",
+    "doc-maintenance": "pass"
+  },
+  "startup_declaration": {
+    "skills_in_use": [
+      "token-reduction",
+      "process-budget-controller",
+      "order-of-operations",
+      "skill-governance",
+      "interdependent-change-planning",
+      "regression-prevention",
+      "scripted-command-execution",
+      "doc-maintenance",
+      "user-instructions-tracker"
+    ],
+    "skills_selection_rationale": "Governed controlled-growth batch adding start-here navigation, maturity model, field notes, pruning policy, and validation profiles.",
+    "skills_execution_order": [
+      "token-reduction",
+      "process-budget-controller",
+      "order-of-operations",
+      "skill-governance",
+      "interdependent-change-planning",
+      "regression-prevention",
+      "scripted-command-execution",
+      "doc-maintenance",
+      "user-instructions-tracker"
+    ]
+  },
+  "evidence_requirements": [
+    "mode + score",
+    "steps executed",
+    "minimal validation outcomes"
+  ],
+  "break_glass": {
+    "enabled": false,
+    "reason": "",
+    "risk_owner": "",
+    "remediation_ticket": "",
+    "expiry_hours": null
+  },
+  "recommendation": "go",
+  "notes": "Controlled-growth batch added START_HERE, maturity model, field notes, pruning policy, and validation profiles while keeping capability growth documentation-only. Validation scope: policy validator, skill order sync validator, strict governance artifact validation, governance unit tests, git diff hygiene, and tracked-cache scan. Residual risk: GitHub Actions must run after push in GitHub's hosted environment."
+}
