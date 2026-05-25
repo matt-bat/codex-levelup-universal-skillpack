@@ -1,58 +1,65 @@
 # Usage
 
-I built this skillpack for Codex users who want a more consistent agent workflow without having to recreate the same process rules in every project.
+I built this skillpack for Codex users who want a steadier agent workflow without rewriting the same process rules in every project.
 
 The short version:
-1. read `../START_HERE.md`
+
+1. read [../START_HERE.md](../START_HERE.md)
 2. choose an install profile
-3. put those skill folders where Codex can read them
-4. add the default policy from this repository to your project instructions
-5. start a task and require Codex to declare which skills it is using
-6. keep the docs and governance checks in sync when you change the pack
+3. put the selected skill folders where Codex can read them
+4. copy the default policy from this repository into your project instructions
+5. start a task and have Codex declare which skills it is using
+6. keep docs, trackers, and governance checks in sync when you change the pack
 
 ## What These Skills Are
 Each skill is a folder with a `SKILL.md` file.
 
 Codex uses those files as task-specific operating instructions. A skill can define:
+
 1. when it should be used
-2. what order it should run in with other skills
+2. how it should be ordered with other skills
 3. what files, checks, or evidence should be updated
 4. what the assistant should avoid doing
 
-This pack is intentionally process-heavy. I use it to make Codex slow down on the parts where mistakes are expensive: requirements, sequencing, validation, documentation drift, and release readiness.
+This pack is intentionally more structured than a single prompt. It is meant to slow Codex down on the parts where mistakes are expensive: requirements, sequencing, validation, documentation drift, policy changes, and release readiness.
 
-The pack now includes explicit process-budget controls so simple tasks can stay simple.
+It also includes process-budget controls, so simple work can still stay simple.
 
 ## Recommended Setup
 Use the `skills/` directory in this repository as the source of truth.
 
 Typical setup:
-1. copy the skill folders into your Codex skills directory
+
+1. copy the selected skill folders into your Codex skills directory
 2. keep `SKILL-MAP.md`, `docs/skill-index.md`, and `user-instructions.md` with the pack
 3. copy the `AGENTS.md` policy into the project where you want these skills enforced
 4. restart or refresh Codex so it reloads the available skills
 
-The skill folders are the directories such as:
+The skill folders are directories such as:
+
 1. `skill-governance/`
 2. `order-of-operations/`
 3. `regression-prevention/`
 4. `doc-maintenance/`
 5. `token-reduction/`
 
-Do not copy only one random `SKILL.md` file unless you know the dependency chain. Several skills deliberately reference each other.
+Avoid copying one random `SKILL.md` by itself unless you already understand the dependency chain. Several skills deliberately reference the same routing docs and validation artifacts.
 
 ## How I Expect Codex To Use The Pack
 At the start of a task, Codex should declare:
+
 1. `Skills in use`
 2. why each skill was selected
 3. the execution order
 
 The default baseline is:
+
 1. `token-reduction`
 2. `order-of-operations`
 3. `process-budget-controller` when several skills could apply
 
-Use the smallest skill set that covers the task. The practical routing shortcut is:
+Use the smallest skill set that covers the work. A practical shortcut:
+
 1. answer-only request: `token-reduction`
 2. one deterministic local command: `token-reduction`, `scripted-command-execution`
 3. tiny isolated text edit: `token-reduction`, `order-of-operations`
@@ -61,20 +68,25 @@ Use the smallest skill set that covers the task. The practical routing shortcut 
 
 Use [install-profiles.md](./docs/install-profiles.md) when adopting the pack in stages.
 
-When the task changes behavior, workflows, policy, or documentation, add:
+When the task changes behavior, workflows, policy, or docs, add:
+
 1. `doc-maintenance`
 
 For multi-step, risky, ambiguous, or release-affecting work, add:
+
 1. `skill-governance`
 
 For non-trivial code changes, add:
+
 1. `regression-prevention`
 2. `effective-testing-methods` when tests need to be created or amended
 
 For deterministic local shell work, add:
+
 1. `scripted-command-execution`
 
 For browser or GUI automation, add:
+
 1. `pseudo-agentic-automation`
 
 ## Basic Task Prompt
@@ -92,6 +104,7 @@ Use the governance skills before making changes. Validate the skill policy, orde
 
 ## Governance Files
 The main routing files are:
+
 1. `SKILL-MAP.md` for the high-level routing model
 2. `docs/skill-index.md` for canonical cross-skill triggers
 3. `user-instructions.md` for directive tracking and fulfillment evidence
@@ -109,18 +122,21 @@ The main routing files are:
 15. `docs/field-notes.md` for real-world usage evidence
 
 When a skill trigger changes, update both:
+
 1. `SKILL-MAP.md`
 2. `docs/skill-index.md`
 
 That keeps the pack from drifting into contradictory instructions.
 
 For governed changes in this repository, keep these root-level artifacts current:
+
 1. `.github/workflows/skills-governance-ci.yml`
 2. `docs/governance/*.governance.json`
 3. `docs/governance/*.governance.md`
 4. `docs/project-index.md`
 
 Lifecycle and quality review docs:
+
 1. `docs/rubrics/skillpack-quality-rubric.md`
 2. `docs/rubrics/release-readiness-rubric.md`
 3. `docs/rubrics/documentation-quality-rubric.md`
@@ -131,15 +147,15 @@ Lifecycle and quality review docs:
 8. `docs/pruning-policy.md`
 
 ## Validation Commands
-Run these from the `skills/` directory before publishing changes:
+Run these from the repository root before publishing normal skillpack changes:
 
 ```sh
-python3 skill-governance/scripts/validate_skill_policy.py --repo-root ..
-python3 skill-governance/scripts/validate_skill_order_sync.py
-python3 -m unittest discover skill-governance/tests
+python3 skills/skill-governance/scripts/validate_skill_policy.py --agents-path AGENTS.md --skills-root skills --repo-root .
+python3 skills/skill-governance/scripts/validate_skill_order_sync.py --skills-root skills
+python3 -m unittest discover -s skills/skill-governance/tests -p 'test_*.py'
 ```
 
-Run this from the repository root when a governed change includes a governance artifact:
+Run this when a governed change includes a governance artifact:
 
 ```sh
 python3 skills/skill-governance/scripts/validate_governance_artifact.py \
@@ -149,10 +165,11 @@ python3 skills/skill-governance/scripts/validate_governance_artifact.py \
   --require-recommendation go
 ```
 
-If you are running inside a constrained environment and a check cannot run, record the exact blocker instead of claiming a clean pass.
+If you are in a constrained environment and a check cannot run, record the exact blocker instead of claiming a clean pass.
 
 ## How To Add A New Skill
-When I add a skill, I keep the change connected across the pack:
+When adding a skill, keep the change connected across the pack:
+
 1. add `<skill-name>/SKILL.md`
 2. update `README.md`
 3. update `SKILL-MAP.md`
@@ -165,6 +182,7 @@ When I add a skill, I keep the change connected across the pack:
 
 ## Examples
 Use these examples to avoid over-applying skills:
+
 1. [simple-code-fix.md](./docs/examples/simple-code-fix.md)
 2. [bug-investigation.md](./docs/examples/bug-investigation.md)
 3. [release-readiness-change.md](./docs/examples/release-readiness-change.md)
@@ -175,6 +193,7 @@ Use these examples to avoid over-applying skills:
 This pack uses an attribution-required non-commercial license.
 
 If you use, copy, modify, or redistribute it, keep the license intact and credit:
+
 1. Matt
 2. Level-Up Codex Skillpack
 3. the original repository or copy source

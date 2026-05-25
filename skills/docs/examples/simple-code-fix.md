@@ -1,7 +1,9 @@
 # Example: Simple Code Fix
 
 ## Scenario
-User asks for a narrow bug fix with a clear file and expected behavior.
+The user asks for a narrow bug fix with a clear file and expected behavior.
+
+The task does not need heavy governance, but it still needs basic inspection and a targeted check.
 
 ## Skills In Use
 1. `token-reduction`

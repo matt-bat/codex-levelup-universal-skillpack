@@ -2,6 +2,8 @@
 
 Use this rubric when evaluating the whole skillpack.
 
+This is meant to rate the pack as a working system, not just a collection of nice-sounding instructions. A high score should mean the skills are useful, coherent, enforceable, and practical to maintain.
+
 | Category | Weight | Checks |
 |---|---:|---|
 | Coverage | 15 | needed workflows exist; missing skill gaps are explicit; install profiles cover common use |
@@ -21,3 +23,6 @@ Score each category from 0 to 5, multiply by weight, then divide by 5.
 4. 2: inconsistent or under-documented
 5. 1: mostly absent
 6. 0: broken or actively harmful
+
+## Review Notes
+Give the score with evidence. If something is not at 5, name the gap and the next improvement that would close it.

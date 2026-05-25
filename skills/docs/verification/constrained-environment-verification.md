@@ -1,33 +1,37 @@
 # Constrained Environment Verification
 
 ## Purpose
-Provide a deterministic fallback verification path when full validation layers cannot run due to local environment constraints.
+Use this fallback path when the right validation cannot run because the local environment is missing something.
 
 Examples:
-1. missing browser runtime dependencies for Playwright
-2. missing system libraries required by headless browsers
-3. sandbox/network limits blocking required setup commands
+
+1. Playwright browser dependencies are not installed
+2. headless browser system libraries are missing
+3. sandbox or network limits block required setup commands
+4. credentials or deployment permissions are intentionally unavailable
+
+The goal is to be honest about what was checked and what was not checked.
 
 ## Required Inputs
-1. changed behavior/flow scope
+1. changed behavior or flow scope
 2. intended full validation matrix
-3. blocked command output (exact error text)
+3. blocked command output with the exact error text
 
 ## Procedure
-1. Run prerequisite probe before expensive checks:
+1. Run a prerequisite probe before expensive checks:
    - verify binaries and runtime dependencies
    - verify command-level access assumptions
-2. Attempt full-layer command once.
+2. Attempt the full-layer command once.
 3. If blocked, capture evidence:
    - command attempted
    - exact error line
    - blocked layer (`unit`, `integration`, `Playwright`, `build`)
-4. Execute fallback sequence:
+4. Execute the fallback sequence:
    - static checks (`lint`, type checks)
-   - available unit/integration subsets
+   - available unit or integration subsets
    - test discovery/listing for blocked suites
    - targeted non-browser flow checks where possible
-5. Update impacted tests/specs despite blocked execution.
+5. Update impacted tests or specs despite blocked execution.
 6. Publish residual risk and rerun plan:
    - risk level
    - missing dependency
@@ -43,7 +47,7 @@ Examples:
 ## Prohibitions
 1. Do not claim complete regression safety when critical layers are blocked.
 2. Do not hide blocker details behind generic failure summaries.
-3. Do not skip test/spec updates solely because execution is blocked.
+3. Do not skip test or spec updates solely because execution is blocked.
 
 ## Related Skills
 1. `effective-testing-methods`

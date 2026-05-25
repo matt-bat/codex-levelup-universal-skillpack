@@ -1,7 +1,9 @@
 # Example: Frontend Layout Task
 
 ## Scenario
-User asks for UI layout, navigation, interaction, or visual-system work.
+The user asks for UI layout, navigation, interaction, or visual-system work.
+
+Frontend work should be judged by the experience, not only by whether the code compiles. The agent should think about the screen, responsive behavior, interaction states, and common user paths.
 
 ## Skills In Use
 1. `token-reduction`
@@ -20,7 +22,7 @@ User asks for UI layout, navigation, interaction, or visual-system work.
 
 ## Enough Validation
 1. build or type check
-2. targeted unit/component checks when present
+2. targeted unit or component checks when present
 3. Playwright or screenshot check for responsive behavior when runtime supports it
 4. documented constrained-environment blocker when browser checks cannot run
 

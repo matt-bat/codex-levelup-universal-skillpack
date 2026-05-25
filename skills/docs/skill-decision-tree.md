@@ -1,11 +1,13 @@
 # Skill Decision Tree
 
-Use the smallest skill set that covers the task. Add process only when it changes the outcome, safety, or evidence quality.
+Use the smallest skill set that covers the task. Add process only when it changes the outcome, safety, clarity, or evidence quality.
 
 ## First Decision
-1. Is the user asking only for an answer?
+Ask these in order:
+
+1. Is the user only asking for an answer?
    - use `token-reduction`
-2. Is the task a deterministic local command?
+2. Is the task one deterministic local command?
    - add `scripted-command-execution`
 3. Does the task require multiple dependent steps?
    - add `order-of-operations`
@@ -13,8 +15,10 @@ Use the smallest skill set that covers the task. Add process only when it change
    - add `doc-maintenance`
 5. Is the task risky, ambiguous, multi-skill, or release-affecting?
    - add `skill-governance`
-6. Could the skill set sprawl beyond the task's value?
+6. Could the skill set grow beyond the value of the task?
    - add `process-budget-controller`
+
+If a skill does not change how the agent acts or what evidence it leaves behind, skip it.
 
 ## Common Paths
 | Task Type | Minimum Skill Set |
@@ -33,19 +37,21 @@ Use the smallest skill set that covers the task. Add process only when it change
 | Skillpack maintenance review | `token-reduction`, `skill-usage-review`, `deprecation-management` when lifecycle state changes |
 
 ## Escalation Rules
-Add `requirement-clarifier` when the answer could change based on missing acceptance criteria.
+Add `requirement-clarifier` when missing acceptance criteria could change the implementation.
 
-Add `interdependent-change-planning` when the change touches coupled files, flows, or data paths.
+Add `interdependent-change-planning` when the change touches coupled files, flows, or data paths that must stay coherent together.
 
-Add `effective-testing-methods` when tests must be created, amended, or mapped to changed behavior.
+Add `effective-testing-methods` when tests need to be created, amended, or mapped to changed behavior.
 
 Add `project-backup` and `restore-drill` only for high-risk mutation, destructive operations, or unclear rollback paths.
 
-Add `history-indexing`, `conversation-retention-summary`, or `artifact-budget-enforcement` only when cached history or bounded artifacts are actually in scope.
+Add `history-indexing`, `conversation-retention-summary`, or `artifact-budget-enforcement` only when cached history or bounded artifacts are actually part of the task.
 
 ## Stop Rules
 1. Do not add a skill just because it exists.
-2. Do not add governance artifacts for tiny isolated text changes unless a governed path or release decision is involved.
+2. Do not add governance artifacts for tiny isolated text changes unless a governed path or release decision requires them.
 3. Do not update history artifacts for short sessions.
 4. Do not broaden validation after a cheaper required check already fails.
-5. If two skills overlap, use `SKILL-MAP.md` ownership order to select one owner.
+5. If two skills overlap, use `SKILL-MAP.md` ownership order to choose one owner.
+
+The decision tree is a guardrail, not a ceremony. It should make the work easier to trust without making small tasks feel inflated.

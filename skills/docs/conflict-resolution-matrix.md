@@ -1,6 +1,6 @@
 # Conflict Resolution Matrix
 
-Use this matrix when two skills appear to own the same decision.
+Use this matrix when two skills appear to own the same decision. The goal is to choose one accountable owner, not to stack every related skill until the workflow becomes noisy.
 
 | Decision Type | Owning Skill | Supporting Skills |
 |---|---|---|
@@ -29,3 +29,5 @@ Use this matrix when two skills appear to own the same decision.
 3. if two owners still conflict, choose the narrower owner
 4. if uncertainty remains, record the assumption and proceed with the safer path
 5. do not keep both skills active when one owner fully covers the decision
+
+If you are unsure, ask what artifact or decision the task really needs. That usually reveals the right owner.

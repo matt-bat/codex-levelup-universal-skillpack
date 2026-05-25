@@ -17,6 +17,7 @@ All notable changes to the Level-Up Codex Skillpack are documented in this file.
 - Added root-level governance artifact and project index support for governed release-readiness changes.
 
 ### Changed
+- Refreshed user-facing documentation with a more casual tone, fuller explanations, clearer setup guidance, and stronger validation/readiness context across the root docs, usage docs, install/routing docs, adapters, rubrics, examples, and constrained-environment guidance.
 - Added minimum viable skill-use rules to reduce over-governance on small tasks.
 - Added anti-overuse rules to high-overlap skills covering documentation, file maintenance, history/cache management, and governance.
 - Extended policy validation to check the machine-readable catalog and anti-overuse sections.

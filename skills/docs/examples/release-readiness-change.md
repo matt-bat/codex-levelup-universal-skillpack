@@ -1,7 +1,9 @@
 # Example: Release-Readiness Change
 
 ## Scenario
-User asks to prepare governed skillpack, CI, policy, or release artifacts for push.
+The user asks to prepare governed skillpack, CI, policy, or release artifacts for push.
+
+This path is heavier because the change can affect future agent behavior or the evidence used to decide whether a change is safe to publish.
 
 ## Skills In Use
 1. `token-reduction`
@@ -28,4 +30,4 @@ User asks to prepare governed skillpack, CI, policy, or release artifacts for pu
 5. `git diff --check`
 
 ## Stop Rule
-Do not push automatically unless the user explicitly asks for a push and credentials/network are available.
+Do not push automatically unless the user explicitly asks for a push and credentials or network access are available.

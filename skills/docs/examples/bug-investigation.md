@@ -1,7 +1,9 @@
 # Example: Bug Investigation
 
 ## Scenario
-User reports a failure or suggests a possible cause, but the root cause is not proven.
+The user reports a failure or suggests a possible cause, but the root cause is not proven.
+
+In this path, the agent should avoid patching based only on the first plausible explanation. Reproduce or inspect enough to separate symptoms from cause.
 
 ## Skills In Use
 1. `token-reduction`
@@ -12,7 +14,7 @@ User reports a failure or suggests a possible cause, but the root cause is not p
 
 ## Why
 1. keep investigation focused
-2. reproduce before patching
+2. reproduce before patching when practical
 3. separate symptoms from verified cause
 4. run deterministic diagnostics
 5. choose validation based on affected behavior

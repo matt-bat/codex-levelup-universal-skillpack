@@ -1,28 +1,31 @@
 # Level-Up Codex Skillpack
 
-I built Level-Up Codex Skillpack as a governance-first skillpack for Codex and AI coding agents.
-It provides reusable agent skills for workflow automation, planning, regression prevention, testing, documentation sync, and policy enforcement.
+This directory is the actual skillpack. The root README explains the project from the outside; this README is for people who are installing, editing, or reviewing the skills themselves.
 
-If you are looking for a `codex skills`, `ai agent skillpack`, or `agent workflow governance` repository, this is the package I use for that workflow.
+The pack gives Codex and similar coding agents a reusable operating system for software work: pick the right process, keep the work local by default, validate what changed, and leave enough evidence that another pass can understand what happened.
 
-## Why This Skillpack
-This pack is built to improve:
-1. delivery consistency on multi-step engineering tasks
-2. release safety through explicit risk and validation gates
-3. traceability through synchronized docs and instruction tracking
-4. execution speed without lowering quality standards
+## Start Here
+If you are new to the pack, use these in order:
 
-## Release Metadata
-- Version: `1.0.0` ([VERSION](./VERSION))
-- Usage guide: [USAGE.md](./USAGE.md)
-- Changelog: [CHANGELOG.md](./CHANGELOG.md)
-- License: [LICENSE](./LICENSE)
-- Governance walkthrough: [docs/governance-walkthrough.md](./docs/governance-walkthrough.md)
-- Decision tree: [docs/skill-decision-tree.md](./docs/skill-decision-tree.md)
-- Known limitations: [docs/known-limitations.md](./docs/known-limitations.md)
+1. [../START_HERE.md](../START_HERE.md) for the fastest orientation
+2. [USAGE.md](./USAGE.md) for setup and day-to-day use
+3. [docs/install-profiles.md](./docs/install-profiles.md) to choose how much process to install
+4. [docs/skill-decision-tree.md](./docs/skill-decision-tree.md) to pick skills without overloading a task
+5. [docs/known-limitations.md](./docs/known-limitations.md) for the tradeoffs
+
+## What A Skill Is
+Each skill is a folder with a `SKILL.md` file. That file tells the agent:
+
+1. when the skill should apply
+2. what order it should run in with nearby skills
+3. what evidence, files, or validation it expects
+4. what the agent should avoid doing
+
+Some skills are lightweight routing helpers. Others are stricter governance or validation workflows. They are meant to work together, but they should not all run on every task.
 
 ## Included Skills
-I currently include 28 interoperable skills:
+This pack currently includes 28 skills:
+
 1. `skill-governance`
 2. `process-budget-controller`
 3. `governance-enforcement`
@@ -52,122 +55,49 @@ I currently include 28 interoperable skills:
 27. `project-backup`
 28. `restore-drill`
 
-## Skill Architecture and Interconnectedness
-I use layered ownership to reduce overlap and conflicts:
+## How The Pack Is Organized
+The main routing docs are:
 
-1. Policy selection:
-   - `skill-governance`
-2. Process restraint:
-   - `process-budget-controller`
-3. Diagnosis and coupling:
-   - `diagnose-before-fix`
-   - `interdependent-change-planning`
-4. Scope and sequencing:
-   - `requirement-clarifier`
-   - `order-of-operations`
-5. Execution routing:
-   - `scripted-command-execution`
-   - `pseudo-agentic-automation`
-6. Risk and validation:
-   - `regression-prevention`
-   - `effective-testing-methods`
-7. Policy enforcement and audit:
-   - `governance-enforcement`
-   - `semantic-policy-audit`
-8. Documentation continuity:
-   - `doc-maintenance`
-   - `file-maintenance`
-   - `file-structure-optimization`
-   - `user-instructions-tracker`
-   - `history-indexing`
-   - `conversation-retention-summary`
-   - `artifact-budget-enforcement`
-9. Lifecycle management:
-   - `skill-usage-review`
-   - `deprecation-management`
-10. Product and UX quality:
-   - `thoughtful-approach`
-   - `ui-design-skills`
-   - `ui-spatial-canvas`
+1. [SKILL-MAP.md](./SKILL-MAP.md) for the high-level ownership model
+2. [docs/skill-index.md](./docs/skill-index.md) for detailed triggers and cross-skill relationships
+3. [skill-catalog.json](./skill-catalog.json) for machine-readable inventory data
+4. [docs/conflict-resolution-matrix.md](./docs/conflict-resolution-matrix.md) for overlap decisions
+5. [docs/validation-profiles.md](./docs/validation-profiles.md) for choosing the right check depth
 
-Canonical routing references:
-- [docs/skill-index.md](./docs/skill-index.md)
-- [SKILL-MAP.md](./SKILL-MAP.md)
-- [skill-catalog.json](./skill-catalog.json)
-- [docs/skill-decision-tree.md](./docs/skill-decision-tree.md)
-- [docs/install-profiles.md](./docs/install-profiles.md)
-- [docs/conflict-resolution-matrix.md](./docs/conflict-resolution-matrix.md)
-- [docs/validation-profiles.md](./docs/validation-profiles.md)
-- [docs/maturity-model.md](./docs/maturity-model.md)
-- [docs/pruning-policy.md](./docs/pruning-policy.md)
-- [docs/field-notes.md](./docs/field-notes.md)
+When a skill changes, these files usually need to stay in sync. If they drift, the pack becomes harder for an agent to use reliably.
 
-## Governance and Enforcement
-This is a governance-first pack. For risky or release-affecting tasks, I expect governance to be mandatory.
+## How To Use It Day To Day
+For most tasks, start small:
 
-Core controls:
-1. startup declaration with selected skills, rationale, and execution order
-2. policy validation and skill catalog synchronization checks
-3. ordering sync validation between skill map and skill index
-4. CI enforcement for governed changes
-5. validator test coverage
+1. use `token-reduction` to keep output focused
+2. use `order-of-operations` when the task has more than one meaningful step
+3. add `scripted-command-execution` when local commands are part of the work
+4. add `doc-maintenance` when behavior, workflow, or policy docs change
+5. add governance only when risk, ambiguity, or release impact justifies it
 
-Key tooling:
-- `skill-governance/scripts/generate_governance_artifact.py`
-- `skill-governance/scripts/validate_governance_artifact.py`
-- `skill-governance/scripts/validate_skill_policy.py`
-- `skill-governance/scripts/validate_skill_order_sync.py`
-- `skill-governance/scripts/enforce_governance_ci.py`
-- `../.github/workflows/skills-governance-ci.yml`
-- `../docs/governance/*.governance.json`
+The decision tree and install profiles exist because too much process can be just as harmful as too little process.
 
-## Prioritization Model
-Default baseline:
-1. `token-reduction`
-2. `order-of-operations`
-3. `doc-maintenance` (when behavior/workflow/policy changes)
+## Validation
+For a normal skillpack documentation or policy update, run:
 
-Minimum viable use:
-1. answer-only request: `token-reduction`
-2. one deterministic local command: `token-reduction`, `scripted-command-execution`
-3. small isolated edit: `token-reduction`, `order-of-operations`, optional validation skill
-4. governed or release-affecting change: full governance path
+```sh
+python3 skills/skill-governance/scripts/validate_skill_policy.py --agents-path AGENTS.md --skills-root skills --repo-root .
+python3 skills/skill-governance/scripts/validate_skill_order_sync.py --skills-root skills
+python3 -m unittest discover -s skills/skill-governance/tests -p 'test_*.py'
+```
 
-Conflict resolution order:
-1. `skill-governance`
-2. `order-of-operations`
-3. `regression-prevention`
-4. `effective-testing-methods`
-5. execution mode skill (`scripted-command-execution` or `pseudo-agentic-automation`)
+For governed changes, also validate the generated governance artifact and run the CI enforcement script. The exact commands are in [docs/governance-walkthrough.md](./docs/governance-walkthrough.md).
 
-## Intended Outcomes
-Expected outcomes from this skillpack:
-1. predictable process strictness for ambiguous or risky work
-2. fewer regressions on non-trivial code changes
-3. auditable evidence for release readiness
-4. tighter alignment between user intent and implementation
-5. durable documentation, instruction-state continuity, and bounded cached history
+## Maintenance Expectations
+When adding or changing a skill:
 
-## Suggested GitHub Topics
-Use these tags for better discoverability:
-- `codex`
-- `ai-agent`
-- `agent-skills`
-- `skillpack`
-- `prompt-engineering`
-- `workflow-automation`
-- `governance`
-- `policy-enforcement`
-- `software-quality`
-- `regression-prevention`
-- `testing`
-- `documentation`
+1. update the skill folder
+2. update `SKILL-MAP.md`
+3. update `docs/skill-index.md`
+4. update `skill-catalog.json`
+5. update examples or install profiles when routing changed
+6. update `CHANGELOG.md`
+7. update `user-instructions.md` when a user directive or fulfillment state changed
+8. run the relevant validation profile
 
-## Maintenance Checklist
-When updating the pack:
-1. update `SKILL-MAP.md` and `docs/skill-index.md` in the same change
-2. update `skill-catalog.json` when skill membership, triggers, dependencies, or artifacts change
-3. run governance validators and related tests
-4. update docs and release metadata when behavior changes
-5. update `user-instructions.md` for directive/fulfillment evidence
-6. include or update a strict-validating governance artifact for governed changes
+Keep the pack useful, not just larger. If a new idea is only a checklist, example, or rubric, it may not need to become a new skill.
