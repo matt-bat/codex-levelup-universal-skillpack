@@ -13,12 +13,15 @@ Use the smallest skill set that covers the task. Add process only when it change
    - add `doc-maintenance`
 5. Is the task risky, ambiguous, multi-skill, or release-affecting?
    - add `skill-governance`
+6. Could the skill set sprawl beyond the task's value?
+   - add `process-budget-controller`
 
 ## Common Paths
 | Task Type | Minimum Skill Set |
 |---|---|
 | Simple answer | `token-reduction` |
 | One local command | `token-reduction`, `scripted-command-execution` |
+| Many skills could apply | `token-reduction`, `process-budget-controller`, plus only selected owner skills |
 | Small isolated edit | `token-reduction`, `order-of-operations`, `scripted-command-execution` |
 | Documentation-only update | `token-reduction`, `order-of-operations`, `doc-maintenance` |
 | Bug report | `token-reduction`, `order-of-operations`, `diagnose-before-fix`, `scripted-command-execution` |
@@ -27,6 +30,7 @@ Use the smallest skill set that covers the task. Add process only when it change
 | Browser or GUI runtime loop | `token-reduction`, `order-of-operations`, `pseudo-agentic-automation` |
 | Release-readiness or governed policy change | `token-reduction`, `order-of-operations`, `skill-governance`, `governance-enforcement`, `regression-prevention`, `doc-maintenance` |
 | Quality review or rating | `token-reduction`, `thoroughly-rate-review` |
+| Skillpack maintenance review | `token-reduction`, `skill-usage-review`, `deprecation-management` when lifecycle state changes |
 
 ## Escalation Rules
 Add `requirement-clarifier` when the answer could change based on missing acceptance criteria.

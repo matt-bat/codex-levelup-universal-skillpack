@@ -42,35 +42,39 @@ Stop rules:
 
 ## Skill Index
 1. `skill-governance`
-2. `governance-enforcement`
-3. `requirement-clarifier`
-4. `diagnose-before-fix`
-5. `semantic-policy-audit`
-6. `interdependent-change-planning`
-7. `thoughtful-approach`
-8. `thoroughly-rate-review`
-9. `user-instructions-tracker`
-10. `history-indexing`
-11. `conversation-retention-summary`
-12. `ui-spatial-canvas`
-13. `ui-design-skills`
-14. `effective-testing-methods`
-15. `scripted-command-execution`
-16. `pseudo-agentic-automation`
-17. `token-reduction`
-18. `artifact-budget-enforcement`
-19. `order-of-operations`
-20. `regression-prevention`
-21. `file-structure-optimization`
-22. `doc-maintenance`
-23. `file-maintenance`
-24. `project-backup`
-25. `restore-drill`
+2. `process-budget-controller`
+3. `governance-enforcement`
+4. `requirement-clarifier`
+5. `diagnose-before-fix`
+6. `semantic-policy-audit`
+7. `interdependent-change-planning`
+8. `thoughtful-approach`
+9. `thoroughly-rate-review`
+10. `user-instructions-tracker`
+11. `history-indexing`
+12. `conversation-retention-summary`
+13. `ui-spatial-canvas`
+14. `ui-design-skills`
+15. `effective-testing-methods`
+16. `scripted-command-execution`
+17. `pseudo-agentic-automation`
+18. `token-reduction`
+19. `artifact-budget-enforcement`
+20. `order-of-operations`
+21. `regression-prevention`
+22. `file-structure-optimization`
+23. `doc-maintenance`
+24. `file-maintenance`
+25. `skill-usage-review`
+26. `deprecation-management`
+27. `project-backup`
+28. `restore-drill`
 
 ## Trigger Matrix
 | Skill | Primary Trigger | Typical Output |
 |---|---|---|
 | `skill-governance` | multi-skill or risk-sensitive tasks | selected mode + required gates + go/no-go |
+| `process-budget-controller` | multiple skills could apply and process needs explicit caps | process tier + max skill count + artifact allowance |
 | `governance-enforcement` | governance tooling, validators, CI policy checks | artifact generation/validation + enforcement pass/fail remediation |
 | `requirement-clarifier` | ambiguous requests or missing acceptance criteria | clarified scope/assumptions/non-goals/acceptance contract |
 | `diagnose-before-fix` | bug reports or failures with unverified causes | symptom vs cause verification + verified root cause or safe mitigation |
@@ -93,6 +97,8 @@ Stop rules:
 | `file-structure-optimization` | repo architecture drift or duplication risk | structure audit + consolidation/migration plan |
 | `doc-maintenance` | behavior/workflow/config changes | updated docs + doc impact map |
 | `file-maintenance` | file correctness/factuality/freshness maintenance needs | file accuracy audit + staleness/duplication remediation |
+| `skill-usage-review` | recent task evidence should be reviewed for skill overuse, underuse, or friction | usage findings + process improvement recommendations |
+| `deprecation-management` | skills, docs, or workflows are superseded, merged, renamed, discouraged, or removed | deprecation state + replacement path + migration criteria |
 | `project-backup` | backup readiness, pre-risk safety | backup compliance state + gate decision |
 | `restore-drill` | restore validation / DR simulation | drill evidence + pass/fail + gate status |
 
@@ -122,7 +128,7 @@ Use this matrix to prevent process duplication.
 
 Conflict rule:
 1. if two skills appear to own the same decision, apply this ownership order:
-   - policy (`skill-governance`) -> sequencing (`order-of-operations`) -> risk (`regression-prevention`) -> test design (`effective-testing-methods`) -> command execution (`scripted-command-execution`)
+   - process cap (`process-budget-controller`) -> policy (`skill-governance`) -> sequencing (`order-of-operations`) -> risk (`regression-prevention`) -> test design (`effective-testing-methods`) -> command execution (`scripted-command-execution`)
 
 ## Constrained Verification Protocol
 When local environment limitations block required test layers (for example missing browser/system libraries):

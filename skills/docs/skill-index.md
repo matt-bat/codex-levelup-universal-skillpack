@@ -19,6 +19,7 @@ If one skill triggers another skill:
 | Skill | Primary Trigger | Typical Triggers Another Skill | Canonical Artifacts | Last Updated UTC |
 |---|---|---|---|---|
 | `skill-governance` | multi-step or risk-sensitive tasks | `order-of-operations`, `regression-prevention`, `effective-testing-methods`, `project-backup`, `restore-drill`, `doc-maintenance`, conditionals | `docs/governance/*.governance.json`, `docs/governance/*.governance.md`, `skills/docs/verification/constrained-environment-verification.md` | 2026-05-24T13:00:00Z |
+| `process-budget-controller` | multiple skills could apply and process needs explicit caps | `token-reduction`, `skill-governance`, `order-of-operations` | process tier and maximum skill/artifact allowance | 2026-05-24T15:00:00Z |
 | `governance-enforcement` | governance scripts or CI policy checks | `doc-maintenance`, `file-maintenance` | `skills/skill-governance/scripts/*`, `.github/workflows/skills-governance-ci.yml` | 2026-05-24T13:00:00Z |
 | `requirement-clarifier` | ambiguous requirements | `order-of-operations`, `doc-maintenance` | clarified acceptance contract in task artifacts/docs | 2026-05-13T15:43:58Z |
 | `diagnose-before-fix` | bug reports or failures where the root cause is not yet verified | `regression-prevention`, `effective-testing-methods`, `scripted-command-execution`, `requirement-clarifier` | symptom report, reproduction notes, verified-cause notes | 2026-05-22T18:30:00Z |
@@ -41,6 +42,8 @@ If one skill triggers another skill:
 | `file-structure-optimization` | repository structure drift or duplication risk | `order-of-operations`, `doc-maintenance`, `file-maintenance` | structure audit and move/consolidation plan | 2026-05-13T15:43:58Z |
 | `doc-maintenance` | behavior/workflow/policy doc drift risk | `file-maintenance`, `user-instructions-tracker` | `README.md`, `docs/*` | 2026-05-13T15:43:58Z |
 | `file-maintenance` | ongoing file correctness/factuality/freshness maintenance | `doc-maintenance`, `file-structure-optimization` | file audit report and remediation notes | 2026-05-13T15:43:58Z |
+| `skill-usage-review` | recent task evidence should be reviewed for skill overuse, underuse, missing triggers, or friction | `thoroughly-rate-review`, `deprecation-management`, `doc-maintenance` | usage review report from governance artifacts, trackers, handoffs, or commits | 2026-05-24T15:00:00Z |
+| `deprecation-management` | skills, docs, or workflows are superseded, merged, renamed, discouraged, deprecated, or removed | `file-maintenance`, `doc-maintenance`, `skill-usage-review` | deprecation record with replacement, migration notes, and removal criteria | 2026-05-24T15:00:00Z |
 | `project-backup` | high-risk mutation readiness | `restore-drill`, `doc-maintenance` | backup runbook/artifacts | 2026-05-13T15:43:58Z |
 | `restore-drill` | restore validation and freshness | `doc-maintenance` | drill evidence/runbooks | 2026-05-13T15:43:58Z |
 

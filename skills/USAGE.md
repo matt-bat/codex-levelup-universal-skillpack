@@ -19,6 +19,8 @@ Codex uses those files as task-specific operating instructions. A skill can defi
 
 This pack is intentionally process-heavy. I use it to make Codex slow down on the parts where mistakes are expensive: requirements, sequencing, validation, documentation drift, and release readiness.
 
+The pack now includes explicit process-budget controls so simple tasks can stay simple.
+
 ## Recommended Setup
 Use the `skills/` directory in this repository as the source of truth.
 
@@ -46,6 +48,7 @@ At the start of a task, Codex should declare:
 The default baseline is:
 1. `token-reduction`
 2. `order-of-operations`
+3. `process-budget-controller` when several skills could apply
 
 Use the smallest skill set that covers the task. The practical routing shortcut is:
 1. answer-only request: `token-reduction`
@@ -53,6 +56,8 @@ Use the smallest skill set that covers the task. The practical routing shortcut 
 3. tiny isolated text edit: `token-reduction`, `order-of-operations`
 4. documentation-only update: `token-reduction`, `order-of-operations`, `doc-maintenance`
 5. release-sensitive change: full governance path
+
+Use [install-profiles.md](./docs/install-profiles.md) when adopting the pack in stages.
 
 When the task changes behavior, workflows, policy, or documentation, add:
 1. `doc-maintenance`
@@ -93,6 +98,9 @@ The main routing files are:
 6. `docs/skill-decision-tree.md` for minimum viable skill selection
 7. `skill-catalog.json` for machine-readable skill inventory
 8. `docs/known-limitations.md` for explicit tradeoffs and residual limits
+9. `docs/install-profiles.md` for staged adoption paths
+10. `docs/conflict-resolution-matrix.md` for owner decisions across overlapping skills
+11. `docs/validator-severity-levels.md` for blocking versus non-blocking validator guidance
 
 When a skill trigger changes, update both:
 1. `SKILL-MAP.md`
@@ -105,6 +113,13 @@ For governed changes in this repository, keep these root-level artifacts current
 2. `docs/governance/*.governance.json`
 3. `docs/governance/*.governance.md`
 4. `docs/project-index.md`
+
+Lifecycle and quality review docs:
+1. `docs/rubrics/skillpack-quality-rubric.md`
+2. `docs/rubrics/release-readiness-rubric.md`
+3. `docs/rubrics/documentation-quality-rubric.md`
+4. `docs/adapters/codex.md`
+5. `docs/adapters/generic-agent.md`
 
 ## Validation Commands
 Run these from the `skills/` directory before publishing changes:

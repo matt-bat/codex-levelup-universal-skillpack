@@ -26,54 +26,59 @@ This pack is built to improve:
 - Security policy: [SECURITY.md](./SECURITY.md)
 
 ## Included Skills
-I currently include 25 interoperable skills:
+I currently include 28 interoperable skills:
 1. `skill-governance`
-2. `governance-enforcement`
-3. `requirement-clarifier`
-4. `diagnose-before-fix`
-5. `semantic-policy-audit`
-6. `interdependent-change-planning`
-7. `thoughtful-approach`
-8. `thoroughly-rate-review`
-9. `user-instructions-tracker`
-10. `history-indexing`
-11. `conversation-retention-summary`
-12. `ui-spatial-canvas`
-13. `ui-design-skills`
-14. `effective-testing-methods`
-15. `scripted-command-execution`
-16. `pseudo-agentic-automation`
-17. `token-reduction`
-18. `artifact-budget-enforcement`
-19. `order-of-operations`
-20. `regression-prevention`
-21. `file-structure-optimization`
-22. `doc-maintenance`
-23. `file-maintenance`
-24. `project-backup`
-25. `restore-drill`
+2. `process-budget-controller`
+3. `governance-enforcement`
+4. `requirement-clarifier`
+5. `diagnose-before-fix`
+6. `semantic-policy-audit`
+7. `interdependent-change-planning`
+8. `thoughtful-approach`
+9. `thoroughly-rate-review`
+10. `user-instructions-tracker`
+11. `history-indexing`
+12. `conversation-retention-summary`
+13. `ui-spatial-canvas`
+14. `ui-design-skills`
+15. `effective-testing-methods`
+16. `scripted-command-execution`
+17. `pseudo-agentic-automation`
+18. `token-reduction`
+19. `artifact-budget-enforcement`
+20. `order-of-operations`
+21. `regression-prevention`
+22. `file-structure-optimization`
+23. `doc-maintenance`
+24. `file-maintenance`
+25. `skill-usage-review`
+26. `deprecation-management`
+27. `project-backup`
+28. `restore-drill`
 
 ## Skill Architecture and Interconnectedness
 I use layered ownership to reduce overlap and conflicts:
 
 1. Policy selection:
    - `skill-governance`
-2. Diagnosis and coupling:
+2. Process restraint:
+   - `process-budget-controller`
+3. Diagnosis and coupling:
    - `diagnose-before-fix`
    - `interdependent-change-planning`
-3. Scope and sequencing:
+4. Scope and sequencing:
    - `requirement-clarifier`
    - `order-of-operations`
-4. Execution routing:
+5. Execution routing:
    - `scripted-command-execution`
    - `pseudo-agentic-automation`
-5. Risk and validation:
+6. Risk and validation:
    - `regression-prevention`
    - `effective-testing-methods`
-6. Policy enforcement and audit:
+7. Policy enforcement and audit:
    - `governance-enforcement`
    - `semantic-policy-audit`
-7. Documentation continuity:
+8. Documentation continuity:
    - `doc-maintenance`
    - `file-maintenance`
    - `file-structure-optimization`
@@ -81,7 +86,10 @@ I use layered ownership to reduce overlap and conflicts:
    - `history-indexing`
    - `conversation-retention-summary`
    - `artifact-budget-enforcement`
-8. Product and UX quality:
+9. Lifecycle management:
+   - `skill-usage-review`
+   - `deprecation-management`
+10. Product and UX quality:
    - `thoughtful-approach`
    - `ui-design-skills`
    - `ui-spatial-canvas`
@@ -91,6 +99,8 @@ Canonical routing references:
 - [SKILL-MAP.md](./skills/SKILL-MAP.md)
 - [skill-catalog.json](./skills/skill-catalog.json)
 - [skill-decision-tree.md](./skills/docs/skill-decision-tree.md)
+- [install-profiles.md](./skills/docs/install-profiles.md)
+- [conflict-resolution-matrix.md](./skills/docs/conflict-resolution-matrix.md)
 
 ## Who This Is For
 This pack is best for people who want:

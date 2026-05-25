@@ -4,6 +4,8 @@ All notable changes to the Level-Up Codex Skillpack are documented in this file.
 
 ## [Unreleased]
 ### Added
+- Added `process-budget-controller`, `skill-usage-review`, and `deprecation-management` to support restraint, usage feedback, and lifecycle management.
+- Added adoption and lifecycle docs: `docs/install-profiles.md`, `docs/conflict-resolution-matrix.md`, `docs/validator-severity-levels.md`, adapter docs, and quality rubrics.
 - Added root `.gitattributes` and `.editorconfig` to lock LF line endings and editor formatting.
 - Added `CONTRIBUTING.md` and `SECURITY.md` for contribution, validation, and policy-bypass reporting guidance.
 - Added `skill-catalog.json` as a machine-readable inventory of skill triggers, dependencies, artifacts, and risk levels.

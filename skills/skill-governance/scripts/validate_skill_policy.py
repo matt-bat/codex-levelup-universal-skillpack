@@ -53,6 +53,26 @@ REQUIRED_FILE_SNIPPETS = {
         "Model Compliance",
         "Semantic Quality",
     ],
+    "docs/install-profiles.md": [
+        "# Install Profiles",
+        "## Minimal",
+        "## Governed",
+    ],
+    "docs/conflict-resolution-matrix.md": [
+        "# Conflict Resolution Matrix",
+        "process-budget-controller",
+        "deprecation-management",
+    ],
+    "docs/validator-severity-levels.md": [
+        "# Validator Severity Levels",
+        "`error`",
+        "`warning`",
+    ],
+    "docs/rubrics/skillpack-quality-rubric.md": [
+        "# Skillpack Quality Rubric",
+        "Restraint",
+        "Enforceability",
+    ],
     "thoroughly-rate-review/SKILL.md": [
         "Integration and Cohesiveness",
         "for multi-skill systems/frameworks, `Integration and Cohesiveness` is required and cannot be omitted",
@@ -149,10 +169,13 @@ REQUIRED_FILE_SNIPPETS = {
 REQUIRED_ANTI_OVERUSE_SKILLS = {
     "artifact-budget-enforcement",
     "conversation-retention-summary",
+    "deprecation-management",
     "doc-maintenance",
     "file-maintenance",
     "history-indexing",
+    "process-budget-controller",
     "skill-governance",
+    "skill-usage-review",
 }
 
 REQUIRED_USER_INSTRUCTIONS_COLUMNS = [

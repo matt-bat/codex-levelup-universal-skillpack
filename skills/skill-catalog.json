@@ -2,6 +2,7 @@
   "schema_version": 1,
   "skills": [
     {"name": "skill-governance", "trigger": "multi-step or risk-sensitive tasks", "dependencies": ["order-of-operations", "regression-prevention", "doc-maintenance"], "canonical_artifacts": ["docs/governance/*.governance.json", "docs/governance/*.governance.md"], "risk_level": "high"},
+    {"name": "process-budget-controller", "trigger": "multiple skills could apply and process needs explicit caps", "dependencies": ["token-reduction", "skill-governance"], "canonical_artifacts": ["process tier", "skill budget"], "risk_level": "medium"},
     {"name": "governance-enforcement", "trigger": "governance tooling or CI policy checks", "dependencies": ["skill-governance"], "canonical_artifacts": ["skills/skill-governance/scripts/*", ".github/workflows/skills-governance-ci.yml"], "risk_level": "high"},
     {"name": "requirement-clarifier", "trigger": "ambiguous requirements", "dependencies": ["order-of-operations"], "canonical_artifacts": ["acceptance contract"], "risk_level": "medium"},
     {"name": "diagnose-before-fix", "trigger": "bug reports with unverified root cause", "dependencies": ["scripted-command-execution", "regression-prevention"], "canonical_artifacts": ["reproduction notes", "verified-cause notes"], "risk_level": "medium"},
@@ -24,6 +25,8 @@
     {"name": "file-structure-optimization", "trigger": "repository structure drift", "dependencies": ["doc-maintenance"], "canonical_artifacts": ["structure audit"], "risk_level": "medium"},
     {"name": "doc-maintenance", "trigger": "behavior, workflow, or policy doc drift", "dependencies": ["file-maintenance"], "canonical_artifacts": ["README.md", "docs/*"], "risk_level": "medium"},
     {"name": "file-maintenance", "trigger": "file correctness and freshness maintenance", "dependencies": ["doc-maintenance"], "canonical_artifacts": ["file audit report"], "risk_level": "low"},
+    {"name": "skill-usage-review", "trigger": "recent task evidence should be reviewed for skill overuse, underuse, or friction", "dependencies": ["thoroughly-rate-review", "deprecation-management"], "canonical_artifacts": ["usage review report"], "risk_level": "low"},
+    {"name": "deprecation-management", "trigger": "skills, docs, or workflows are superseded, merged, renamed, discouraged, deprecated, or removed", "dependencies": ["file-maintenance", "doc-maintenance"], "canonical_artifacts": ["deprecation record"], "risk_level": "medium"},
     {"name": "project-backup", "trigger": "high-risk mutation readiness", "dependencies": ["restore-drill"], "canonical_artifacts": ["backup evidence"], "risk_level": "high"},
     {"name": "restore-drill", "trigger": "restore validation and freshness", "dependencies": ["project-backup"], "canonical_artifacts": ["drill evidence"], "risk_level": "high"}
   ]

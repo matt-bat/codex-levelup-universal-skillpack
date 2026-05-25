@@ -33,43 +33,50 @@ Stop rules:
 Apply these when conditions match:
 1. `skill-governance`
    - multi-step, risky, ambiguous, or release-affecting tasks
-2. `governance-enforcement`
+2. `process-budget-controller`
+   - when several skills could apply and the task needs an explicit cap on process overhead
+3. `governance-enforcement`
    - when generating/validating governance artifacts or running CI policy enforcement checks
-3. `requirement-clarifier`
+4. `requirement-clarifier`
    - when request ambiguity, missing acceptance criteria, or unclear non-goals could cause misbuilds
-4. `diagnose-before-fix`
+5. `diagnose-before-fix`
    - when a bug report may describe symptoms rather than the verified root cause, or a user-suggested cause still needs independent verification
-5. `semantic-policy-audit`
+6. `semantic-policy-audit`
    - when intent-level policy/gate correctness must be audited beyond text snippet checks
-6. `interdependent-change-planning`
+7. `interdependent-change-planning`
    - when changes touch coupled files, flows, or data paths that must remain coherent together
-7. `regression-prevention`
+8. `regression-prevention`
    - non-trivial code changes, refactors, dependency updates, auth/payment/data/API changes
-8. `project-backup` + `restore-drill`
+9. `project-backup` + `restore-drill`
    - critical/high-risk changes with rollback or recovery risk
-9. `thoughtful-approach`
+10. `thoughtful-approach`
    - feature planning/implementation that should model end-user expectations and scope-safe enhancements
-10. `thoroughly-rate-review`
+11. `thoroughly-rate-review`
    - any request to review, rate, score, assess, evaluate, grade, benchmark, or compare quality
-11. `user-instructions-tracker`
+12. `user-instructions-tracker`
    - when directives are added/changed or when fulfillment/progress/status audit is requested
-12. `history-indexing`
+13. `history-indexing`
    - when long-session indexing/retrieval artifact maintenance is needed
-13. `conversation-retention-summary`
+14. `conversation-retention-summary`
    - when a bounded summary of the last 10 conversations needs to be refreshed or continued
-14. `artifact-budget-enforcement`
+15. `artifact-budget-enforcement`
    - when cached artifacts, summaries, indexes, or notes need hard limits and pruning
-15. `ui-spatial-canvas`
+16. `skill-usage-review`
+   - when recent task evidence should be reviewed for skill overuse, underuse, friction, or missing triggers
+17. `deprecation-management`
+   - when skills, docs, or workflows are renamed, merged, superseded, discouraged, deprecated, or removed
+18. `ui-spatial-canvas`
    - frontend UX, layout, navigation, interaction, visual system work
-16. `scripted-command-execution`
+19. `scripted-command-execution`
    - deterministic local command workflows
-17. `pseudo-agentic-automation`
+20. `pseudo-agentic-automation`
    - browser/GUI automation or dynamic runtime interaction
 
 ### Trigger Matrix (Explicit Include/Exclude)
 | Skill | Include When | Exclude When |
 |---|---|---|
 | `skill-governance` | Cross-cutting risk, multiple skills, release impact | Tiny isolated text-only change with no behavior impact |
+| `process-budget-controller` | Multiple skills could apply and process needs explicit caps | One obvious skill is enough or critical gates already determine the workflow |
 | `governance-enforcement` | Governance scripts/validators/CI enforcement are being run or debugged | Policy-only/risk-model decisions with no tooling execution |
 | `requirement-clarifier` | Request ambiguity could alter implementation outcome | Requirements are already explicit, testable, and bounded |
 | `diagnose-before-fix` | Debugging or remediation needs verified root cause | User already has a proven cause and only wants a direct patch, though verification is still preferred |
@@ -83,6 +90,8 @@ Apply these when conditions match:
 | `history-indexing` | Long-session retrieval/indexing overhead exists | Short sessions where direct retrieval is cheaper |
 | `conversation-retention-summary` | Recent-context handoff needs the latest 10 conversations only | Full transcript retention or long archive reconstruction is needed |
 | `artifact-budget-enforcement` | Cached artifacts or summaries need explicit size caps | No bounded-cache surface exists |
+| `skill-usage-review` | Recent artifacts or task history should be reviewed for overuse, underuse, or friction | No usage evidence exists yet |
+| `deprecation-management` | Compatibility or migration guidance is needed for old skills/docs/workflows | A direct edit fixes the issue without lifecycle impact |
 | `ui-spatial-canvas` | Frontend IA, layout, interaction, visual-system work | Backend-only or CLI-only tasks |
 | `scripted-command-execution` | Deterministic local shell workflows | Dynamic browser flows requiring runtime adaptation |
 | `pseudo-agentic-automation` | Authenticated/dynamic browser or GUI interaction | Deterministic shell/API/file-only work |
