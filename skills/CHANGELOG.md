@@ -1,9 +1,11 @@
 # Changelog
 
-All notable changes to the Level-Up Codex Skillpack are documented in this file.
+All notable changes to Codex Command Center are documented in this file.
 
 ## [Unreleased]
 ### Added
+- Added `quizme-mode` with persistent conversation-local `--quizme` toggling, exact immediate `--mc` multiple-choice preference, interactive clarification routing, governance artifact state, and policy validation coverage.
+- Expanded `quizme-mode` with intuitive `--one-at-a-time`, `--confirm`, and `--record` options; `--record` implies confirmation and governed artifacts persist every option.
 - Added `START_HERE.md`, `docs/maturity-model.md`, `docs/field-notes.md`, `docs/pruning-policy.md`, and `docs/validation-profiles.md` to support controlled growth and evidence-driven simplification.
 - Added `process-budget-controller`, `skill-usage-review`, and `deprecation-management` to support restraint, usage feedback, and lifecycle management.
 - Added adoption and lifecycle docs: `docs/install-profiles.md`, `docs/conflict-resolution-matrix.md`, `docs/validator-severity-levels.md`, adapter docs, and quality rubrics.

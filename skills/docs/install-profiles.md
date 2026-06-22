@@ -2,6 +2,8 @@
 
 Use install profiles to adopt only the amount of process you actually need. The full pack is useful, but it is not the right starting point for every project or every task.
 
+`quizme-mode` is an optional conversation-level control for every profile. Install it whenever you want persistent `--quizme` clarification with optional `--mc`, `--one-at-a-time`, `--confirm`, and `--record` behavior.
+
 ## Minimal
 Use Minimal when you mainly want local assistance, simple edits, and a cleaner task flow.
 

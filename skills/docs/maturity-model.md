@@ -2,6 +2,9 @@
 
 Use this model to adopt the skillpack gradually. You do not need every skill on day one, and a small team should not have to carry release-governance weight for tiny local edits.
 
+Optional at every level:
+1. install `quizme-mode` when you want persistent `--quizme` exhaustive clarification with optional `--mc`, `--one-at-a-time`, `--confirm`, and `--record` behavior
+
 ## Level 1: Baseline Assistance
 Goal: make simple work clearer, cheaper, and easier to follow.
 

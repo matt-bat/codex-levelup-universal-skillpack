@@ -95,6 +95,11 @@ def main() -> None:
         "model_runs_test_build_default",
         "execution_scope",
         "deployment_requested",
+        "quizme_mode",
+        "quizme_multiple_choice",
+        "quizme_one_at_a_time",
+        "quizme_confirm",
+        "quizme_record",
         "selected_mode",
         "required_gates",
         "gate_status",
@@ -122,6 +127,11 @@ def main() -> None:
     model_runs_test_build_default = data["model_runs_test_build_default"]
     execution_scope = data["execution_scope"]
     deployment_requested = bool(data["deployment_requested"])
+    quizme_mode = data["quizme_mode"]
+    quizme_multiple_choice = data["quizme_multiple_choice"]
+    quizme_one_at_a_time = data["quizme_one_at_a_time"]
+    quizme_confirm = data["quizme_confirm"]
+    quizme_record = data["quizme_record"]
     break_glass = data.get("break_glass", {})
     overrides = data.get("critical_overrides", [])
     startup_declaration = data.get("startup_declaration", {})
@@ -144,6 +154,21 @@ def main() -> None:
         errors.append("execution_scope=deployment requires deployment_requested=true")
     if execution_scope == "local_only" and deployment_requested:
         errors.append("deployment_requested=true is invalid when execution_scope=local_only")
+    if quizme_mode not in {"off", "on"}:
+        errors.append("quizme_mode must be 'off' or 'on'")
+    quizme_options = {
+        "quizme_multiple_choice": quizme_multiple_choice,
+        "quizme_one_at_a_time": quizme_one_at_a_time,
+        "quizme_confirm": quizme_confirm,
+        "quizme_record": quizme_record,
+    }
+    for field, value in quizme_options.items():
+        if not isinstance(value, bool):
+            errors.append(f"{field} must be a boolean")
+    if any(value is True for value in quizme_options.values()) and quizme_mode != "on":
+        errors.append("quizme options require quizme_mode=on")
+    if quizme_record and not quizme_confirm:
+        errors.append("quizme_record=true requires quizme_confirm=true")
     if parse_utcish(artifact_created_at_utc) is None:
         errors.append("created_at_utc must be a valid ISO-8601 timestamp")
 
@@ -181,6 +206,8 @@ def main() -> None:
                         "startup_declaration.skills_in_use missing required gates: "
                         + ", ".join(missing_required_gates)
                     )
+            if quizme_mode == "on" and "quizme-mode" not in skills_in_use:
+                errors.append("startup_declaration.skills_in_use missing quizme-mode while quizme_mode=on")
 
     for gate in required_gates:
         if gate not in gate_status:

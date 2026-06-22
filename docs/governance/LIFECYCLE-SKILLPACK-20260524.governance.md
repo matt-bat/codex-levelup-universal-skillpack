@@ -9,6 +9,11 @@
 - `execution_scope`: local_only
 - `deployment_requested`: false
 - `execution_skill`: scripted-command-execution
+- `quizme_mode`: off
+- `quizme_multiple_choice`: false
+- `quizme_one_at_a_time`: false
+- `quizme_confirm`: false
+- `quizme_record`: false
 - `selected_mode`: standard
 - `total_score`: 5
 - `recommendation`: go

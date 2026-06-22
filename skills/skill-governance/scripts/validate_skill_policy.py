@@ -32,6 +32,12 @@ REQUIRED_AGENTS_SNIPPETS = [
     "`user-instructions-tracker`",
     "`governance-enforcement`",
     "`requirement-clarifier`",
+    "`quizme-mode`",
+    "`--quizme`",
+    "`--mc`",
+    "`--one-at-a-time`",
+    "`--confirm`",
+    "`--record`",
     "`semantic-policy-audit`",
     "`history-indexing`",
     "user-instructions.md",
@@ -91,6 +97,12 @@ REQUIRED_FILE_SNIPPETS = {
         "`effective-testing-methods`",
         "`file-structure-optimization`",
         "`file-maintenance`",
+        "`quizme-mode`",
+        "`--quizme-mode on`",
+        "`--quizme-mc`",
+        "`--quizme-one-at-a-time`",
+        "`--quizme-confirm`",
+        "`--quizme-record`",
         "Use [Governance Enforcement](../governance-enforcement/SKILL.md) for:",
         "consult `docs/skill-index.md`",
     ],
@@ -144,6 +156,14 @@ REQUIRED_FILE_SNIPPETS = {
     "requirement-clarifier/SKILL.md": [
         "Clarification Contract",
         "Acceptance Criteria",
+        "Quizme Mode",
+    ],
+    "quizme-mode/SKILL.md": [
+        "# Quizme Mode",
+        "`--quizme` toggles quizme mode on when off",
+        "supported arguments are `--mc`, `--one-at-a-time`, `--confirm`, and `--record`",
+        "prefer the interactive clarification console for quizme questions",
+        "do not start implementation, mutation, or governed execution until the clarification gate passes",
     ],
     "semantic-policy-audit/SKILL.md": [
         "Audit Dimensions",
@@ -160,6 +180,7 @@ REQUIRED_FILE_SNIPPETS = {
     "docs/skill-index.md": [
         "# Skill Index",
         "## Cross-Skill Trigger Rule (Required)",
+        "`quizme-mode`",
     ],
     "skill-governance/scripts/validate_skill_order_sync.py": [
         "Skill ordering sync validation passed.",
@@ -174,6 +195,7 @@ REQUIRED_ANTI_OVERUSE_SKILLS = {
     "file-maintenance",
     "history-indexing",
     "process-budget-controller",
+    "quizme-mode",
     "skill-governance",
     "skill-usage-review",
 }
@@ -631,6 +653,15 @@ def validate_artifact_pair(json_path: Path) -> list[str]:
         return errors
     data = json.loads(json_path.read_text(encoding="utf-8"))
     startup = data.get("startup_declaration", {})
+    for field in (
+        "quizme_mode",
+        "quizme_multiple_choice",
+        "quizme_one_at_a_time",
+        "quizme_confirm",
+        "quizme_record",
+    ):
+        if field not in data:
+            errors.append(f"{json_path}: missing field {field}")
     for field in ("skills_in_use", "skills_selection_rationale", "skills_execution_order"):
         if field not in startup:
             errors.append(f"{json_path}: startup_declaration missing field {field}")
@@ -638,6 +669,15 @@ def validate_artifact_pair(json_path: Path) -> list[str]:
     for marker in ("## Startup Declaration", "### Skills In Use", "### Skill Execution Order"):
         if marker not in md_content:
             errors.append(f"{md_path}: missing section marker {marker}")
+    for marker in (
+        "`quizme_mode`",
+        "`quizme_multiple_choice`",
+        "`quizme_one_at_a_time`",
+        "`quizme_confirm`",
+        "`quizme_record`",
+    ):
+        if marker not in md_content:
+            errors.append(f"{md_path}: missing quizme state marker {marker}")
     return errors
 
 

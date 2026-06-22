@@ -1,4 +1,4 @@
-# Level-Up Codex Skillpack
+# Codex Command Center
 
 This directory is the actual skillpack. The root README explains the project from the outside; this README is for people who are installing, editing, or reviewing the skills themselves.
 
@@ -24,36 +24,37 @@ Each skill is a folder with a `SKILL.md` file. That file tells the agent:
 Some skills are lightweight routing helpers. Others are stricter governance or validation workflows. They are meant to work together, but they should not all run on every task.
 
 ## Included Skills
-This pack currently includes 28 skills:
+This pack currently includes 29 skills:
 
 1. `skill-governance`
 2. `process-budget-controller`
 3. `governance-enforcement`
 4. `requirement-clarifier`
-5. `diagnose-before-fix`
-6. `semantic-policy-audit`
-7. `interdependent-change-planning`
-8. `thoughtful-approach`
-9. `thoroughly-rate-review`
-10. `user-instructions-tracker`
-11. `history-indexing`
-12. `conversation-retention-summary`
-13. `ui-spatial-canvas`
-14. `ui-design-skills`
-15. `effective-testing-methods`
-16. `scripted-command-execution`
-17. `pseudo-agentic-automation`
-18. `token-reduction`
-19. `artifact-budget-enforcement`
-20. `order-of-operations`
-21. `regression-prevention`
-22. `file-structure-optimization`
-23. `doc-maintenance`
-24. `file-maintenance`
-25. `skill-usage-review`
-26. `deprecation-management`
-27. `project-backup`
-28. `restore-drill`
+5. `quizme-mode`
+6. `diagnose-before-fix`
+7. `semantic-policy-audit`
+8. `interdependent-change-planning`
+9. `thoughtful-approach`
+10. `thoroughly-rate-review`
+11. `user-instructions-tracker`
+12. `history-indexing`
+13. `conversation-retention-summary`
+14. `ui-spatial-canvas`
+15. `ui-design-skills`
+16. `effective-testing-methods`
+17. `scripted-command-execution`
+18. `pseudo-agentic-automation`
+19. `token-reduction`
+20. `artifact-budget-enforcement`
+21. `order-of-operations`
+22. `regression-prevention`
+23. `file-structure-optimization`
+24. `doc-maintenance`
+25. `file-maintenance`
+26. `skill-usage-review`
+27. `deprecation-management`
+28. `project-backup`
+29. `restore-drill`
 
 ## How The Pack Is Organized
 The main routing docs are:
@@ -76,6 +77,8 @@ For most tasks, start small:
 5. add governance only when risk, ambiguity, or release impact justifies it
 
 The decision tree and install profiles exist because too much process can be just as harmful as too little process.
+
+Use `--quizme` when you want exhaustive clarification before execution. The mode persists for the active conversation until toggled off. Optional immediate arguments are `--mc`, `--one-at-a-time`, `--confirm`, and `--record`.
 
 ## Validation
 For a normal skillpack documentation or policy update, run:

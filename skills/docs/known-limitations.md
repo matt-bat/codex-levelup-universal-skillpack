@@ -12,6 +12,8 @@ Many skills are behavioral instructions. Validators can enforce files, routing, 
 
 That is why the pack still relies on visible evidence: commands run, files changed, checks passed, and residual risk recorded.
 
+`quizme-mode` is also behavioral. The policy and governed artifacts can record whether it is active and which options are enabled, but the runtime must preserve conversation state and expose an interactive clarification tool for the full experience. When that tool is unavailable, use concise conversational questions. `--record` only writes evidence when an appropriate durable artifact exists.
+
 ## Semantic Quality
 Governance scripts validate structure and readiness evidence. They do not prove that every policy choice is optimal, every test is meaningful, or every risk assessment is complete.
 

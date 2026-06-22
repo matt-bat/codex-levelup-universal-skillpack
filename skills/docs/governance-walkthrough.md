@@ -21,11 +21,12 @@ Run from the repository root:
 ```sh
 python3 skills/skill-governance/scripts/generate_governance_artifact.py \
   --task-id PUSH-READY-20260524 \
-  --project-id codex-levelup-skillpack \
+  --project-id codex-command-center \
   --profile internal \
   --project-language Markdown/Python \
-  --project-description-max4 "Codex skillpack governance" \
+  --project-description-max4 "Codex command center" \
   --model-runs-test-build-default yes \
+  --quizme-mode off \
   --skills-in-use "token-reduction,order-of-operations,skill-governance,interdependent-change-planning,regression-prevention,scripted-command-execution,doc-maintenance,user-instructions-tracker" \
   --skills-execution-order "token-reduction,order-of-operations,skill-governance,interdependent-change-planning,regression-prevention,scripted-command-execution,doc-maintenance,user-instructions-tracker" \
   --skills-selection-rationale "Release-readiness work touching governed skillpack policy, CI, documentation, and validation surfaces." \
@@ -43,6 +44,14 @@ The generator writes:
 1. `docs/governance/<task-id>.governance.json`
 2. `docs/governance/<task-id>.governance.md`
 3. `docs/project-index.md`
+
+For a governed request while quizme mode is active, pass `--quizme-mode on` and include `quizme-mode` in startup skills and execution order before substantive task skills.
+
+Add governed options that match the user request:
+1. `--quizme-mc` for `--mc`
+2. `--quizme-one-at-a-time` for `--one-at-a-time`
+3. `--quizme-confirm` for `--confirm`
+4. `--quizme-record` for `--record`; this implies confirmation
 
 Use a task id that describes the change. The example above is only a template.
 

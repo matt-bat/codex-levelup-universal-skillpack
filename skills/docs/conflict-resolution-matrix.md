@@ -5,6 +5,7 @@ Use this matrix when two skills appear to own the same decision. The goal is to 
 | Decision Type | Owning Skill | Supporting Skills |
 |---|---|---|
 | Process budget and skill-count cap | `process-budget-controller` | `token-reduction`, `skill-governance` |
+| Persistent pre-execution clarification gate | `quizme-mode` | `requirement-clarifier`, `skill-governance` |
 | Governance mode and required gates | `skill-governance` | `governance-enforcement`, `regression-prevention` |
 | Governance script execution | `governance-enforcement` | `scripted-command-execution` |
 | Dependency sequencing | `order-of-operations` | `interdependent-change-planning` |
@@ -24,7 +25,8 @@ Use this matrix when two skills appear to own the same decision. The goal is to 
 | Quality scoring | `thoroughly-rate-review` | `semantic-policy-audit` |
 
 ## Tie-Breaking Rules
-1. safety and data integrity override process budget
+1. active `quizme-mode` clarification completes before substantive execution
+2. safety and data integrity override process budget
 2. owner skill decides; supporting skills provide evidence
 3. if two owners still conflict, choose the narrower owner
 4. if uncertainty remains, record the assumption and proceed with the safer path

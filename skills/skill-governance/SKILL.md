@@ -83,6 +83,7 @@ Every governed task must produce:
 7. `project_id` aligned to `docs/project-index.md`
 8. user-facing summary in concise bullet points using full-language (no shorthand abbreviations)
 9. durable rationale notes in code comments/docs/artifacts for non-obvious decisions
+10. active quizme state (`on`/`off`) and enabled quizme options for governed tasks
 
 ## Automation (Required)
 Automation must be applied through [Governance Enforcement](../governance-enforcement/SKILL.md), which owns:
@@ -108,6 +109,7 @@ python skills/skill-governance/scripts/generate_governance_artifact.py \
   --project-language TypeScript/Python \
   --project-description-max4 "Cross-platform business app" \
   --model-runs-test-build-default no \
+  --quizme-mode off \
   --skills-in-use "skill-governance,order-of-operations,scripted-command-execution,doc-maintenance,token-reduction" \
   --skills-execution-order "skill-governance,order-of-operations,scripted-command-execution,doc-maintenance,token-reduction" \
   --skills-selection-rationale "Risk-sensitive task requiring governance, deterministic execution, documentation sync, and concise communication discipline." \
@@ -279,6 +281,12 @@ Add these gates when conditions match:
    - include when a bounded summary of the last 10 conversations needs to be refreshed or continued
 12. `artifact-budget-enforcement`
    - include when cached artifacts, summaries, indexes, or notes need hard maximums and pruning rules
+13. `quizme-mode`
+   - include before substantive execution when `--quizme` is invoked or remains active from an earlier conversation turn
+   - require `requirement-clarifier` for the aligned task contract
+   - record active state with `--quizme-mode on`
+   - add matching governed options when active: `--quizme-mc`, `--quizme-one-at-a-time`, `--quizme-confirm`, and `--quizme-record`
+   - `--quizme-record` implies `--quizme-confirm`
 
 Before adding conditional gates:
 1. consult `docs/skill-index.md`
@@ -289,18 +297,26 @@ Conditional additions are required once triggered and must appear in:
 1. startup declaration (`skills_in_use` and execution order)
 2. governance evidence contract and final summary
 
+Quizme precedence:
+1. `quizme-mode` runs before normal mode gates and substantive execution
+2. continue clarification rounds until no material doubt remains
+3. prefer the plan-mode interactive clarification console when available
+4. only recognize supported arguments placed directly after `--quizme`: `--mc`, `--one-at-a-time`, `--confirm`, and `--record`
+
 ### Step 5A: Ownership Boundary Matrix (Required)
 To prevent overlap and process bloat, each required gate must be scoped to its owned decisions:
 
 1. `skill-governance`:
    - mode selection and policy gates
-2. `order-of-operations`:
+2. `quizme-mode`:
+   - conversation-local toggle state, option parsing, and pre-execution clarification gate
+3. `order-of-operations`:
    - execution graph and validation sequence
-3. `regression-prevention`:
+4. `regression-prevention`:
    - regression risk tier, release-readiness criteria, residual-risk statement
-4. `effective-testing-methods`:
+5. `effective-testing-methods`:
    - test impact mapping and test-update completeness
-5. execution skill (`scripted-command-execution` or `pseudo-agentic-automation`):
+6. execution skill (`scripted-command-execution` or `pseudo-agentic-automation`):
    - command/runtime execution and operational retries
 
 Deduplication rule:
@@ -438,3 +454,4 @@ Style requirement:
 - [Doc Maintenance](../doc-maintenance/SKILL.md): ensure policy and runbook updates remain synchronized.
 - [File Maintenance](../file-maintenance/SKILL.md): ongoing file factuality and staleness control for policy artifacts.
 - [Token Reduction](../token-reduction/SKILL.md): keep governance reporting concise but sufficient.
+- [Quizme Mode](../quizme-mode/SKILL.md): persistent pre-execution clarification gate and exact quizme option behavior.

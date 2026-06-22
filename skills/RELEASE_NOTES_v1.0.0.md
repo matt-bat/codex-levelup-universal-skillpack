@@ -1,4 +1,4 @@
-# Level-Up Codex Skillpack v1.0.0
+# Codex Command Center v1.0.0
 
 ## Release Date
 2026-05-17
@@ -7,7 +7,7 @@
 Governance-First Delivery Framework
 
 ## Summary
-Initial public release of the Level-Up Codex Skillpack, a policy-driven framework for safer and more consistent multi-step software delivery.
+Initial public release of Codex Command Center, a policy-driven framework for safer and more consistent multi-step software delivery.
 
 ## Highlights
 - 21 interoperable skills across governance, execution, testing, documentation, and UX workflows.

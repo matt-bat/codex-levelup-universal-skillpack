@@ -22,11 +22,14 @@ The agent should:
 3. execute locally by default
 4. maintain docs when behavior or workflow changes
 5. record validation evidence for governed changes
+6. support persistent conversation-local `--quizme` clarification mode when the target agent can preserve turn state
 
 ## Non-Portable Assumptions
 Some commands, approval flows, sandbox rules, and skill-loading behavior are Codex-specific. Replace them with the target agent's local command, approval, and artifact mechanisms.
 
 If a feature cannot be ported cleanly, document the gap instead of pretending the agent has the same controls.
+
+For `--quizme`, replace Codex's interactive clarification console with the target agent's equivalent prompt UI. Preserve supported options when possible: `--mc`, `--one-at-a-time`, `--confirm`, and `--record`.
 
 ## Minimum Profile
 For generic agents, start with:

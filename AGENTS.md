@@ -39,37 +39,41 @@ Apply these when conditions match:
    - when generating/validating governance artifacts or running CI policy enforcement checks
 4. `requirement-clarifier`
    - when request ambiguity, missing acceptance criteria, or unclear non-goals could cause misbuilds
-5. `diagnose-before-fix`
+5. `quizme-mode`
+   - when the user writes `--quizme`, or quizme mode remains active from an earlier turn in the conversation
+   - `--quizme` toggles persistent conversation-local mode on/off; supported immediate arguments are `--mc`, `--one-at-a-time`, `--confirm`, and `--record`
+   - while active, continue interactive clarification rounds until no material doubt remains before substantive execution
+6. `diagnose-before-fix`
    - when a bug report may describe symptoms rather than the verified root cause, or a user-suggested cause still needs independent verification
-6. `semantic-policy-audit`
+7. `semantic-policy-audit`
    - when intent-level policy/gate correctness must be audited beyond text snippet checks
-7. `interdependent-change-planning`
+8. `interdependent-change-planning`
    - when changes touch coupled files, flows, or data paths that must remain coherent together
-8. `regression-prevention`
+9. `regression-prevention`
    - non-trivial code changes, refactors, dependency updates, auth/payment/data/API changes
-9. `project-backup` + `restore-drill`
+10. `project-backup` + `restore-drill`
    - critical/high-risk changes with rollback or recovery risk
-10. `thoughtful-approach`
+11. `thoughtful-approach`
    - feature planning/implementation that should model end-user expectations and scope-safe enhancements
-11. `thoroughly-rate-review`
+12. `thoroughly-rate-review`
    - any request to review, rate, score, assess, evaluate, grade, benchmark, or compare quality
-12. `user-instructions-tracker`
+13. `user-instructions-tracker`
    - when directives are added/changed or when fulfillment/progress/status audit is requested
-13. `history-indexing`
+14. `history-indexing`
    - when long-session indexing/retrieval artifact maintenance is needed
-14. `conversation-retention-summary`
+15. `conversation-retention-summary`
    - when a bounded summary of the last 10 conversations needs to be refreshed or continued
-15. `artifact-budget-enforcement`
+16. `artifact-budget-enforcement`
    - when cached artifacts, summaries, indexes, or notes need hard limits and pruning
-16. `skill-usage-review`
+17. `skill-usage-review`
    - when recent task evidence should be reviewed for skill overuse, underuse, friction, or missing triggers
-17. `deprecation-management`
+18. `deprecation-management`
    - when skills, docs, or workflows are renamed, merged, superseded, discouraged, deprecated, or removed
-18. `ui-spatial-canvas`
+19. `ui-spatial-canvas`
    - frontend UX, layout, navigation, interaction, visual system work
-19. `scripted-command-execution`
+20. `scripted-command-execution`
    - deterministic local command workflows
-20. `pseudo-agentic-automation`
+21. `pseudo-agentic-automation`
    - browser/GUI automation or dynamic runtime interaction
 
 ### Trigger Matrix (Explicit Include/Exclude)
@@ -79,6 +83,7 @@ Apply these when conditions match:
 | `process-budget-controller` | Multiple skills could apply and process needs explicit caps | One obvious skill is enough or critical gates already determine the workflow |
 | `governance-enforcement` | Governance scripts/validators/CI enforcement are being run or debugged | Policy-only/risk-model decisions with no tooling execution |
 | `requirement-clarifier` | Request ambiguity could alter implementation outcome | Requirements are already explicit, testable, and bounded |
+| `quizme-mode` | User invokes `--quizme` or mode remains active in the conversation | User toggled mode off or never enabled it |
 | `diagnose-before-fix` | Debugging or remediation needs verified root cause | User already has a proven cause and only wants a direct patch, though verification is still preferred |
 | `semantic-policy-audit` | Need intent-level policy conformance assessment | Only mechanical snippet/schema checks are needed |
 | `interdependent-change-planning` | Several coupled files, flows, or data paths must change together | Tiny isolated text-only change with no downstream effect |
@@ -124,6 +129,7 @@ Execution order:
 3. no shorthand abbreviations in user-facing responses
 4. keep internal planning compact and prioritize durable rationale in code comments/docs/artifacts
 5. keep `user-instructions.md` current when directives or fulfillment state changes
+6. when quizme mode is active, run `quizme-mode` before substantive execution and prefer the plan-mode interactive clarification console when available
 
 ### Conflict Rule
 If multiple skills apply, use the minimum set that fully covers the task, in dependency-correct order.

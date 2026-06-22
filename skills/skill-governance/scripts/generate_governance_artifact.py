@@ -90,6 +90,11 @@ class GovernanceArtifact:
     deployment_requested: bool
     execution_skill: str
     behavior_or_workflow_changed: bool
+    quizme_mode: str
+    quizme_multiple_choice: bool
+    quizme_one_at_a_time: bool
+    quizme_confirm: bool
+    quizme_record: bool
     scores: dict[str, int]
     total_score: int
     base_mode: str
@@ -146,6 +151,32 @@ def parse_args() -> argparse.Namespace:
         "--behavior-or-workflow-changed",
         action="store_true",
         help="Include doc-maintenance gate.",
+    )
+    parser.add_argument(
+        "--quizme-mode",
+        choices=["off", "on"],
+        default="off",
+        help="Record persistent conversation-local quizme mode state for this governed task.",
+    )
+    parser.add_argument(
+        "--quizme-mc",
+        action="store_true",
+        help="Record --quizme --mc multiple-choice preference. Requires --quizme-mode on.",
+    )
+    parser.add_argument(
+        "--quizme-one-at-a-time",
+        action="store_true",
+        help="Record --quizme --one-at-a-time adaptive single-question preference. Requires --quizme-mode on.",
+    )
+    parser.add_argument(
+        "--quizme-confirm",
+        action="store_true",
+        help="Record --quizme --confirm explicit task-contract approval requirement. Requires --quizme-mode on.",
+    )
+    parser.add_argument(
+        "--quizme-record",
+        action="store_true",
+        help="Record --quizme --record durable contract evidence requirement. Implies --quizme-confirm.",
     )
     parser.add_argument(
         "--skills-in-use",
@@ -264,6 +295,24 @@ def validate_intake_fields(args: argparse.Namespace) -> None:
         raise SystemExit("--deployment-requested conflicts with execution-scope=local_only")
     if not args.skills_selection_rationale.strip():
         raise SystemExit("--skills-selection-rationale is required")
+    validate_quizme_fields(
+        args.quizme_mode,
+        args.quizme_mc,
+        args.quizme_one_at_a_time,
+        args.quizme_confirm,
+        args.quizme_record,
+    )
+
+
+def validate_quizme_fields(
+    quizme_mode: str,
+    quizme_mc: bool,
+    quizme_one_at_a_time: bool = False,
+    quizme_confirm: bool = False,
+    quizme_record: bool = False,
+) -> None:
+    if any((quizme_mc, quizme_one_at_a_time, quizme_confirm, quizme_record)) and quizme_mode != "on":
+        raise SystemExit("quizme options require --quizme-mode on")
 
 
 def parse_csv_list(raw_value: str, field_name: str) -> list[str]:
@@ -282,6 +331,7 @@ def validate_startup_declaration_skills(
     skills_in_use: list[str],
     skills_execution_order: list[str],
     execution_skill: str,
+    quizme_mode: str = "off",
 ) -> None:
     if set(skills_in_use) != set(skills_execution_order):
         raise SystemExit("--skills-in-use and --skills-execution-order must contain the same skill set")
@@ -289,6 +339,8 @@ def validate_startup_declaration_skills(
     missing = sorted(required_baseline - set(skills_in_use))
     if missing:
         raise SystemExit(f"Startup declaration missing required skills: {', '.join(missing)}")
+    if quizme_mode == "on" and "quizme-mode" not in skills_in_use:
+        raise SystemExit("Startup declaration missing required skill: quizme-mode")
 
 
 def render_markdown(artifact: GovernanceArtifact) -> str:
@@ -304,6 +356,11 @@ def render_markdown(artifact: GovernanceArtifact) -> str:
     lines.append(f"- `execution_scope`: {artifact.execution_scope}")
     lines.append(f"- `deployment_requested`: {str(artifact.deployment_requested).lower()}")
     lines.append(f"- `execution_skill`: {artifact.execution_skill}")
+    lines.append(f"- `quizme_mode`: {artifact.quizme_mode}")
+    lines.append(f"- `quizme_multiple_choice`: {str(artifact.quizme_multiple_choice).lower()}")
+    lines.append(f"- `quizme_one_at_a_time`: {str(artifact.quizme_one_at_a_time).lower()}")
+    lines.append(f"- `quizme_confirm`: {str(artifact.quizme_confirm).lower()}")
+    lines.append(f"- `quizme_record`: {str(artifact.quizme_record).lower()}")
     lines.append(f"- `selected_mode`: {artifact.selected_mode}")
     lines.append(f"- `total_score`: {artifact.total_score}")
     lines.append(f"- `recommendation`: {artifact.recommendation}")
@@ -433,7 +490,12 @@ def main() -> None:
     gate_status = {gate: "pending" for gate in required_gates}
     skills_in_use = parse_csv_list(args.skills_in_use, "--skills-in-use")
     skills_execution_order = parse_csv_list(args.skills_execution_order, "--skills-execution-order")
-    validate_startup_declaration_skills(skills_in_use, skills_execution_order, args.execution_skill)
+    validate_startup_declaration_skills(
+        skills_in_use,
+        skills_execution_order,
+        args.execution_skill,
+        args.quizme_mode,
+    )
 
     recommendation = determine_recommendation(overrides, args.break_glass)
     artifact = GovernanceArtifact(
@@ -448,6 +510,11 @@ def main() -> None:
         deployment_requested=bool(args.deployment_requested),
         execution_skill=args.execution_skill,
         behavior_or_workflow_changed=bool(args.behavior_or_workflow_changed),
+        quizme_mode=args.quizme_mode,
+        quizme_multiple_choice=bool(args.quizme_mc),
+        quizme_one_at_a_time=bool(args.quizme_one_at_a_time),
+        quizme_confirm=bool(args.quizme_confirm or args.quizme_record),
+        quizme_record=bool(args.quizme_record),
         scores=scores,
         total_score=total,
         base_mode=base_mode,

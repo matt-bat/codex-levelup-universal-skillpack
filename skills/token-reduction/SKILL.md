@@ -295,6 +295,7 @@ Token reduction must still preserve:
 2. requirement coverage
 3. explicit uncertainty when present
 4. reproducible validation evidence
+5. complete quizme clarification rounds while `quizme-mode` is active
 
 Minimum correctness checklist:
 1. all user constraints addressed
@@ -361,3 +362,4 @@ Track, when practical:
 - [Project Backup](../project-backup/SKILL.md): enforce backup gates without bloated process narration.
 - [Artifact Budget Enforcement](../artifact-budget-enforcement/SKILL.md): keep cached summaries, notes, and tables bounded.
 - [Conversation Retention Summary](../conversation-retention-summary/SKILL.md): maintain a small rolling recent-history cache.
+- [Quizme Mode](../quizme-mode/SKILL.md): exhaustive clarification overrides response compression until the task contract is fully aligned.

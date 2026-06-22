@@ -29,6 +29,7 @@ Use this skill when:
 2. multiple interpretations are plausible
 3. acceptance criteria are missing
 4. constraints/non-goals are unclear
+5. `quizme-mode` is active and requires a fully aligned task contract before substantive execution
 
 ## Clarification Contract
 Produce and maintain:
@@ -47,6 +48,11 @@ Produce and maintain:
 4. proceed with safest reasonable assumptions unless high-risk ambiguity remains
 5. update contract when user clarifies or requirements evolve
 
+When [Quizme Mode](../quizme-mode/SKILL.md) is active:
+1. do not proceed with safest reasonable assumptions while material uncertainty remains
+2. continue clarification rounds until every contract field is clear
+3. return control to normal execution only after open questions are empty
+
 ## Scope Drift Controls
 1. do not add enhancements that violate explicit user intent
 2. separate must-have from optional improvements
@@ -63,3 +69,4 @@ When applying this skill, provide:
 - [Thoughtful Approach](../thoughtful-approach/SKILL.md): user-value-oriented enhancements after must-haves are clear.
 - [Order of Operations](../order-of-operations/SKILL.md): sequence clarified requirements into execution.
 - [Skill Governance](../skill-governance/SKILL.md): choose process strictness for ambiguous/high-risk requests.
+- [Quizme Mode](../quizme-mode/SKILL.md): persistent exhaustive clarification gate before substantive execution.

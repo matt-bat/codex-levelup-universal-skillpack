@@ -25,6 +25,44 @@ This pack is intentionally more structured than a single prompt. It is meant to 
 
 It also includes process-budget controls, so simple work can still stay simple.
 
+## Quizme Clarification Mode
+Use `quizme-mode` when you want the agent to clarify every material detail before substantive execution.
+
+Toggle it on:
+
+```text
+--quizme
+```
+
+Toggle it off by writing `--quizme` again. The mode persists throughout the active conversation until toggled off.
+
+Optional arguments:
+
+```text
+--quizme --mc
+--quizme --one-at-a-time
+--quizme --confirm
+--quizme --record
+```
+
+Rules:
+1. `--mc` prefers multiple-choice questions with free-form fallback
+2. `--one-at-a-time` asks one adaptive question per round
+3. `--confirm` requires approval of the final task contract
+4. `--record` persists the approved contract when a suitable artifact exists and implies `--confirm`
+5. arguments must appear directly after `--quizme`, may appear in any order, and can be combined
+6. duplicate arguments are harmless
+7. unsupported arguments are ignored and briefly reported
+8. every option clears when quizme mode is toggled off
+9. destructive, public, production, payment, authentication, or irreversible tasks require confirmation automatically
+10. the agent should use the plan-mode interactive clarification console when available and concise conversational questions otherwise
+
+Combined example:
+
+```text
+--quizme --mc --one-at-a-time --confirm
+```
+
 ## Recommended Setup
 Use the `skills/` directory in this repository as the source of truth.
 
@@ -42,6 +80,7 @@ The skill folders are directories such as:
 3. `regression-prevention/`
 4. `doc-maintenance/`
 5. `token-reduction/`
+6. `quizme-mode/`
 
 Avoid copying one random `SKILL.md` by itself unless you already understand the dependency chain. Several skills deliberately reference the same routing docs and validation artifacts.
 
@@ -75,6 +114,11 @@ When the task changes behavior, workflows, policy, or docs, add:
 For multi-step, risky, ambiguous, or release-affecting work, add:
 
 1. `skill-governance`
+
+When `--quizme` is active, add before substantive execution:
+
+1. `quizme-mode`
+2. `requirement-clarifier`
 
 For non-trivial code changes, add:
 
@@ -188,6 +232,7 @@ Use these examples to avoid over-applying skills:
 3. [release-readiness-change.md](./docs/examples/release-readiness-change.md)
 4. [frontend-layout-task.md](./docs/examples/frontend-layout-task.md)
 5. [documentation-only-update.md](./docs/examples/documentation-only-update.md)
+6. [quizme-clarification.md](./docs/examples/quizme-clarification.md)
 
 ## Licensing And Attribution
 This pack uses an attribution-required non-commercial license.
@@ -195,7 +240,7 @@ This pack uses an attribution-required non-commercial license.
 If you use, copy, modify, or redistribute it, keep the license intact and credit:
 
 1. Matt
-2. Level-Up Codex Skillpack
+2. Codex Command Center
 3. the original repository or copy source
 
 Commercial use requires written permission.

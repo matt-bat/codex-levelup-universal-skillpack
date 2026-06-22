@@ -67,6 +67,7 @@ Use this skill when:
 6. project-index consistency checks
 7. skill-catalog consistency checks (`*/SKILL.md` vs `SKILL-MAP.md` vs `docs/skill-index.md`)
 8. governed-path scope checks (`skills/**`, `.codex/skills/**`, `docs/governance/**`, `docs/project-index.md`, `AGENTS.md`, `.github/workflows/**`)
+9. governed artifact quizme state checks (`quizme_mode`, option booleans, implied confirmation for recording, and required `quizme-mode` startup declaration when active)
 
 ## Regression Test Command
 Run after governance-script changes:

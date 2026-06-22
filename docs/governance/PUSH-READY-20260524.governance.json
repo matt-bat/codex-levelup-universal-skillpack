@@ -10,6 +10,11 @@
   "deployment_requested": false,
   "execution_skill": "scripted-command-execution",
   "behavior_or_workflow_changed": true,
+  "quizme_mode": "off",
+  "quizme_multiple_choice": false,
+  "quizme_one_at_a_time": false,
+  "quizme_confirm": false,
+  "quizme_record": false,
   "scores": {
     "data_impact": 0,
     "business_impact": 1,

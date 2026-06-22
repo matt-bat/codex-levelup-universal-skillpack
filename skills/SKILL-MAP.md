@@ -21,6 +21,10 @@ Quick routing guide for when to apply each skill and how multiple skills should 
    - prefer writing important rationale as code comments or repo docs/artifacts
 6. Cross-skill trigger routing:
    - when one skill triggers another, consult `docs/skill-index.md` first
+7. Quizme clarification mode:
+   - `--quizme` toggles persistent conversation-local clarification mode on/off
+   - supported immediate arguments are `--mc`, `--one-at-a-time`, `--confirm`, and `--record`
+   - when active, apply `quizme-mode` before substantive execution
 
 ## Minimum Viable Skill Use
 Use the smallest skill set that satisfies the request and safety requirements.
@@ -45,30 +49,31 @@ Stop rules:
 2. `process-budget-controller`
 3. `governance-enforcement`
 4. `requirement-clarifier`
-5. `diagnose-before-fix`
-6. `semantic-policy-audit`
-7. `interdependent-change-planning`
-8. `thoughtful-approach`
-9. `thoroughly-rate-review`
-10. `user-instructions-tracker`
-11. `history-indexing`
-12. `conversation-retention-summary`
-13. `ui-spatial-canvas`
-14. `ui-design-skills`
-15. `effective-testing-methods`
-16. `scripted-command-execution`
-17. `pseudo-agentic-automation`
-18. `token-reduction`
-19. `artifact-budget-enforcement`
-20. `order-of-operations`
-21. `regression-prevention`
-22. `file-structure-optimization`
-23. `doc-maintenance`
-24. `file-maintenance`
-25. `skill-usage-review`
-26. `deprecation-management`
-27. `project-backup`
-28. `restore-drill`
+5. `quizme-mode`
+6. `diagnose-before-fix`
+7. `semantic-policy-audit`
+8. `interdependent-change-planning`
+9. `thoughtful-approach`
+10. `thoroughly-rate-review`
+11. `user-instructions-tracker`
+12. `history-indexing`
+13. `conversation-retention-summary`
+14. `ui-spatial-canvas`
+15. `ui-design-skills`
+16. `effective-testing-methods`
+17. `scripted-command-execution`
+18. `pseudo-agentic-automation`
+19. `token-reduction`
+20. `artifact-budget-enforcement`
+21. `order-of-operations`
+22. `regression-prevention`
+23. `file-structure-optimization`
+24. `doc-maintenance`
+25. `file-maintenance`
+26. `skill-usage-review`
+27. `deprecation-management`
+28. `project-backup`
+29. `restore-drill`
 
 ## Trigger Matrix
 | Skill | Primary Trigger | Typical Output |
@@ -77,6 +82,7 @@ Stop rules:
 | `process-budget-controller` | multiple skills could apply and process needs explicit caps | process tier + max skill count + artifact allowance |
 | `governance-enforcement` | governance tooling, validators, CI policy checks | artifact generation/validation + enforcement pass/fail remediation |
 | `requirement-clarifier` | ambiguous requests or missing acceptance criteria | clarified scope/assumptions/non-goals/acceptance contract |
+| `quizme-mode` | `--quizme` invoked or persistent quizme state active | interactive clarification rounds + aligned task contract before execution |
 | `diagnose-before-fix` | bug reports or failures with unverified causes | symptom vs cause verification + verified root cause or safe mitigation |
 | `semantic-policy-audit` | intent-level policy compliance review | expected-vs-observed skill/gate audit + gap classification |
 | `interdependent-change-planning` | changes that touch connected system parts | coupled-surface map + coherent update plan |
@@ -105,7 +111,11 @@ Stop rules:
 ## Ownership Boundaries (Anti-Overlap)
 Use this matrix to prevent process duplication.
 
-1. `skill-governance` owns:
+1. `quizme-mode` owns:
+   - conversation-local toggle state
+   - exact immediate argument handling for `--mc`, `--one-at-a-time`, `--confirm`, and `--record`
+   - pre-execution clarification gate
+2. `skill-governance` owns:
    - mode selection
    - required gate set
    - release recommendation policy
@@ -128,7 +138,7 @@ Use this matrix to prevent process duplication.
 
 Conflict rule:
 1. if two skills appear to own the same decision, apply this ownership order:
-   - process cap (`process-budget-controller`) -> policy (`skill-governance`) -> sequencing (`order-of-operations`) -> risk (`regression-prevention`) -> test design (`effective-testing-methods`) -> command execution (`scripted-command-execution`)
+   - explicit quizme clarification gate (`quizme-mode`) -> process cap (`process-budget-controller`) -> policy (`skill-governance`) -> sequencing (`order-of-operations`) -> risk (`regression-prevention`) -> test design (`effective-testing-methods`) -> command execution (`scripted-command-execution`)
 
 ## Constrained Verification Protocol
 When local environment limitations block required test layers (for example missing browser/system libraries):
@@ -256,6 +266,12 @@ When local environment limitations block required test layers (for example missi
 5. `file-maintenance`
 6. `token-reduction`
 
+### Scenario M: Persistent Quizme Clarification
+1. `quizme-mode`
+2. `requirement-clarifier`
+3. `skill-governance` (if risk, release, or policy impact exists)
+4. task-specific skills only after the clarification gate passes
+
 ## Conflict Resolution Rules
 1. Safety-first skills override speed-first skills:
    - `project-backup`, `restore-drill`, `regression-prevention` take precedence over shortcuts.
@@ -269,39 +285,43 @@ When local environment limitations block required test layers (for example missi
    - `token-reduction` must preserve mandatory validation outputs.
 6. Deployment defaults:
    - no deployment actions without explicit user request.
+7. Quizme precedence:
+   - when quizme mode is active, `quizme-mode` blocks substantive execution until clarification is complete.
 
 ## Fast Selection Heuristics
 1. If task is risky, multi-step, or ambiguous: start with `skill-governance`.
 2. If governance scripts/CI enforcement are in scope: add `governance-enforcement`.
 3. If requirements are ambiguous: add `requirement-clarifier`.
-4. If intent-level policy correctness must be audited: add `semantic-policy-audit`.
-5. If task is deterministic and local with orchestration needs: choose `scripted-command-execution`.
-6. If task requires live browser/GUI adaptation: choose `pseudo-agentic-automation`.
-7. If request has many steps or questionable order: add `order-of-operations`.
-8. If change is risky or broad: add `regression-prevention`.
-9. If backups/restores are relevant: add `project-backup` and `restore-drill`.
-10. If task requires end-user expectation modeling: add `thoughtful-approach`.
-11. If user asks to review/rate/score/assess/evaluate quality: add `thoroughly-rate-review`.
-12. If user gives directives or asks fulfillment/progress status: add `user-instructions-tracker`.
-13. If long-history retrieval overhead exists: add `history-indexing`.
-14. If the request needs a bounded rolling summary of the last 10 conversations: add `conversation-retention-summary`.
-15. If cached artifacts or metadata need hard size limits: add `artifact-budget-enforcement`.
-16. If task is frontend interaction/layout architecture: add `ui-spatial-canvas`.
-17. If task needs trusted UX standards and cross-platform design heuristics: add `ui-design-skills`.
-18. If features/behavior changed and tests must be amended or added: add `effective-testing-methods`.
-19. If repository layout has drift/duplication or poor discoverability: add `file-structure-optimization`.
-20. If file factuality/correctness/staleness maintenance is required: add `file-maintenance`.
-21. If outputs are getting verbose or context is ballooning: add `token-reduction`.
-22. If any behavior/process changed: add `doc-maintenance`.
+4. If `--quizme` is invoked or remains active: add `quizme-mode` before substantive execution.
+5. If intent-level policy correctness must be audited: add `semantic-policy-audit`.
+6. If task is deterministic and local with orchestration needs: choose `scripted-command-execution`.
+7. If task requires live browser/GUI adaptation: choose `pseudo-agentic-automation`.
+8. If request has many steps or questionable order: add `order-of-operations`.
+9. If change is risky or broad: add `regression-prevention`.
+10. If backups/restores are relevant: add `project-backup` and `restore-drill`.
+11. If task requires end-user expectation modeling: add `thoughtful-approach`.
+12. If user asks to review/rate/score/assess/evaluate quality: add `thoroughly-rate-review`.
+13. If user gives directives or asks fulfillment/progress status: add `user-instructions-tracker`.
+14. If long-history retrieval overhead exists: add `history-indexing`.
+15. If the request needs a bounded rolling summary of the last 10 conversations: add `conversation-retention-summary`.
+16. If cached artifacts or metadata need hard size limits: add `artifact-budget-enforcement`.
+17. If task is frontend interaction/layout architecture: add `ui-spatial-canvas`.
+18. If task needs trusted UX standards and cross-platform design heuristics: add `ui-design-skills`.
+19. If features/behavior changed and tests must be amended or added: add `effective-testing-methods`.
+20. If repository layout has drift/duplication or poor discoverability: add `file-structure-optimization`.
+21. If file factuality/correctness/staleness maintenance is required: add `file-maintenance`.
+22. If outputs are getting verbose or context is ballooning: add `token-reduction`.
+23. If any behavior/process changed: add `doc-maintenance`.
 
 ## Completion Gate
 A multi-skill task should not be considered complete until:
-1. governance mode/gates were selected for risky or ambiguous work,
-2. dependency-correct sequencing was followed,
-3. required safety/quality gates passed,
-4. docs were updated when relevant,
-5. cross-skill triggers were validated against `docs/skill-index.md`,
-6. final response includes concise outcome + required evidence.
+1. active `quizme-mode` clarification finished before substantive execution,
+2. governance mode/gates were selected for risky or ambiguous work,
+3. dependency-correct sequencing was followed,
+4. required safety/quality gates passed,
+5. docs were updated when relevant,
+6. cross-skill triggers were validated against `docs/skill-index.md`,
+7. final response includes concise outcome + required evidence.
 
 ## Canonical Routing Artifact
 1. `docs/skill-index.md` is the authoritative cross-skill trigger index.

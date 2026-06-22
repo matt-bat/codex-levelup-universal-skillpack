@@ -1,6 +1,6 @@
-# Level-Up Codex Skillpack
+# Codex Command Center
 
-Level-Up Codex Skillpack is the workflow layer I use to make Codex more consistent, more careful, and easier to audit.
+Codex Command Center is the workflow layer I use to make Codex more consistent, more careful, and easier to audit.
 
 At a high level, it gives Codex a set of reusable operating habits: plan in the right order, keep scope under control, validate risky work, update docs when behavior changes, and leave behind enough evidence that future work can pick up cleanly.
 
@@ -40,36 +40,37 @@ This pack is designed to improve:
 - Security policy: [SECURITY.md](./SECURITY.md)
 
 ## Included Skills
-The pack currently includes 28 interoperable skills:
+The pack currently includes 29 interoperable skills:
 
 1. `skill-governance`
 2. `process-budget-controller`
 3. `governance-enforcement`
 4. `requirement-clarifier`
-5. `diagnose-before-fix`
-6. `semantic-policy-audit`
-7. `interdependent-change-planning`
-8. `thoughtful-approach`
-9. `thoroughly-rate-review`
-10. `user-instructions-tracker`
-11. `history-indexing`
-12. `conversation-retention-summary`
-13. `ui-spatial-canvas`
-14. `ui-design-skills`
-15. `effective-testing-methods`
-16. `scripted-command-execution`
-17. `pseudo-agentic-automation`
-18. `token-reduction`
-19. `artifact-budget-enforcement`
-20. `order-of-operations`
-21. `regression-prevention`
-22. `file-structure-optimization`
-23. `doc-maintenance`
-24. `file-maintenance`
-25. `skill-usage-review`
-26. `deprecation-management`
-27. `project-backup`
-28. `restore-drill`
+5. `quizme-mode`
+6. `diagnose-before-fix`
+7. `semantic-policy-audit`
+8. `interdependent-change-planning`
+9. `thoughtful-approach`
+10. `thoroughly-rate-review`
+11. `user-instructions-tracker`
+12. `history-indexing`
+13. `conversation-retention-summary`
+14. `ui-spatial-canvas`
+15. `ui-design-skills`
+16. `effective-testing-methods`
+17. `scripted-command-execution`
+18. `pseudo-agentic-automation`
+19. `token-reduction`
+20. `artifact-budget-enforcement`
+21. `order-of-operations`
+22. `regression-prevention`
+23. `file-structure-optimization`
+24. `doc-maintenance`
+25. `file-maintenance`
+26. `skill-usage-review`
+27. `deprecation-management`
+28. `project-backup`
+29. `restore-drill`
 
 ## How The Pack Is Organized
 The skills are grouped by the kind of decision they own. This matters because the pack is intentionally broad, and broad systems need clear ownership.
@@ -82,6 +83,7 @@ The skills are grouped by the kind of decision they own. This matters because th
    - `process-budget-controller`
    - `token-reduction`
 3. Diagnosis, planning, and sequencing:
+   - `quizme-mode`
    - `requirement-clarifier`
    - `diagnose-before-fix`
    - `interdependent-change-planning`
@@ -160,6 +162,14 @@ Use this shortcut:
 3. small local edit: `token-reduction`, `order-of-operations`, targeted validation
 4. normal code change: add `regression-prevention`
 5. governed or release-affecting work: use the governance path
+
+Optional clarification control:
+1. write `--quizme` to toggle persistent conversation-local exhaustive clarification on or off
+2. write `--quizme --mc` to prefer interactive multiple-choice questions
+3. write `--quizme --one-at-a-time` for one adaptive question per round
+4. write `--quizme --confirm` to approve the final task contract before execution
+5. write `--quizme --record` to persist the approved contract when a suitable artifact exists; this implies confirmation
+6. combine supported arguments in any order directly after `--quizme`
 
 ## Intended Outcomes
 The expected result is not “more process.” The expected result is better judgment about when process is worth it.

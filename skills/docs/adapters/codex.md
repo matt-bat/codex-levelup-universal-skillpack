@@ -18,6 +18,9 @@ Codex should:
 3. request approval before deployment or destructive operations
 4. update `skills/user-instructions.md` when directives change
 5. use `process-budget-controller` to avoid over-selecting skills
+6. toggle persistent conversation-local clarification with `--quizme`
+7. prefer the interactive clarification console while quizme mode is active
+8. support intuitive quizme options: `--mc`, `--one-at-a-time`, `--confirm`, and `--record`
 
 The startup declaration matters because it shows whether Codex understood the task shape before it starts editing.
 

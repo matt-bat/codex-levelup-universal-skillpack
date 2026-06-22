@@ -29,6 +29,27 @@ Use only:
 
 This is the right path for answer-only work, simple local commands, and small edits where a governance artifact would be overkill.
 
+## I Want Exhaustive Clarification
+Install `quizme-mode`, then write:
+
+```text
+--quizme
+```
+
+Quizme mode persists for the conversation until toggled off with `--quizme` again.
+
+Optional arguments:
+1. `--mc`: prefer interactive multiple-choice questions
+2. `--one-at-a-time`: ask one adaptive question per round
+3. `--confirm`: require approval of the final task contract
+4. `--record`: save the approved contract when a suitable artifact exists; implies `--confirm`
+
+Combine options directly after `--quizme`, for example:
+
+```text
+--quizme --mc --one-at-a-time --confirm
+```
+
 ## I Want Governed Release Readiness
 Use this path when a change affects skills, CI, validation policy, release posture, or user instruction tracking.
 
