@@ -1,10 +1,10 @@
 # Governance Artifact: CONTROLLED-GROWTH-20260524
 
 - `created_at_utc`: 2026-05-25T04:00:06.694140+00:00
-- `project_id`: codex-levelup-skillpack
+- `project_id`: agent-command-center
 - `profile`: internal
 - `project_language`: Markdown/Python
-- `project_description_max4`: Codex skillpack governance
+- `project_description_max4`: Agent skillpack governance
 - `model_runs_test_build_default`: yes
 - `execution_scope`: local_only
 - `deployment_requested`: false

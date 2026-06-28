@@ -184,7 +184,7 @@ Lifecycle and quality review docs:
 1. `docs/rubrics/skillpack-quality-rubric.md`
 2. `docs/rubrics/release-readiness-rubric.md`
 3. `docs/rubrics/documentation-quality-rubric.md`
-4. `docs/adapters/codex.md`
+4. `docs/adapters/agent.md`
 5. `docs/adapters/generic-agent.md`
 6. `docs/maturity-model.md`
 7. `docs/field-notes.md`

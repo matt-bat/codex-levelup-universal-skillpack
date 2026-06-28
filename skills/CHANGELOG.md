@@ -23,7 +23,7 @@ All notable changes to Agent Command Center are documented in this file.
 - Added minimum viable skill-use rules to reduce over-governance on small tasks.
 - Added anti-overuse rules to high-overlap skills covering documentation, file maintenance, history/cache management, and governance.
 - Extended policy validation to check the machine-readable catalog and anti-overuse sections.
-- Updated `README.md` for stronger GitHub discoverability with codex/agent-skill keywords, refined summary language, and suggested topics/tags.
+- Updated `README.md` for stronger GitHub discoverability with agent-centric keywords, refined summary language, and suggested topics/tags.
 - Added bounded-memory, root-cause verification, interdependent-change planning, and cache-budget skills; synced routing docs and governance policy for the expanded skillset.
 - Updated governance CI paths to support this repository's `skills/` layout directly.
 

@@ -2,7 +2,7 @@
 
 Use this adapter when an agent cannot load the repository's skills directly.
 
-The portable idea is simple: turn the skills into operating modes, keep the routing rules, and replace Codex-specific tool behavior with the target agent's own command and approval flow.
+The portable idea is simple: turn the skills into operating modes, keep the routing rules, and replace agent-specific tool behavior with the target agent's own command and approval flow.
 
 ## Portable Core
 Copy or summarize:
@@ -25,11 +25,11 @@ The agent should:
 6. support persistent conversation-local `--quizme` clarification mode when the target agent can preserve turn state
 
 ## Non-Portable Assumptions
-Some commands, approval flows, sandbox rules, and skill-loading behavior are Codex-specific. Replace them with the target agent's local command, approval, and artifact mechanisms.
+Some commands, approval flows, sandbox rules, and skill-loading behavior are implementation-specific. Replace them with the target agent's local command, approval, and artifact mechanisms.
 
 If a feature cannot be ported cleanly, document the gap instead of pretending the agent has the same controls.
 
-For `--quizme`, replace Codex's interactive clarification console with the target agent's equivalent prompt UI. Preserve supported options when possible: `--mc`, `--one-at-a-time`, `--confirm`, and `--record`.
+For `--quizme`, replace the source agent's interactive clarification console with the target agent's equivalent prompt UI. Preserve supported options when possible: `--mc`, `--one-at-a-time`, `--confirm`, and `--record`.
 
 ## Minimum Profile
 For generic agents, start with:

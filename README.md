@@ -196,7 +196,7 @@ The pack should help produce:
 ## Suggested GitHub Topics
 Use these tags for discoverability:
 
-- `codex`
+- `agent-command-center`
 - `ai-agent`
 - `agent-skills`
 - `skillpack`
