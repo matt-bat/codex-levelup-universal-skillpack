@@ -6,6 +6,16 @@ At a high level, it gives the assistant a set of reusable operating habits: plan
 
 If you are looking for `agent skills`, an `ai agent skillpack`, or an `agent workflow governance` setup, this repo is meant to be a practical starting point rather than a theoretical prompt collection.
 
+## Quick Implementation Guide
+1. Put this repository in the assistant's workspace.
+2. Load `AGENTS.md` and the relevant skill files for the task.
+3. Ask the assistant to declare the active skills and execution order before it edits anything.
+
+## Detailed Overview
+This repository is the workflow layer that makes AI assistants more consistent, more careful, and easier to audit.
+
+At a high level, it gives the assistant a set of reusable operating habits: plan in the right order, keep scope under control, validate risky work, update docs when behavior changes, and leave behind enough evidence that future work can pick up cleanly.
+
 ## Start Here
 If you are new to the pack, start with [START_HERE.md](./START_HERE.md). It gives you the shortest path based on what you want to do:
 
