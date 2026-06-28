@@ -1,6 +1,6 @@
 # Generic Agent Adapter
 
-Use this adapter when an agent cannot load Codex skills directly.
+Use this adapter when an agent cannot load the repository's skills directly.
 
 The portable idea is simple: turn the skills into operating modes, keep the routing rules, and replace Codex-specific tool behavior with the target agent's own command and approval flow.
 

@@ -21,10 +21,10 @@ Run from the repository root:
 ```sh
 python3 skills/skill-governance/scripts/generate_governance_artifact.py \
   --task-id PUSH-READY-20260524 \
-  --project-id codex-command-center \
+  --project-id agent-command-center \
   --profile internal \
   --project-language Markdown/Python \
-  --project-description-max4 "Codex command center" \
+  --project-description-max4 "Agent command center" \
   --model-runs-test-build-default yes \
   --quizme-mode off \
   --skills-in-use "token-reduction,order-of-operations,skill-governance,interdependent-change-planning,regression-prevention,scripted-command-execution,doc-maintenance,user-instructions-tracker" \

@@ -1,27 +1,27 @@
 # Usage
 
-I built this skillpack for Codex users who want a steadier agent workflow without rewriting the same process rules in every project.
+I built this skillpack for people using ChatGPT, Claude, Gemini, Cursor, GitHub Copilot, or another assistant that can read repo instructions and follow them consistently.
 
 The short version:
 
 1. read [../START_HERE.md](../START_HERE.md)
 2. choose an install profile
-3. put the selected skill folders where Codex can read them
+3. put the selected skill folders where the assistant can read them
 4. copy the default policy from this repository into your project instructions
-5. start a task and have Codex declare which skills it is using
+5. start a task and have the assistant declare which skills it is using
 6. keep docs, trackers, and governance checks in sync when you change the pack
 
 ## What These Skills Are
 Each skill is a folder with a `SKILL.md` file.
 
-Codex uses those files as task-specific operating instructions. A skill can define:
+The assistant uses those files as task-specific operating instructions. A skill can define:
 
 1. when it should be used
 2. how it should be ordered with other skills
 3. what files, checks, or evidence should be updated
 4. what the assistant should avoid doing
 
-This pack is intentionally more structured than a single prompt. It is meant to slow Codex down on the parts where mistakes are expensive: requirements, sequencing, validation, documentation drift, policy changes, and release readiness.
+This pack is intentionally more structured than a single prompt. It is meant to slow the assistant down on the parts where mistakes are expensive: requirements, sequencing, validation, documentation drift, policy changes, and release readiness.
 
 It also includes process-budget controls, so simple work can still stay simple.
 
@@ -68,10 +68,10 @@ Use the `skills/` directory in this repository as the source of truth.
 
 Typical setup:
 
-1. copy the selected skill folders into your Codex skills directory
+1. copy the selected skill folders into your assistant's skills directory
 2. keep `SKILL-MAP.md`, `docs/skill-index.md`, and `user-instructions.md` with the pack
 3. copy the `AGENTS.md` policy into the project where you want these skills enforced
-4. restart or refresh Codex so it reloads the available skills
+4. restart or refresh the assistant so it reloads the available skills
 
 The skill folders are directories such as:
 
@@ -84,8 +84,8 @@ The skill folders are directories such as:
 
 Avoid copying one random `SKILL.md` by itself unless you already understand the dependency chain. Several skills deliberately reference the same routing docs and validation artifacts.
 
-## How I Expect Codex To Use The Pack
-At the start of a task, Codex should declare:
+## How I Expect the Assistant To Use The Pack
+At the start of a task, the assistant should declare:
 
 1. `Skills in use`
 2. why each skill was selected
@@ -240,7 +240,7 @@ This pack uses an attribution-required non-commercial license.
 If you use, copy, modify, or redistribute it, keep the license intact and credit:
 
 1. Matt
-2. Codex Command Center
+2. Agent Command Center
 3. the original repository or copy source
 
 Commercial use requires written permission.

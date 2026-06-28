@@ -1,8 +1,8 @@
-# Codex Command Center
+# Agent Command Center
 
 This directory is the actual skillpack. The root README explains the project from the outside; this README is for people who are installing, editing, or reviewing the skills themselves.
 
-The pack gives Codex and similar coding agents a reusable operating system for software work: pick the right process, keep the work local by default, validate what changed, and leave enough evidence that another pass can understand what happened.
+The pack gives AI assistants and similar coding agents a reusable operating system for software work: pick the right process, keep the work local by default, validate what changed, and leave enough evidence that another pass can understand what happened.
 
 ## Start Here
 If you are new to the pack, use these in order:

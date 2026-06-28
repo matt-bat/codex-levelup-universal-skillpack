@@ -1,6 +1,6 @@
 # AGENTS.md
 
-## Codex Default Skill Policy
+## Agent Default Skill Policy
 
 Use skills as a default enhancement to behavior on every task.
 

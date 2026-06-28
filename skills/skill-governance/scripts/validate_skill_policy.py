@@ -17,7 +17,7 @@ DEFAULT_SKILLS_ROOT = SCRIPT_PATH.parents[2]
 UTC_REGEX = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 
 REQUIRED_AGENTS_SNIPPETS = [
-    "## Codex Default Skill Policy",
+    "## Agent Default Skill Policy",
     "### Baseline Skills (Default)",
     "### Conditional Skill Triggers",
     "### Startup Declaration (Required)",

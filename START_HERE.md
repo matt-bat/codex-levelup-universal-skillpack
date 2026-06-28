@@ -10,9 +10,9 @@ Start with the `Developer` profile in `skills/docs/install-profiles.md`.
 That gives you enough structure for normal coding work without forcing the full governance system onto every task.
 
 Basic setup:
-1. copy `AGENTS.md` into the project where you want Codex to follow these rules
+1. copy `AGENTS.md` into the project where you want the assistant to follow these rules
 2. copy the relevant skill folders from `skills/`
-3. ask Codex to declare the skills it is using at the start of each task
+3. ask the assistant to declare the skills it is using at the start of each task
 4. run one validation command once the files are in place
 
 ```sh

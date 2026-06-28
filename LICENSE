@@ -1,4 +1,4 @@
-Codex Command Center Attribution-Required Non-Commercial License v1.0
+Agent Command Center Attribution-Required Non-Commercial License v1.0
 
 Copyright (c) 2026 Matt
 All rights reserved.
@@ -7,7 +7,7 @@ All rights reserved.
 - "Skillpack" means all files distributed in this repository's `skills/` directory or copied into an installed `.codex/skills/` directory.
 - "Attribution" means clear credit to the original author in a visible location, including:
   - author name: Matt
-  - project name: Codex Command Center
+  - project name: Agent Command Center
   - source reference: original repository link or copy source
 
 2. Grant of Rights

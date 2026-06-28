@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Codex Command Center are documented in this file.
+All notable changes to Agent Command Center are documented in this file.
 
 ## [Unreleased]
 ### Added

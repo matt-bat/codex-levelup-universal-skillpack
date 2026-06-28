@@ -1,10 +1,10 @@
-# Codex Command Center
+# Agent Command Center
 
-Codex Command Center is the workflow layer I use to make Codex more consistent, more careful, and easier to audit.
+Agent Command Center is the workflow layer I use to make AI assistants more consistent, more careful, and easier to audit.
 
-At a high level, it gives Codex a set of reusable operating habits: plan in the right order, keep scope under control, validate risky work, update docs when behavior changes, and leave behind enough evidence that future work can pick up cleanly.
+At a high level, it gives the assistant a set of reusable operating habits: plan in the right order, keep scope under control, validate risky work, update docs when behavior changes, and leave behind enough evidence that future work can pick up cleanly.
 
-If you are looking for `codex skills`, an `ai agent skillpack`, or an `agent workflow governance` setup, this repo is meant to be a practical starting point rather than a theoretical prompt collection.
+If you are looking for `agent skills`, an `ai agent skillpack`, or an `agent workflow governance` setup, this repo is meant to be a practical starting point rather than a theoretical prompt collection.
 
 ## Start Here
 If you are new to the pack, start with [START_HERE.md](./START_HERE.md). It gives you the shortest path based on what you want to do:
@@ -15,6 +15,18 @@ If you are new to the pack, start with [START_HERE.md](./START_HERE.md). It give
 4. add or change a skill
 5. reduce over-process
 6. improve the pack over time
+
+## Using With Common AIs
+This repository is designed to work with ChatGPT, Claude, Gemini, Cursor, GitHub Copilot, and other assistants that can read markdown instructions.
+
+Use [Common AI Instructions](./skills/docs/adapters/common-ai.md) as the shared setup guide. The short version:
+
+1. keep the repository in the assistant's workspace
+2. load the root `AGENTS.md`
+3. load the relevant skill files for the task
+4. ask the assistant to declare active skills and execution order at task start
+5. use the assistant's project instructions or custom prompt area for the repo policy summary
+6. when a task needs exhaustive clarification, use `--quizme` or the assistant's equivalent clarification flow if it has one
 
 ## Why I Built This
 I built this because agent workflows can get messy fast. Without explicit operating rules, the model can over-plan small tasks, under-validate risky tasks, forget user instructions, or leave documentation behind.
@@ -138,7 +150,7 @@ It is probably too much if you only want a few lightweight prompt snippets. In t
 The pack is governance-first, but not governance-only. The goal is to use serious process only when the task actually needs it.
 
 Core controls:
-1. Codex declares selected skills, rationale, and execution order at task start
+1. the assistant declares selected skills, rationale, and execution order at task start
 2. governance artifacts record mode, risk, gates, and recommendation
 3. validators check policy, skill order, catalog sync, and governance artifacts
 4. CI can enforce governed-change rules before merge or release
