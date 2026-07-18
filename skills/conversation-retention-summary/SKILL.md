@@ -26,6 +26,11 @@ description: Use for maintaining a rolling summary of only the last 10 conversat
 ## Mission
 Keep a tiny, recent-only conversation memory that supports handoff without bloating context.
 
+## Authority and Artifact Policy
+1. Activating this skill grants no authority to create or update `docs/chat-history-summary.md`.
+2. Maintain the summary only when the user requests durable retention or an existing authorized retention workflow is already in scope.
+3. During read-only work, report the proposed refresh without writing it.
+
 ## Trigger Rule
 Use this skill when:
 1. a short recent-history summary is needed

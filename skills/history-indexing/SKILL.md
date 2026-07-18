@@ -26,6 +26,11 @@ description: Use for building and maintaining compact chat/session indexes (`doc
 ## Mission
 Reduce retrieval token waste and stale-context errors by maintaining a structured history index for long-running sessions.
 
+## Authority and Artifact Policy
+1. Activating this skill grants no authority to create or update `docs/chat-history-index.md`.
+2. Maintain the index only when durable history indexing is explicitly requested or already authorized by the repository workflow.
+3. Read-only retrieval may use an existing index but must not refresh it as a side effect.
+
 ## Trigger Rule
 Use this skill when:
 1. conversation history is large enough to cause retrieval overhead

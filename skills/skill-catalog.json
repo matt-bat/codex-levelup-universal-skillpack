@@ -1,8 +1,8 @@
 {
   "$schema": "./skill-catalog.schema.json",
   "schema_version": 2,
-  "catalog_version": "2.0.0",
-  "router_contract": "2.0",
+  "catalog_version": "2.0.1",
+  "router_contract": "2.1",
   "components": [
     "core-policy",
     "task-router",
@@ -52,7 +52,7 @@
     "startup_declaration": {
       "required_when": [
         "explicitly_requested",
-        "governed_or_audited_work"
+        "governed_or_audited_work_requiring_durable_routing_record"
       ],
       "otherwise": "omit"
     },
@@ -69,7 +69,7 @@
   },
   "routing_vocabulary": {
     "actions": ["answer", "diagnose", "edit", "implement", "inspect", "operate", "release", "review", "score", "test"],
-    "operations": ["commit", "delete", "deploy", "message", "migrate", "publish", "push", "read", "run_commands", "write_files"],
+    "operations": ["commit", "configure_remote", "delete", "deploy", "message", "migrate", "publish", "push", "read", "run_commands", "write_files"],
     "effects": ["deletion", "documentation", "external_message", "governance_policy", "live_data", "published_artifact", "remote_repository", "repository_history", "runtime_environment", "test_suite", "unknown", "user_visible_behavior", "workspace_files"],
     "surfaces": ["backend", "browser", "cli", "documentation", "external_service", "frontend", "governance", "live_data", "release", "repository", "response", "runtime", "source", "tests"],
     "domains": ["auth", "code", "data", "documentation", "frontend", "general", "migration", "operations", "policy", "release", "repository", "spatial_canvas", "testing"],
@@ -88,16 +88,12 @@
     "authorization",
     "backup_evidence",
     "descriptor_consistency",
-    "destructive_action",
     "exact_commit",
-    "external_action",
     "external_checkpoint",
     "governance_evidence",
     "material_uncertainty",
     "read_only",
-    "release",
     "restore_evidence",
-    "restore_readiness",
     "rollback_evidence",
     "test_evidence"
   ],
@@ -113,6 +109,7 @@
     "operation_plan",
     "release_attestation",
     "repository_evidence",
+    "restore_evidence",
     "routing_observations",
     "task_contract",
     "test_evidence"
@@ -240,7 +237,7 @@
       "status": "active",
       "role": "owner",
       "routing_mode": "explicit_only",
-      "description": "Use for continuous maintenance of repository files with emphasis on correctness, factual accuracy, freshness, consistency, and duplicate/stale file prevention.",
+      "description": "Perform an explicitly requested repository file-hygiene review or maintenance pass focused on factual accuracy, freshness, consistency, and duplicate or stale file prevention; read-only audits do not authorize corrections.",
       "triggers": ["File correctness, freshness, duplication, or stale-file cleanup is the requested maintenance outcome."],
       "exclusions": ["The task is ordinary implementation or documentation accuracy is the actual decision domain."],
       "routing": {"selection_strength": "required", "triggers": [], "exclusions": []},
@@ -275,7 +272,7 @@
       "decision_domains": ["governance_enforcement"],
       "artifact_policy": {"durability": "required_when_governed", "artifacts": ["governance_plan", "release_attestation"]},
       "risk_level": "high",
-      "relations": {"requires": ["skill-governance"], "gates": ["governance_evidence", "release"], "runs_after": [], "supports": [], "conflicts_with": [], "consumes": ["governance_plan", "change_evidence"], "superseded_by": []}
+      "relations": {"requires": ["skill-governance"], "gates": ["exact_commit", "governance_evidence"], "runs_after": [], "supports": [], "conflicts_with": [], "consumes": ["governance_plan", "change_evidence"], "superseded_by": []}
     },
     {
       "name": "history-indexing",
@@ -387,7 +384,7 @@
       "decision_domains": ["adaptive_execution"],
       "artifact_policy": {"durability": "conversation_local", "artifacts": ["operation_plan"]},
       "risk_level": "medium",
-      "relations": {"requires": [], "gates": ["authorization", "external_action"], "runs_after": [], "supports": ["regression-prevention"], "conflicts_with": ["scripted-command-execution"], "consumes": ["task_contract"], "superseded_by": []}
+      "relations": {"requires": [], "gates": ["authorization", "external_checkpoint"], "runs_after": [], "supports": ["regression-prevention"], "conflicts_with": ["scripted-command-execution"], "consumes": ["task_contract"], "superseded_by": []}
     },
     {
       "name": "quizme-mode",
@@ -441,9 +438,9 @@
       "exclusions": ["The task is an ordinary local code change or source-only migration design."],
       "routing": {"selection_strength": "required", "triggers": [{"flags_any": ["recovery_considered"]}], "exclusions": [{"flags_none": ["recovery_required"]}]},
       "decision_domains": ["restore_verification"],
-      "artifact_policy": {"durability": "required_when_governed", "artifacts": ["backup_evidence"]},
+      "artifact_policy": {"durability": "required_when_governed", "artifacts": ["restore_evidence"]},
       "risk_level": "high",
-      "relations": {"requires": [], "gates": ["restore_evidence", "restore_readiness"], "runs_after": ["project-backup"], "supports": [], "conflicts_with": [], "consumes": ["backup_evidence"], "superseded_by": []}
+      "relations": {"requires": [], "gates": ["restore_evidence"], "runs_after": ["project-backup"], "supports": [], "conflicts_with": [], "consumes": ["backup_evidence"], "superseded_by": []}
     },
     {
       "name": "scripted-command-execution",
@@ -481,11 +478,11 @@
       "description": "Govern release-affecting, policy-changing, externally mutating, destructive, or otherwise high-risk work through typed effects, mandatory evidence, independent safety gates, and an explicit go/no-go decision. Do not use for ordinary answers, read-only inspection, tiny reversible edits, or a task made \"multi-skill\" only by optional process helpers.",
       "triggers": ["Work affects release policy, governance policy, external state, destructive operations, or another explicitly high-risk boundary."],
       "exclusions": ["The task is an ordinary answer, read-only inspection, tiny reversible edit, or only appears complex because optional helpers were added."],
-      "routing": {"selection_strength": "required", "triggers": [{"flags_any": ["governance_change", "release_boundary", "live_or_destructive", "credible_data_loss", "recovery_required", "recovery_unknown"]}], "exclusions": []},
+      "routing": {"selection_strength": "required", "triggers": [{"flags_any": ["governance_change", "release_boundary", "live_or_destructive", "credible_data_loss", "recovery_required", "recovery_unknown"]}, {"operations_any": ["configure_remote"]}], "exclusions": []},
       "decision_domains": ["governance_decision"],
       "artifact_policy": {"durability": "required_when_governed", "artifacts": ["governance_plan"]},
       "risk_level": "high",
-      "relations": {"requires": [], "gates": ["authorization", "destructive_action", "external_action", "governance_evidence", "release"], "runs_after": [], "supports": [], "conflicts_with": [], "consumes": ["task_contract", "change_evidence"], "superseded_by": []}
+      "relations": {"requires": [], "gates": ["authorization", "exact_commit", "external_checkpoint", "governance_evidence"], "runs_after": [], "supports": [], "conflicts_with": [], "consumes": ["task_contract", "change_evidence"], "superseded_by": []}
     },
     {
       "name": "skill-usage-review",

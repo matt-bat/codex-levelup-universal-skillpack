@@ -2,13 +2,8 @@ name: Skills Governance CI
 
 on:
   pull_request:
-    paths:
-      - '.codex/skills/**'
-      - 'skills/**'
-      - 'docs/governance/**'
-      - 'docs/project-index.md'
-      - 'AGENTS.md'
-      - '.github/workflows/**'
+    branches:
+      - main
   push:
     branches:
       - main
@@ -36,6 +31,9 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install pinned governance dependencies
+        run: python3 -m pip install --disable-pip-version-check -r skills/skill-governance/requirements.txt
+
       - name: Compile governance scripts
         run: |
           python3 -m py_compile \
@@ -44,6 +42,7 @@ jobs:
             skills/skill-governance/scripts/generate_routing_views.py \
             skills/skill-governance/scripts/record_routing_observation.py \
             skills/skill-governance/scripts/resolve_task_route.py \
+            skills/skill-governance/scripts/verify_remote_configuration.py \
             skills/skill-governance/scripts/validate_skill_policy.py \
             skills/skill-governance/scripts/validate_skill_order_sync.py \
             skills/skill-governance/scripts/validate_governance_artifact.py \

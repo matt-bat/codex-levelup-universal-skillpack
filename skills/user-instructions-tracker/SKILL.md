@@ -8,6 +8,8 @@ description: Use only when the user explicitly asks to record or audit instructi
 ## Purpose
 Maintain an explicitly authorized durable ledger of cross-task directives while keeping current instruction truth separate from historical fulfillment evidence.
 
+## Authority and Artifact Policy
+
 Activation alone never authorizes creating, migrating, or updating a tracker.
 
 ## Canonical Path

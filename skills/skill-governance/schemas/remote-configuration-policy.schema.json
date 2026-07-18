@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-command-center.local/schemas/remote-configuration-policy.schema.json",
+  "title": "GitHub Branch Protection Desired State",
+  "description": "Closed desired-state contract consumed by the read-only remote configuration verifier.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schema_version", "provider", "repository", "branch", "protection"],
+  "properties": {
+    "$schema": {
+      "const": "../skills/skill-governance/schemas/remote-configuration-policy.schema.json"
+    },
+    "schema_version": {"const": 1},
+    "provider": {"const": "github"},
+    "repository": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "branch": {"type": "string", "minLength": 1, "maxLength": 255},
+    "protection": {"$ref": "#/$defs/protection"}
+  },
+  "$defs": {
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["context", "app_id"],
+      "properties": {
+        "context": {"type": "string", "minLength": 1},
+        "app_id": {
+          "oneOf": [
+            {"type": "integer", "minimum": 1},
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "statusChecks": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["strict", "checks"],
+          "properties": {
+            "strict": {"type": "boolean"},
+            "checks": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {"$ref": "#/$defs/check"}
+            }
+          }
+        }
+      ]
+    },
+    "principals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["users", "teams", "apps"],
+      "properties": {
+        "users": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "teams": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "apps": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "pullRequestReviews": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "dismiss_stale_reviews",
+            "require_code_owner_reviews",
+            "required_approving_review_count",
+            "require_last_push_approval",
+            "dismissal_restrictions",
+            "bypass_pull_request_allowances"
+          ],
+          "properties": {
+            "dismiss_stale_reviews": {"type": "boolean"},
+            "require_code_owner_reviews": {"type": "boolean"},
+            "required_approving_review_count": {"type": "integer", "minimum": 0, "maximum": 6},
+            "require_last_push_approval": {"type": "boolean"},
+            "dismissal_restrictions": {"$ref": "#/$defs/principals"},
+            "bypass_pull_request_allowances": {"$ref": "#/$defs/principals"}
+          }
+        }
+      ]
+    },
+    "protection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required_status_checks",
+        "required_pull_request_reviews",
+        "required_signatures",
+        "enforce_admins",
+        "restrictions",
+        "required_linear_history",
+        "allow_force_pushes",
+        "allow_deletions",
+        "block_creations",
+        "required_conversation_resolution",
+        "lock_branch",
+        "allow_fork_syncing"
+      ],
+      "properties": {
+        "required_status_checks": {"$ref": "#/$defs/statusChecks"},
+        "required_pull_request_reviews": {"$ref": "#/$defs/pullRequestReviews"},
+        "required_signatures": {"type": "boolean"},
+        "enforce_admins": {"type": "boolean"},
+        "restrictions": {
+          "oneOf": [
+            {"type": "null"},
+            {"$ref": "#/$defs/principals"}
+          ]
+        },
+        "required_linear_history": {"type": "boolean"},
+        "allow_force_pushes": {"type": "boolean"},
+        "allow_deletions": {"type": "boolean"},
+        "block_creations": {"type": "boolean"},
+        "required_conversation_resolution": {"type": "boolean"},
+        "lock_branch": {"type": "boolean"},
+        "allow_fork_syncing": {"type": "boolean"}
+      }
+    }
+  }
+}

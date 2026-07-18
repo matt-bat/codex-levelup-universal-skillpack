@@ -9,3 +9,6 @@
 *.gitignore text eol=lf
 *.gitattributes text eol=lf
 *.editorconfig text eol=lf
+
+# Byte-stable digest fixture; routing tests hash the exact checked-out bytes.
+skills/skill-governance/fixtures/passed-artifact-evidence.json -text

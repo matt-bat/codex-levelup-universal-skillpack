@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://agent-command-center.local/schemas/task-descriptor.schema.json",
   "title": "Task Router v2 Descriptor",
-  "description": "Normalized task intent consumed by the deterministic v2 route resolver. Text is evidence only; routing decisions use typed action, effect, authority, and risk fields.",
+  "description": "Normalized task intent consumed by the deterministic router contract. Version 2.0 remains accepted for compatibility; version 2.1 adds typed explicit-skill requests. Text is evidence only; routing decisions use typed action, effect, authority, and risk fields.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -23,7 +23,7 @@
   ],
   "properties": {
     "schema_version": {
-      "const": "2.0"
+      "enum": ["2.0", "2.1"]
     },
     "task_id": {
       "type": "string",
@@ -114,6 +114,7 @@
               "run_commands",
               "write_files",
               "commit",
+              "configure_remote",
               "push",
               "publish",
               "deploy",
@@ -294,6 +295,7 @@
         "run_commands": {"$ref": "#/$defs/authorityStatus"},
         "write_files": {"$ref": "#/$defs/authorityStatus"},
         "commit": {"$ref": "#/$defs/authorityStatus"},
+        "configure_remote": {"$ref": "#/$defs/authorityStatus"},
         "push": {"$ref": "#/$defs/authorityStatus"},
         "publish": {"$ref": "#/$defs/authorityStatus"},
         "deploy": {"$ref": "#/$defs/authorityStatus"},
@@ -323,6 +325,15 @@
           "type": "integer",
           "minimum": 0,
           "maximum": 20
+        },
+        "explicit_skills": {
+          "description": "Canonical skill names explicitly requested by the user or an active conversation mode. Names are catalog-validated and never inferred from prompt keywords.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          }
         },
         "explicit": {
           "type": "array",
@@ -423,7 +434,12 @@
         "rollback": {"$ref": "#/$defs/evidenceStatus"},
         "backup": {"$ref": "#/$defs/evidenceStatus"},
         "restore": {"$ref": "#/$defs/evidenceStatus"},
-        "exact_commit": {"$ref": "#/$defs/evidenceStatus"}
+        "exact_commit": {"$ref": "#/$defs/evidenceStatus"},
+        "artifacts": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/artifactEvidence"}
+        }
       }
     },
     "checkpoint": {
@@ -436,6 +452,26 @@
       ]
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "required": ["schema_version"],
+        "properties": {
+          "schema_version": {"const": "2.1"}
+        }
+      },
+      "then": {
+        "properties": {
+          "constraints": {
+            "required": ["explicit_skills"]
+          },
+          "evidence": {
+            "required": ["artifacts"]
+          }
+        }
+      }
+    }
+  ],
   "$defs": {
     "authorityStatus": {
       "enum": ["granted", "denied", "unknown"]
@@ -448,6 +484,17 @@
         "failed",
         "unknown"
       ]
+    },
+    "artifactEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path", "sha256", "status"],
+      "properties": {
+        "kind": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"},
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "status": {"enum": ["pending", "passed", "failed"]}
+      }
     }
   }
 }

@@ -8,6 +8,11 @@ description: Use for periodically reviewing which skills are overused, underused
 ## Mission
 Improve the skillpack from real usage evidence instead of intuition.
 
+## Authority and Artifact Policy
+1. Activating this skill grants no authority to create or update field notes, routing observations, governance artifacts, or policy files.
+2. Use existing evidence read-only unless the task separately authorizes a durable review artifact or remediation.
+3. Do not retain prompts, source content, hidden reasoning, or unbounded history as usage evidence.
+
 ## Trigger Rule
 Use this skill when:
 1. reviewing recent tasks for process quality

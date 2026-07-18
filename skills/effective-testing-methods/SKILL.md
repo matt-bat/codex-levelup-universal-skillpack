@@ -66,12 +66,13 @@ Run the cheapest relevant checks first:
 
 If a prerequisite is unavailable, record the exact blocker, run non-blocked relevant layers, and provide the precise rerun command. Never substitute an unrelated passing layer for a blocked critical layer.
 
-## Authority and Evidence
+## Authority and Artifact Policy
 
-1. Respect explicit instructions not to run or modify tests.
-2. Test-authoring permission does not imply permission to install dependencies or mutate external state.
-3. Report executed, skipped, blocked, and newly authored coverage separately.
-4. Do not claim full coverage from test discovery or static inspection alone.
+1. Activating this skill grants no authority to run, create, or modify tests.
+2. Respect explicit instructions not to run or modify tests.
+3. Test-authoring permission does not imply permission to install dependencies or mutate external state.
+4. Report executed, skipped, blocked, and newly authored coverage separately.
+5. Do not claim full coverage from test discovery or static inspection alone.
 
 ## Output Contract
 

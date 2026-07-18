@@ -19,7 +19,10 @@ class TestStartupDeclarationValidation(unittest.TestCase):
     def test_render_markdown_does_not_emit_trailing_whitespace_for_empty_waiver(self) -> None:
         artifact = SimpleNamespace(
             task_id="TASK-1",
-            schema_version=2,
+            schema_version=3,
+            purpose="change",
+            authorized_operations=[],
+            release_metadata=None,
             created_at_utc="2026-07-18T00:00:00+00:00",
             project_id="agent-command-center",
             profile="internal",
@@ -29,6 +32,9 @@ class TestStartupDeclarationValidation(unittest.TestCase):
             execution_scope="local_only",
             deployment_requested=False,
             execution_skill="scripted-command-execution",
+            uncertainty_high=False,
+            requires_backup=False,
+            requires_restore=False,
             quizme_mode="off",
             quizme_multiple_choice=False,
             quizme_one_at_a_time=False,
@@ -63,12 +69,22 @@ class TestStartupDeclarationValidation(unittest.TestCase):
                 "manifest_sha256": "b" * 64,
                 "manifest": [],
             },
+            catalog_binding={
+                "path": "skills/skill-catalog.json",
+                "sha256": "c" * 64,
+                "catalog_version": "2.1.0",
+                "router_contract": "2.1",
+                "components": [],
+                "skills": {},
+            },
         )
 
         rendered = module.render_markdown(artifact)
 
         self.assertIn("  - waiver_reason:\n", rendered)
         self.assertEqual([], [line for line in rendered.splitlines() if line.rstrip() != line])
+        self.assertFalse(rendered.endswith("\n"))
+        self.assertFalse((rendered + "\n").endswith("\n\n"))
 
     def test_mode_gates_are_proportional_and_do_not_restore_v1_defaults(self) -> None:
         self.assertEqual(
@@ -189,6 +205,16 @@ class TestStartupDeclarationValidation(unittest.TestCase):
             "scripted-command-execution",
             "on",
         )
+
+    def test_catalog_binding_rejects_missing_quizme_prerequisite(self) -> None:
+        repo_root = Path(__file__).resolve().parents[3]
+        with self.assertRaisesRegex(SystemExit, "missing prerequisites"):
+            module.build_catalog_binding(
+                repo_root / "skills" / "skill-catalog.json",
+                ["skill-governance", "quizme-mode", "scripted-command-execution"],
+                ["skill-governance", "quizme-mode", "scripted-command-execution"],
+                repo_root=repo_root,
+            )
 
     def test_quizme_mc_requires_active_mode(self) -> None:
         with self.assertRaises(SystemExit):
