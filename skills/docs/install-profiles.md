@@ -2,9 +2,9 @@
 
 Use install profiles to adopt only the amount of process you actually need. The full pack is useful, but it is not the right starting point for every project or every task.
 
-Profiles control which skills are available; they do not activate every installed skill. Routing architecture version 2 starts from zero selected skills and adds a skill only when its trigger applies. For routine tasks, target a median of no more than two selected skills and a normal cap of five. Mandatory safety skills and gates are never capped.
+Profiles control which skills are available; they do not activate every installed skill. Routing architecture version 2, implemented by router contract 2.1, starts from zero selected skills and adds a skill only when its trigger applies. For routine tasks, target a median of no more than two selected skills and a normal cap of five. Mandatory safety skills and gates are never capped.
 
-`internal-lang`, `hyperfocus-discovery`, and `quizme-mode` are optional conversation controls in every profile. Install them when you want their explicit modes; none is an always-on baseline. Startup skill declarations are required only when explicitly requested or for governed or audited work.
+`internal-lang`, `hyperfocus-discovery`, and `quizme-mode` are optional conversation controls in every profile. Install them when you want their explicit modes; none is an always-on baseline. Startup skill declarations are required only when explicitly requested or when governed or audited work needs a durable routing record.
 
 ## Minimal
 Use Minimal when you mainly want local assistance, simple edits, and a cleaner task flow.
@@ -17,7 +17,7 @@ Skills:
 
 This profile provides focused output, dependency sequencing, and repeatable shell-command guidance when their triggers apply. Routine answer-only work and tiny edits may still use zero skills.
 
-Do not add `process-budget-controller` to new installations. It is a deprecated compatibility wrapper for older integrations; the schema-v2 router owns process budgeting.
+Do not add `process-budget-controller` to new installations. It is a deprecated compatibility wrapper for older integrations; router contract 2.1 owns process budgeting.
 
 ## Developer
 Use Developer for normal software work where changes should be validated and docs should stay aligned.
@@ -45,7 +45,7 @@ Includes Developer plus:
 6. `skill-usage-review`
 7. `deprecation-management`
 
-This profile is meant for changes where traceability matters: skill behavior, CI policy, validation rules, release readiness, instruction tracking, or anything that could create confusing agent behavior if it drifts.
+This profile is meant for changes where traceability matters: skill behavior, CI policy, validation rules, release readiness, instruction tracking, or anything that could create confusing agent behavior if it drifts. New governed records use governance-artifact schema v3; validators keep schema-v1 and schema-v2 records readable as historical evidence.
 
 Availability still does not imply activation. Select only the governed and safety gates required by the task; do not cap mandatory safety gates to satisfy the routine budget.
 
@@ -71,6 +71,8 @@ Start with `Developer` unless you are maintaining this skillpack or publishing g
 
 Move to `Governed` when changes affect skill behavior, CI, validation, release posture, instruction tracking, or other files that define how the agent should operate.
 
+When remote publication is authorized and `main` is protected, send governed changes through a feature branch and pull request so the required governance check can run. Do not treat an installed profile as authority to push or alter branch protection.
+
 Move back down to `Minimal` for very small tasks. The point is to choose the right amount of process, not the maximum amount of process.
 
-In every profile, use schema-v2 `skills/skill-catalog.json` as the canonical routing source. It generates `skills/SKILL-MAP.md`, `skills/docs/skill-index.md`, and `skills/docs/skill-decision-tree.md`; do not maintain those views independently.
+In every profile, use catalog schema v2 at `skills/skill-catalog.json` as the canonical routing source. The catalog declares router contract 2.1 and generates `skills/SKILL-MAP.md`, `skills/docs/skill-index.md`, and `skills/docs/skill-decision-tree.md`; do not maintain those views independently.

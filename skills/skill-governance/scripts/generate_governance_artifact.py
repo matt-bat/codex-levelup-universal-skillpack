@@ -4,11 +4,13 @@
 from __future__ import annotations
 
 import argparse
+import ast
+import hashlib
 import json
 import re
 import sys
 from dataclasses import asdict, dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -19,12 +21,15 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from governance_common import (  # noqa: E402
-    SCHEMA_V2,
+    SCHEMA_V3,
     build_manifest,
     contained_artifact_paths,
     discover_repo_root,
     is_governed_change,
     manifest_sha256,
+    normalize_repo_path,
+    resolve_commit,
+    run_git,
     validate_task_id,
     working_tree_name_status,
 )
@@ -49,6 +54,23 @@ CRITICAL_OVERRIDES = (
     "production_security_or_runtime_boundary_change",
     "missing_rollback_path",
 )
+
+AUTHORIZED_OPERATIONS = (
+    "commit",
+    "configure_remote",
+    "delete",
+    "deploy",
+    "message",
+    "migrate",
+    "publish",
+    "push",
+)
+
+CRITICAL_AUTHORIZED_OPERATIONS = frozenset(
+    {"configure_remote", "delete", "deploy", "migrate", "publish"}
+)
+RECOVERY_REQUIRED_OPERATIONS = frozenset({"delete", "migrate"})
+EXTERNAL_AUTHORIZED_OPERATIONS = frozenset(AUTHORIZED_OPERATIONS) - {"commit"}
 
 GATE_MATRIX = {
     "quick": [
@@ -89,12 +111,35 @@ EVIDENCE_REQUIREMENTS = {
 }
 
 SKILL_NAME_REGEX = re.compile(r"^[a-z0-9-]+$")
+SEMVER_REGEX = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$")
+PROJECT_ID_REGEX = re.compile(r"^[a-z0-9][a-z0-9-]{1,63}$")
+PROJECT_INDEX_UTC_REGEX = re.compile(
+    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|\+00:00)$"
+)
+PROJECT_INDEX_HEADING = "# Project Index"
+PROJECT_INDEX_HEADER = (
+    "| Project ID | Language | Description (<=4 words) | "
+    "Model Runs Tests/Build by Default (yes/no) | Last Confirmed UTC |"
+)
+PROJECT_INDEX_SEPARATOR = "|---|---|---|---|---|"
+
+
+class ProjectIndexValidationError(ValueError):
+    """Report all structural and field errors in a project index."""
+
+    def __init__(self, path: Path, errors: list[str]) -> None:
+        self.path = path
+        self.errors = errors
+        super().__init__(f"{path}: " + "; ".join(errors))
 
 
 @dataclass
 class GovernanceArtifact:
     schema_version: int
     task_id: str
+    purpose: str
+    authorized_operations: list[str]
+    release_metadata: dict[str, Any] | None
     project_id: str
     created_at_utc: str
     profile: str
@@ -105,6 +150,9 @@ class GovernanceArtifact:
     deployment_requested: bool
     execution_skill: str
     behavior_or_workflow_changed: bool
+    uncertainty_high: bool
+    requires_backup: bool
+    requires_restore: bool
     quizme_mode: str
     quizme_multiple_choice: bool
     quizme_one_at_a_time: bool
@@ -124,6 +172,7 @@ class GovernanceArtifact:
     recommendation: str
     change_binding: dict[str, Any]
     notes: str
+    catalog_binding: dict[str, Any]
 
 
 def parse_args() -> argparse.Namespace:
@@ -164,10 +213,29 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--execution-scope",
-        choices=["local_only", "deployment"],
+        choices=["local_only", "external", "deployment"],
         default="local_only",
         help="Default execution scope for this task.",
     )
+    parser.add_argument(
+        "--purpose",
+        choices=["change", "release"],
+        default="change",
+        help="Artifact purpose. Release purpose requires explicit publication authority.",
+    )
+    parser.add_argument(
+        "--authorized-operation",
+        dest="authorized_operations",
+        action="append",
+        choices=AUTHORIZED_OPERATIONS,
+        default=[],
+        help="Operation-specific authority recorded by this plan. Can be repeated.",
+    )
+    parser.add_argument("--release-version", default="")
+    parser.add_argument("--release-tag", default="")
+    parser.add_argument("--release-version-path", default="skills/VERSION")
+    parser.add_argument("--release-changelog-path", default="skills/CHANGELOG.md")
+    parser.add_argument("--release-notes-path", default="")
     parser.add_argument(
         "--deployment-requested",
         action="store_true",
@@ -318,8 +386,17 @@ def build_evidence_requirements(
     mode: str,
     requires_backup: bool = False,
     requires_restore: bool = False,
+    authorized_operations: list[str] | tuple[str, ...] = (),
 ) -> list[str]:
     requirements = list(EVIDENCE_REQUIREMENTS[mode])
+    if set(authorized_operations).intersection(EXTERNAL_AUTHORIZED_OPERATIONS):
+        requirements.extend(
+            [
+                "operation-specific authority + target identity",
+                "rollback or recovery evidence",
+                "post-operation validation + audit evidence",
+            ]
+        )
     if requires_backup or requires_restore:
         requirements.append("backup artifact + integrity evidence")
     if requires_restore:
@@ -327,8 +404,197 @@ def build_evidence_requirements(
     return requirements
 
 
+def operations_force_critical(authorized_operations: list[str] | tuple[str, ...]) -> bool:
+    return bool(set(authorized_operations).intersection(CRITICAL_AUTHORIZED_OPERATIONS))
+
+
+def manifest_requires_documentation(manifest: list[dict[str, Any]]) -> bool:
+    """Return whether unambiguous behavior/workflow paths require doc evidence."""
+    for entry in manifest:
+        path = str(entry.get("path", ""))
+        if path in {
+            ".github/branch-protection-policy.json",
+            "AGENTS.md",
+            "skills/skill-catalog.json",
+        }:
+            return True
+        if path.startswith(".github/workflows/"):
+            return True
+        if path.startswith("skills/skill-governance/scripts/"):
+            return True
+        if path.startswith("skills/skill-governance/schemas/"):
+            return True
+        if path.startswith("skills/") and path.endswith("/SKILL.md"):
+            return True
+    return False
+
+
+def _catalog_skill_snapshot(skill: dict[str, Any]) -> dict[str, Any]:
+    relations = skill.get("relations", {})
+    return {
+        "status": skill.get("status"),
+        "requires": list(relations.get("requires", [])),
+        "runs_after": list(relations.get("runs_after", [])),
+        "conflicts_with": list(relations.get("conflicts_with", [])),
+    }
+
+
+def build_catalog_binding(
+    catalog_path: Path,
+    skills_in_use: list[str],
+    skills_execution_order: list[str],
+    *,
+    repo_root: Path | None = None,
+) -> dict[str, Any]:
+    """Bind and validate the exact catalog contract used by a v3 plan."""
+    try:
+        raw = catalog_path.read_bytes()
+        payload = json.loads(raw)
+        catalog_skills = {
+            str(skill["name"]): skill
+            for skill in payload["skills"]
+            if isinstance(skill, dict) and isinstance(skill.get("name"), str)
+        }
+        components = set(map(str, payload["components"]))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError, KeyError, TypeError) as exc:
+        raise SystemExit(f"Unable to load canonical skill catalog: {exc}") from exc
+
+    selected = set(skills_in_use)
+    unknown = sorted(selected - set(catalog_skills))
+    if unknown:
+        raise SystemExit("Startup declaration uses unknown catalog skills: " + ", ".join(unknown))
+    inactive = sorted(name for name in selected if catalog_skills[name].get("status") != "active")
+    if inactive:
+        raise SystemExit("Startup declaration uses non-active skills: " + ", ".join(inactive))
+
+    positions = {name: index for index, name in enumerate(skills_execution_order)}
+    for name in sorted(selected):
+        relations = catalog_skills[name].get("relations", {})
+        required = set(map(str, relations.get("requires", []))) - components
+        missing = sorted(required - selected)
+        if missing:
+            raise SystemExit(
+                f"Startup declaration skill {name} is missing prerequisites: "
+                + ", ".join(missing)
+            )
+        predecessors = required | set(map(str, relations.get("runs_after", []))).intersection(selected)
+        for predecessor in sorted(predecessors):
+            if positions[predecessor] > positions[name]:
+                raise SystemExit(
+                    f"Startup declaration order places {name} before predecessor {predecessor}"
+                )
+        conflicts = sorted(set(map(str, relations.get("conflicts_with", []))).intersection(selected))
+        if conflicts:
+            raise SystemExit(
+                f"Startup declaration skill {name} conflicts with: " + ", ".join(conflicts)
+            )
+
+    if repo_root is None:
+        binding_path = "skills/skill-catalog.json"
+    else:
+        try:
+            binding_path = normalize_repo_path(
+                catalog_path.resolve().relative_to(repo_root.resolve()).as_posix()
+            )
+        except ValueError as exc:
+            raise SystemExit("Canonical skill catalog must be inside the repository root") from exc
+    return {
+        "path": binding_path,
+        "sha256": hashlib.sha256(raw).hexdigest(),
+        "catalog_version": str(payload["catalog_version"]),
+        "router_contract": str(payload["router_contract"]),
+        "components": sorted(components),
+        "skills": {
+            name: _catalog_skill_snapshot(catalog_skills[name])
+            for name in sorted(selected)
+        },
+    }
+
+
+def path_exists_at_revision(repo_root: Path, revision: str, path: str) -> bool:
+    normalized = normalize_repo_path(path)
+    output = run_git(
+        repo_root,
+        ["ls-tree", "--name-only", "-z", revision, "--", normalized],
+    )
+    assert isinstance(output, bytes)
+    return normalized.encode("utf-8") in output.split(b"\0")
+
+
+def _repo_file(repo_root: Path, raw_path: str) -> tuple[str, Path]:
+    path = normalize_repo_path(raw_path)
+    candidate = (repo_root / path).resolve()
+    try:
+        candidate.relative_to(repo_root.resolve())
+    except ValueError as exc:
+        raise SystemExit(f"Release metadata path escapes repository root: {path}") from exc
+    if not candidate.is_file():
+        raise SystemExit(f"Release metadata file does not exist: {path}")
+    return path, candidate
+
+
+def count_governance_test_methods(repo_root: Path) -> int:
+    count = 0
+    tests_root = repo_root / "skills" / "skill-governance" / "tests"
+    for path in sorted(tests_root.glob("test_*.py")):
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        except (OSError, UnicodeDecodeError, SyntaxError) as exc:
+            raise SystemExit(f"Unable to inventory governance tests: {path}: {exc}") from exc
+        count += sum(
+            1
+            for node in ast.walk(tree)
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and node.name.startswith("test_")
+        )
+    return count
+
+
+def build_release_metadata(repo_root: Path, args: argparse.Namespace) -> dict[str, Any] | None:
+    if args.purpose != "release":
+        return None
+    version = args.release_version.strip()
+    tag = args.release_tag.strip()
+    version_path, version_file = _repo_file(repo_root, args.release_version_path)
+    changelog_path, changelog_file = _repo_file(repo_root, args.release_changelog_path)
+    notes_raw = args.release_notes_path.strip() or f"skills/RELEASE_NOTES_v{version}.md"
+    release_notes_path, release_notes_file = _repo_file(repo_root, notes_raw)
+
+    if version_file.read_text(encoding="utf-8").strip() != version:
+        raise SystemExit("Release version does not match the exact version file")
+    changelog = changelog_file.read_text(encoding="utf-8")
+    if not re.search(
+        rf"^## \[{re.escape(version)}\] - \d{{4}}-\d{{2}}-\d{{2}}$",
+        changelog,
+        flags=re.MULTILINE,
+    ):
+        raise SystemExit("Release changelog lacks a dated heading for the exact version")
+
+    catalog = json.loads((repo_root / "skills" / "skill-catalog.json").read_text(encoding="utf-8"))
+    skill_count = len(catalog.get("skills", []))
+    test_count = count_governance_test_methods(repo_root)
+    release_notes = release_notes_file.read_text(encoding="utf-8")
+    for marker in (
+        tag,
+        f"- Skill count: `{skill_count}`",
+        f"- Governance test count: `{test_count}`",
+    ):
+        if marker not in release_notes:
+            raise SystemExit(f"Release notes are missing exact metadata marker: {marker}")
+
+    return {
+        "version": version,
+        "tag": tag,
+        "version_path": version_path,
+        "changelog_path": changelog_path,
+        "release_notes_path": release_notes_path,
+        "skill_count": skill_count,
+        "governance_test_count": test_count,
+    }
+
+
 def determine_recommendation(critical_overrides: list[str], break_glass: bool) -> str:
-    # Newly generated v2 artifacts contain pending gates. A positive release
+    # Newly generated v3 artifacts contain pending gates. A positive release
     # recommendation is valid only after evidence is added and gates are closed.
     return "no-go"
 
@@ -352,7 +618,7 @@ def validate_break_glass_fields(args: argparse.Namespace) -> None:
 
 def validate_intake_fields(args: argparse.Namespace) -> None:
     validate_task_id(args.task_id)
-    if not re.fullmatch(r"[a-z0-9][a-z0-9-]{1,63}", args.project_id.strip()):
+    if PROJECT_ID_REGEX.fullmatch(args.project_id.strip()) is None:
         raise SystemExit(
             "--project-id must match [a-z0-9][a-z0-9-]{1,63} (2-64 chars, lowercase letters/digits/hyphens)"
         )
@@ -365,15 +631,38 @@ def validate_intake_fields(args: argparse.Namespace) -> None:
         raise SystemExit("--project-description-max4 must be 4 words or fewer")
     if args.execution_scope == "deployment" and not args.deployment_requested:
         raise SystemExit("execution-scope=deployment requires --deployment-requested")
-    if args.execution_scope == "local_only" and args.deployment_requested:
-        raise SystemExit("--deployment-requested conflicts with execution-scope=local_only")
+    if args.execution_scope != "deployment" and args.deployment_requested:
+        raise SystemExit("--deployment-requested requires execution-scope=deployment")
     if (
         args.requires_backup or args.requires_restore
-    ) and args.execution_scope != "deployment":
+    ) and args.execution_scope == "local_only":
         raise SystemExit(
-            "external recovery-impact flags require execution-scope=deployment "
-            "and --deployment-requested"
+            "external recovery-impact flags require execution-scope=external or deployment"
         )
+    authorized_operations = set(args.authorized_operations)
+    external_operations = authorized_operations - {"commit"}
+    if external_operations and args.execution_scope == "local_only":
+        raise SystemExit("external authorized operations require non-local execution scope")
+    if "deploy" in authorized_operations and args.execution_scope != "deployment":
+        raise SystemExit("authorized deploy requires execution-scope=deployment")
+    recovery_operations = authorized_operations.intersection(RECOVERY_REQUIRED_OPERATIONS)
+    if recovery_operations and not (args.requires_backup and args.requires_restore):
+        raise SystemExit(
+            "authorized delete or migrate requires both --requires-backup and --requires-restore"
+        )
+    if args.purpose == "release":
+        if "publish" not in authorized_operations:
+            raise SystemExit("purpose=release requires --authorized-operation publish")
+        if args.execution_scope == "local_only":
+            raise SystemExit("purpose=release requires external or deployment execution scope")
+        if not SEMVER_REGEX.fullmatch(args.release_version.strip()):
+            raise SystemExit("purpose=release requires a valid --release-version")
+        if args.release_tag.strip() != f"v{args.release_version.strip()}":
+            raise SystemExit("--release-tag must equal v<release-version>")
+    elif "publish" in authorized_operations:
+        raise SystemExit("authorized publish requires purpose=release")
+    elif any((args.release_version.strip(), args.release_tag.strip(), args.release_notes_path.strip())):
+        raise SystemExit("release metadata options require purpose=release")
     if not args.skills_selection_rationale.strip():
         raise SystemExit("--skills-selection-rationale is required")
     validate_quizme_fields(
@@ -442,6 +731,17 @@ def render_markdown(artifact: GovernanceArtifact) -> str:
     lines.append(f"- `schema_version`: {artifact.schema_version}")
     lines.append(f"- `created_at_utc`: {artifact.created_at_utc}")
     lines.append(f"- `project_id`: {artifact.project_id}")
+    lines.append(f"- `purpose`: {artifact.purpose}")
+    lines.append(
+        "- `authorized_operations`: "
+        + (", ".join(artifact.authorized_operations) if artifact.authorized_operations else "none")
+    )
+    if artifact.release_metadata is None:
+        lines.append("- `release_metadata`: none")
+    else:
+        lines.append("- `release_metadata`:")
+        for key, value in artifact.release_metadata.items():
+            lines.append(f"  - `{key}`: {value}")
     lines.append(f"- `profile`: {artifact.profile}")
     lines.append(f"- `project_language`: {artifact.project_language}")
     lines.append(f"- `project_description_max4`: {artifact.project_description_max4}")
@@ -449,6 +749,9 @@ def render_markdown(artifact: GovernanceArtifact) -> str:
     lines.append(f"- `execution_scope`: {artifact.execution_scope}")
     lines.append(f"- `deployment_requested`: {str(artifact.deployment_requested).lower()}")
     lines.append(f"- `execution_skill`: {artifact.execution_skill}")
+    lines.append(f"- `uncertainty_high`: {str(artifact.uncertainty_high).lower()}")
+    lines.append(f"- `requires_backup`: {str(artifact.requires_backup).lower()}")
+    lines.append(f"- `requires_restore`: {str(artifact.requires_restore).lower()}")
     lines.append(f"- `quizme_mode`: {artifact.quizme_mode}")
     lines.append(f"- `quizme_multiple_choice`: {str(artifact.quizme_multiple_choice).lower()}")
     lines.append(f"- `quizme_one_at_a_time`: {str(artifact.quizme_one_at_a_time).lower()}")
@@ -507,6 +810,12 @@ def render_markdown(artifact: GovernanceArtifact) -> str:
         lines.append("## Notes")
         lines.append(artifact.notes)
         lines.append("")
+    lines.append("## Catalog Binding")
+    lines.append(f"- `path`: {artifact.catalog_binding['path']}")
+    lines.append(f"- `sha256`: {artifact.catalog_binding['sha256']}")
+    lines.append(f"- `catalog_version`: {artifact.catalog_binding['catalog_version']}")
+    lines.append(f"- `router_contract`: {artifact.catalog_binding['router_contract']}")
+    lines.append("")
     lines.append("## Change Binding")
     lines.append(f"- `base_sha`: {artifact.change_binding['base_sha']}")
     lines.append(f"- `manifest_sha256`: {artifact.change_binding['manifest_sha256']}")
@@ -519,46 +828,121 @@ def render_markdown(artifact: GovernanceArtifact) -> str:
             )
     else:
         lines.append("  - none")
-    lines.append("")
     return "\n".join(lines)
 
 
 def parse_index_line(line: str) -> list[str]:
-    return [cell.strip() for cell in line.strip().strip("|").split("|")]
+    return [cell.strip() for cell in line[1:-1].split("|")]
 
 
-def load_project_index(path: Path) -> dict[str, dict[str, str]]:
+def _valid_project_index_utc(value: str) -> bool:
+    if PROJECT_INDEX_UTC_REGEX.fullmatch(value) is None:
+        return False
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    return parsed.tzinfo is not None and parsed.utcoffset() == timedelta(0)
+
+
+def validate_project_index(
+    path: Path,
+    *,
+    allow_missing: bool = False,
+) -> dict[str, dict[str, str]]:
+    """Parse a structurally exact project index or fail with all discovered errors."""
+
     if not path.exists():
-        return {}
+        if allow_missing:
+            return {}
+        raise ProjectIndexValidationError(path, ["missing required project index"])
+    if not path.is_file():
+        raise ProjectIndexValidationError(path, ["project index path is not a file"])
+    try:
+        raw_lines = path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeError) as exc:
+        raise ProjectIndexValidationError(path, [f"cannot read project index: {exc}"]) from exc
+
+    nonblank = [
+        (line_number, line)
+        for line_number, line in enumerate(raw_lines, start=1)
+        if line.strip()
+    ]
+    errors: list[str] = []
+    expected_preamble = (
+        ("heading", PROJECT_INDEX_HEADING),
+        ("table header", PROJECT_INDEX_HEADER),
+        ("table separator", PROJECT_INDEX_SEPARATOR),
+    )
+    for index, (label, expected) in enumerate(expected_preamble):
+        if index >= len(nonblank):
+            errors.append(f"missing exact {label}: {expected}")
+            continue
+        line_number, actual = nonblank[index]
+        if actual != expected:
+            errors.append(
+                f"line {line_number} must be the exact {label}: {expected}"
+            )
+
     entries: dict[str, dict[str, str]] = {}
-    for raw_line in path.read_text(encoding="utf-8").splitlines():
-        line = raw_line.strip()
-        if not line.startswith("|"):
+    for line_number, line in nonblank[3:]:
+        if not line.startswith("|") or not line.endswith("|"):
+            errors.append(
+                f"line {line_number} contains non-table content after the project-index preamble"
+            )
             continue
         cells = parse_index_line(line)
         if len(cells) != 5:
+            errors.append(f"line {line_number} must contain exactly five table cells")
             continue
-        if cells[0] in {"Project ID", "---"}:
-            continue
-        project_id = cells[0]
-        if not project_id:
-            continue
-        entries[project_id] = {
-            "language": cells[1],
-            "description": cells[2],
-            "model_default_test_build": cells[3],
-            "last_confirmed_utc": cells[4],
-        }
+        project_id, language, description, model_default, last_confirmed = cells
+        if PROJECT_ID_REGEX.fullmatch(project_id) is None:
+            errors.append(
+                f"line {line_number} has invalid lowercase project ID `{project_id}`"
+            )
+        elif project_id in entries:
+            errors.append(f"line {line_number} duplicates project ID `{project_id}`")
+        if not language:
+            errors.append(f"line {line_number} has an empty language")
+        word_count = len(description.split())
+        if not description:
+            errors.append(f"line {line_number} has an empty description")
+        elif word_count > 4:
+            errors.append(
+                f"line {line_number} description has {word_count} words; maximum is 4"
+            )
+        if model_default not in {"yes", "no"}:
+            errors.append(
+                f"line {line_number} model test/build default must be exactly `yes` or `no`"
+            )
+        if not _valid_project_index_utc(last_confirmed):
+            errors.append(
+                f"line {line_number} Last Confirmed UTC must be a valid timezone-aware UTC timestamp"
+            )
+        if PROJECT_ID_REGEX.fullmatch(project_id) is not None and project_id not in entries:
+            entries[project_id] = {
+                "language": language,
+                "description": description,
+                "model_default_test_build": model_default,
+                "last_confirmed_utc": last_confirmed,
+            }
+
+    if errors:
+        raise ProjectIndexValidationError(path, errors)
     return entries
+
+
+def load_project_index(path: Path) -> dict[str, dict[str, str]]:
+    return validate_project_index(path, allow_missing=True)
 
 
 def write_project_index(path: Path, entries: dict[str, dict[str, str]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     lines = [
-        "# Project Index",
+        PROJECT_INDEX_HEADING,
         "",
-        "| Project ID | Language | Description (<=4 words) | Model Runs Tests/Build by Default (yes/no) | Last Confirmed UTC |",
-        "|---|---|---|---|---|",
+        PROJECT_INDEX_HEADER,
+        PROJECT_INDEX_SEPARATOR,
     ]
     for project_id in sorted(entries.keys()):
         item = entries[project_id]
@@ -570,7 +954,10 @@ def write_project_index(path: Path, entries: dict[str, dict[str, str]]) -> None:
 
 
 def sync_project_index(path: Path, artifact: GovernanceArtifact) -> None:
-    entries = load_project_index(path)
+    try:
+        entries = load_project_index(path)
+    except ProjectIndexValidationError as exc:
+        raise SystemExit(str(exc)) from exc
     last_confirmed_utc = artifact.created_at_utc.replace("+00:00", "Z")
     entries[artifact.project_id] = {
         "language": artifact.project_language,
@@ -586,12 +973,46 @@ def main() -> None:
     validate_break_glass_fields(args)
     validate_intake_fields(args)
 
+    repo_root = discover_repo_root(args.repo_root, Path(args.skills_root))
+    skills_root = Path(args.skills_root)
+    if not skills_root.is_absolute():
+        skills_root = repo_root / skills_root
+    outdir = Path(args.outdir)
+    if not outdir.is_absolute():
+        outdir = repo_root / outdir
+    outdir.mkdir(parents=True, exist_ok=True)
+    json_path, md_path = contained_artifact_paths(outdir, args.task_id)
+    resolved_base = resolve_commit(repo_root, args.base_sha, "base SHA")
+    for artifact_path in (json_path, md_path):
+        try:
+            relative_artifact = normalize_repo_path(
+                artifact_path.relative_to(repo_root).as_posix()
+            )
+        except ValueError as exc:
+            raise SystemExit("Governance artifact output must remain inside the repository") from exc
+        if path_exists_at_revision(repo_root, resolved_base, relative_artifact):
+            raise SystemExit(
+                "Governance task ID already exists at the enforced base; "
+                "use a new superseding task ID instead of overwriting committed evidence"
+            )
+
+    _, initial_changes = working_tree_name_status(repo_root, resolved_base)
+    initial_manifest = build_manifest(repo_root, initial_changes)
+    if manifest_requires_documentation(initial_manifest) and not args.behavior_or_workflow_changed:
+        raise SystemExit(
+            "The changed workflow or behavior paths require --behavior-or-workflow-changed"
+        )
+
     scores = {key: int(getattr(args, key)) for key in SCORE_KEYS}
     total = sum(scores.values())
     base_mode = base_mode_from_total(total)
 
     overrides = sorted(set(args.critical_overrides))
-    forced_critical = bool(overrides)
+    forced_critical = (
+        bool(overrides)
+        or args.purpose == "release"
+        or operations_force_critical(args.authorized_operations)
+    )
 
     mode_after_profile = base_mode
     if not forced_critical:
@@ -618,12 +1039,22 @@ def main() -> None:
         args.quizme_mode,
     )
     validate_required_gate_skills(required_gates, skills_in_use)
+    catalog_binding = build_catalog_binding(
+        skills_root / "skill-catalog.json",
+        skills_in_use,
+        skills_execution_order,
+        repo_root=repo_root,
+    )
+    release_metadata = build_release_metadata(repo_root, args)
 
     recommendation = determine_recommendation(overrides, args.break_glass)
     created_at_utc = datetime.now(UTC).isoformat()
     artifact = GovernanceArtifact(
-        schema_version=SCHEMA_V2,
+        schema_version=SCHEMA_V3,
         task_id=args.task_id,
+        purpose=args.purpose,
+        authorized_operations=sorted(set(args.authorized_operations)),
+        release_metadata=release_metadata,
         project_id=args.project_id.strip(),
         created_at_utc=created_at_utc,
         profile=args.profile,
@@ -634,6 +1065,9 @@ def main() -> None:
         deployment_requested=bool(args.deployment_requested),
         execution_skill=args.execution_skill,
         behavior_or_workflow_changed=bool(args.behavior_or_workflow_changed),
+        uncertainty_high=bool(args.uncertainty_high),
+        requires_backup=bool(args.requires_backup or args.requires_restore),
+        requires_restore=bool(args.requires_restore),
         quizme_mode=args.quizme_mode,
         quizme_multiple_choice=bool(args.quizme_mc),
         quizme_one_at_a_time=bool(args.quizme_one_at_a_time),
@@ -656,6 +1090,7 @@ def main() -> None:
             selected_mode,
             args.requires_backup,
             args.requires_restore,
+            args.authorized_operations,
         ),
         break_glass={
             "enabled": bool(args.break_glass),
@@ -667,26 +1102,33 @@ def main() -> None:
         recommendation=recommendation,
         change_binding={},
         notes=args.notes.strip(),
+        catalog_binding=catalog_binding,
     )
-
-    repo_root = discover_repo_root(args.repo_root, Path(args.skills_root))
-    outdir = Path(args.outdir)
-    if not outdir.is_absolute():
-        outdir = repo_root / outdir
-    outdir.mkdir(parents=True, exist_ok=True)
-    json_path, md_path = contained_artifact_paths(outdir, args.task_id)
 
     project_index_path = Path(args.project_index_path)
     if not project_index_path.is_absolute():
         project_index_path = repo_root / project_index_path
     sync_project_index(project_index_path, artifact)
 
-    resolved_base, changes = working_tree_name_status(repo_root, args.base_sha)
+    _, changes = working_tree_name_status(repo_root, resolved_base)
     manifest = build_manifest(
         repo_root,
         changes,
-        governed_predicate=is_governed_change,
+        governed_predicate=None if args.purpose == "release" else is_governed_change,
     )
+    if release_metadata is not None:
+        manifest_paths = {entry["path"] for entry in manifest}
+        required_release_paths = {
+            release_metadata["version_path"],
+            release_metadata["changelog_path"],
+            release_metadata["release_notes_path"],
+        }
+        missing_release_paths = sorted(required_release_paths - manifest_paths)
+        if missing_release_paths:
+            raise SystemExit(
+                "Release metadata files must all be part of the full bound diff: "
+                + ", ".join(missing_release_paths)
+            )
     artifact.change_binding = {
         "base_sha": resolved_base,
         "manifest": manifest,

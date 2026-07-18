@@ -8,6 +8,11 @@ description: Manage an explicitly approved rename, merge, supersession, discoura
 ## Mission
 Keep the skillpack from accumulating obsolete skills, duplicate docs, and stale policy paths.
 
+## Authority and Artifact Policy
+1. Activating this skill grants no authority to change lifecycle state, compatibility behavior, files, or release policy.
+2. Apply a lifecycle transition only when the user or an existing repository contract explicitly authorizes that transition.
+3. A read-only audit may recommend a transition but must not record or implement it.
+
 ## Trigger Rule
 Use this skill when:
 1. a skill is renamed, merged, split, or superseded

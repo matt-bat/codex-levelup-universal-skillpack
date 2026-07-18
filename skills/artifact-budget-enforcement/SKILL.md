@@ -26,6 +26,11 @@ description: Use for enforcing hard limits on cached artifacts, summaries, index
 ## Mission
 Keep cached artifacts useful by giving them explicit size limits and pruning rules.
 
+## Authority and Artifact Policy
+1. Activating this skill grants no authority to create, update, prune, merge, or delete an artifact.
+2. Apply budgets as recommendations during read-only work; mutate an artifact only when the task separately authorizes maintaining that artifact.
+3. Do not create a cache, tracker, summary, or index solely because this skill activated.
+
 ## Trigger Rule
 Use this skill when:
 1. conversation caches, indexes, or trackers can grow without bound

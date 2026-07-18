@@ -1,0 +1,29 @@
+{
+  "$schema": "../skills/skill-governance/schemas/remote-configuration-policy.schema.json",
+  "schema_version": 1,
+  "provider": "github",
+  "repository": "matt-bat/agent-command-center",
+  "branch": "main",
+  "protection": {
+    "required_status_checks": {
+      "strict": true,
+      "checks": [
+        {
+          "context": "governance",
+          "app_id": 15368
+        }
+      ]
+    },
+    "required_pull_request_reviews": null,
+    "required_signatures": false,
+    "enforce_admins": true,
+    "restrictions": null,
+    "required_linear_history": false,
+    "allow_force_pushes": false,
+    "allow_deletions": false,
+    "block_creations": false,
+    "required_conversation_resolution": false,
+    "lock_branch": false,
+    "allow_fork_syncing": false
+  }
+}

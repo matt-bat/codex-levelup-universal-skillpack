@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Resolve a typed task descriptor through the canonical v2 skill catalog.
+"""Resolve a typed task descriptor through the canonical router contract.
 
 The resolver never routes from prompt keywords. A caller first normalizes task
 intent into ``task-descriptor.schema.json``; catalog clauses then select skills,
@@ -9,6 +9,8 @@ while an independent safety kernel controls authority, evidence, and mutation.
 from __future__ import annotations
 
 import argparse
+import copy
+import hashlib
 import json
 import re
 import sys
@@ -23,6 +25,7 @@ if str(SCRIPT_ROOT) not in sys.path:
     sys.path.insert(0, str(SCRIPT_ROOT))
 
 from generate_routing_views import CatalogError, validate_catalog  # noqa: E402
+from governance_common import normalize_repo_path  # noqa: E402
 
 
 REPO_ROOT = SCRIPT_PATH.parents[3]
@@ -31,13 +34,14 @@ SCHEMA_ROOT = SKILL_ROOT / "schemas"
 TASK_SCHEMA = SCHEMA_ROOT / "task-descriptor.schema.json"
 RESULT_SCHEMA = SCHEMA_ROOT / "routing-result.schema.json"
 CATALOG_PATH = SKILL_ROOT.parent / "skill-catalog.json"
-SCHEMA_VERSION = "2.0"
+SCHEMA_VERSION = "2.1"
 
 OPERATIONS = (
     "read",
     "run_commands",
     "write_files",
     "commit",
+    "configure_remote",
     "push",
     "publish",
     "deploy",
@@ -46,12 +50,25 @@ OPERATIONS = (
     "message",
 )
 MUTATING_OPERATIONS = frozenset(
-    {"write_files", "commit", "push", "publish", "deploy", "delete", "migrate", "message"}
+    {
+        "write_files",
+        "commit",
+        "configure_remote",
+        "push",
+        "publish",
+        "deploy",
+        "delete",
+        "migrate",
+        "message",
+    }
 )
-EXTERNAL_OPERATIONS = frozenset({"push", "publish", "deploy", "delete", "migrate", "message"})
+EXTERNAL_OPERATIONS = frozenset(
+    {"configure_remote", "push", "publish", "deploy", "delete", "migrate", "message"}
+)
 OPERATION_EFFECT = {
     "write_files": "workspace_files",
     "commit": "repository_history",
+    "configure_remote": "remote_repository",
     "push": "remote_repository",
     "publish": "published_artifact",
     "deploy": "runtime_environment",
@@ -59,7 +76,11 @@ OPERATION_EFFECT = {
     "migrate": "live_data",
     "message": "external_message",
 }
-EFFECT_OPERATION = {effect: operation for operation, effect in OPERATION_EFFECT.items()}
+EFFECT_OPERATIONS: dict[str, frozenset[str]] = {}
+for _operation, _effect in OPERATION_EFFECT.items():
+    EFFECT_OPERATIONS[_effect] = frozenset(
+        {*EFFECT_OPERATIONS.get(_effect, frozenset()), _operation}
+    )
 EXTERNAL_EFFECTS = frozenset(
     {"remote_repository", "published_artifact", "runtime_environment", "live_data", "external_message", "deletion"}
 )
@@ -78,6 +99,21 @@ ROUTING_DIMENSIONS = {
     "flags_none": ("flags", "none"),
 }
 SYSTEM_OWNERS = {"task-router-v2", "safety-kernel-v2"}
+FIXTURE_ROOT_FIELDS = frozenset({"schema_version", "descriptor_defaults", "scenarios"})
+FIXTURE_SCENARIO_FIELDS = frozenset({"id", "description", "descriptor", "expected"})
+FIXTURE_EXPECTATION_FIELDS = frozenset(
+    {
+        "artifact_allowed",
+        "decision",
+        "excluded_routes",
+        "gate_statuses",
+        "max_selected_skills",
+        "permissions",
+        "same_route_as",
+        "selected_skills",
+        "veto_codes",
+    }
+)
 
 
 class DescriptorError(ValueError):
@@ -143,7 +179,7 @@ DEFAULT_CATALOG_CONTRACT = load_catalog_contract()
 class SelectedSkill:
     name: str
     mandatory: bool
-    owner_domain: str | None
+    owner_domains: tuple[str, ...]
     reason: str
 
 
@@ -159,6 +195,7 @@ class RouteState:
     gates: list[dict[str, Any]] = field(default_factory=list)
     vetoes: list[dict[str, Any]] = field(default_factory=list)
     excluded: list[dict[str, str]] = field(default_factory=list)
+    compatibility_traces: list[str] = field(default_factory=list)
 
     def add_skill(self, name: str, *, mandatory: bool, reason: str) -> None:
         skill = self.contract.skills.get(name)
@@ -166,13 +203,18 @@ class RouteState:
             raise DescriptorError(f"route selected a missing or non-active skill: {name}")
         if skill["routing_mode"] == "nonselectable":
             raise DescriptorError(f"route selected a nonselectable skill: {name}")
-        domains = skill["decision_domains"]
-        owner_domain = domains[0] if domains else None
+        owner_domains = tuple(skill["decision_domains"])
         existing = self.skills.get(name)
         if existing is None or (mandatory and not existing.mandatory):
-            self.skills[name] = SelectedSkill(name, mandatory, owner_domain, reason)
-        if owner_domain:
-            self.owners.setdefault(owner_domain, name)
+            self.skills[name] = SelectedSkill(name, mandatory, owner_domains, reason)
+        for owner_domain in owner_domains:
+            existing_owner = self.owners.get(owner_domain)
+            if existing_owner and existing_owner != name:
+                raise DescriptorError(
+                    f"decision domain {owner_domain!r} has multiple owners: "
+                    f"{existing_owner} and {name}"
+                )
+            self.owners[owner_domain] = name
 
     def add_gate(
         self,
@@ -225,6 +267,15 @@ class RouteState:
         if candidate not in self.excluded:
             self.excluded.append(candidate)
 
+    def record_compatibility_alias(self, name: str, successor: str) -> None:
+        trace = f"explicit_skill_alias={name}->{successor}"
+        if trace not in self.compatibility_traces:
+            self.compatibility_traces.append(trace)
+        self.exclude(
+            name,
+            f"Deprecated explicit compatibility name normalized to {successor!r}.",
+        )
+
 
 def _json_schema_errors(instance: Any, schema_path: Path) -> list[str]:
     schema = _read_json(schema_path)
@@ -271,6 +322,16 @@ def _fallback_schema_errors(instance: Any, root_schema: Mapping[str, Any]) -> li
         if "$ref" in schema:
             visit(value, resolve_ref(schema["$ref"]), location)
             return
+        for subschema in schema.get("allOf", []):
+            visit(value, subschema, location)
+        if "if" in schema:
+            condition_start = len(errors)
+            visit(value, schema["if"], location)
+            condition_matches = len(errors) == condition_start
+            del errors[condition_start:]
+            selected_branch = schema.get("then" if condition_matches else "else")
+            if isinstance(selected_branch, dict):
+                visit(value, selected_branch, location)
         if "const" in schema and value != schema["const"]:
             errors.append(f"{location}: must equal {schema['const']!r}")
         if "enum" in schema and value not in schema["enum"]:
@@ -335,6 +396,15 @@ def validate_task_descriptor(descriptor: Any) -> None:
     errors = _json_schema_errors(descriptor, TASK_SCHEMA)
     if errors:
         raise DescriptorError("invalid task descriptor:\n- " + "\n- ".join(errors))
+
+
+def _normalize_task_descriptor(descriptor: Mapping[str, Any]) -> dict[str, Any]:
+    """Upgrade accepted legacy descriptor omissions without mutating caller data."""
+
+    normalized = copy.deepcopy(dict(descriptor))
+    normalized["constraints"].setdefault("explicit_skills", [])
+    normalized["evidence"].setdefault("artifacts", [])
+    return normalized
 
 
 def _has_mutating_request(descriptor: Mapping[str, Any]) -> bool:
@@ -469,6 +539,29 @@ def _select_catalog_skills(state: RouteState) -> None:
             reason=f"Catalog trigger matched: {json.dumps(trigger, sort_keys=True)}",
         )
 
+    for name in state.descriptor["constraints"]["explicit_skills"]:
+        skill = state.contract.skills.get(name)
+        if not skill:
+            raise DescriptorError(f"explicit skill request is missing: {name}")
+        if name == "process-budget-controller" and skill.get("status") == "deprecated":
+            successors = skill.get("relations", {}).get("superseded_by", [])
+            if successors != ["task-router"] or "task-router" not in state.contract.components:
+                raise DescriptorError(
+                    "deprecated explicit skill process-budget-controller has an invalid "
+                    "task-router successor"
+                )
+            state.record_compatibility_alias(name, "task-router")
+            continue
+        if name not in state.contract.active_skills:
+            raise DescriptorError(f"explicit skill request is non-active: {name}")
+        if skill["routing_mode"] == "nonselectable":
+            raise DescriptorError(f"explicit skill request is nonselectable: {name}")
+        state.add_skill(
+            name,
+            mandatory=True,
+            reason="Typed descriptor records an explicit skill request.",
+        )
+
     pending = list(state.skills)
     visited: set[str] = set()
     while pending:
@@ -514,9 +607,10 @@ def _check_descriptor_consistency(state: RouteState) -> None:
     for operation, expected_effect in OPERATION_EFFECT.items():
         if operation in operations and expected_effect not in effects:
             add(f"Operation {operation!r} requires effect {expected_effect!r}.", operation)
-    for effect, expected_operation in EFFECT_OPERATION.items():
-        if effect in effects and expected_operation not in operations:
-            add(f"Effect {effect!r} requires operation {expected_operation!r}.", expected_operation)
+    for effect, allowed_operations in EFFECT_OPERATIONS.items():
+        if effect in effects and not operations.intersection(allowed_operations):
+            rendered = ", ".join(repr(item) for item in sorted(allowed_operations))
+            add(f"Effect {effect!r} requires one of operations: {rendered}.")
 
     state_effects = effects.intersection(set(OPERATION_EFFECT.values()))
     if mutation["level"] == "none" and (state_effects or _has_mutating_request(descriptor)):
@@ -806,7 +900,9 @@ def _add_evidence_gates(state: RouteState) -> None:
             owner="regression-prevention" if "regression-prevention" in state.skills else "safety-kernel-v2",
             reason="Behavior changes and releases require proportional passing test evidence.",
         )
-    for operation in sorted(operations.intersection({"deploy", "delete", "migrate"})):
+    for operation in sorted(
+        operations.intersection({"configure_remote", "deploy", "delete", "migrate"})
+    ):
         _evidence_gate(
             state,
             gate_id=f"rollback-ready-{operation}",
@@ -948,6 +1044,96 @@ def _build_permissions(state: RouteState) -> dict[str, bool]:
     return permissions
 
 
+def _verified_artifact_kinds(state: RouteState, repo_root: Path) -> set[str]:
+    verified: set[str] = set()
+    for index, record in enumerate(state.descriptor["evidence"].get("artifacts", [])):
+        kind = record["kind"]
+        if kind not in state.contract.artifact_types:
+            raise DescriptorError(
+                f"evidence.artifacts[{index}].kind is outside the catalog namespace: {kind}"
+            )
+        try:
+            path = normalize_repo_path(record["path"])
+        except SystemExit as exc:
+            raise DescriptorError(f"evidence.artifacts[{index}].path is invalid: {exc}") from exc
+        if record["status"] != "passed":
+            continue
+        candidate = repo_root.resolve() / path
+        try:
+            resolved = candidate.resolve(strict=True)
+            resolved.relative_to(repo_root.resolve())
+        except (FileNotFoundError, OSError, ValueError) as exc:
+            raise DescriptorError(
+                f"passed artifact evidence cannot be resolved inside the repository: {path}"
+            ) from exc
+        if not resolved.is_file():
+            raise DescriptorError(f"passed artifact evidence is not a file: {path}")
+        digest = hashlib.sha256(resolved.read_bytes()).hexdigest()
+        if digest != record["sha256"]:
+            raise DescriptorError(
+                f"passed artifact evidence digest mismatch for {path}: "
+                f"expected {record['sha256']}, actual {digest}"
+            )
+        verified.add(kind)
+    return verified
+
+
+def _add_required_artifact_gate(
+    state: RouteState,
+    selected_skills: Sequence[str],
+    repo_root: Path,
+) -> None:
+    required_kinds = sorted(
+        {
+            artifact
+            for name in selected_skills
+            if state.contract.skills[name]["artifact_policy"]["durability"]
+            == "required_when_governed"
+            for artifact in state.contract.skills[name]["artifact_policy"]["artifacts"]
+        }
+    )
+    if not required_kinds:
+        return
+
+    descriptor = state.descriptor
+    verified = _verified_artifact_kinds(state, repo_root)
+    missing = sorted(set(required_kinds) - verified)
+    if not missing:
+        status = "passed"
+        reason = "Every required governed artifact has verified path and digest evidence."
+    else:
+        operations = set(descriptor["action"]["operations"])
+        checkpoint = descriptor["checkpoint"]
+        protected_operations: list[str] = []
+        if checkpoint == "pre_external_action":
+            protected_operations = sorted(operations.intersection(EXTERNAL_OPERATIONS))
+        elif checkpoint == "post_diff" and "commit" in operations:
+            protected_operations = ["commit"]
+        status = "blocked" if protected_operations else "required"
+        reason = "Required governed artifact evidence is missing: " + ", ".join(missing) + "."
+        for operation in protected_operations:
+            state.add_veto(
+                "required_artifact_missing",
+                operation=operation,
+                disposition="block",
+                reason=reason,
+            )
+    owner = (
+        "governance-enforcement"
+        if "governance-enforcement" in selected_skills
+        else "skill-governance"
+    )
+    state.add_gate(
+        "required-governance-artifacts",
+        "governance_evidence",
+        "evidence",
+        operation=None,
+        status=status,
+        owner=owner,
+        reason=reason + f" Required kinds: {', '.join(required_kinds)}.",
+    )
+
+
 def _artifact_allowance(
     state: RouteState,
     selected_skills: Sequence[str],
@@ -968,7 +1154,9 @@ def _artifact_allowance(
     action = descriptor["action"]
     kinds: list[str] = []
     for name in selected_skills:
-        kinds.extend(state.contract.skills[name]["artifact_policy"]["artifacts"])
+        artifact_policy = state.contract.skills[name]["artifact_policy"]
+        if artifact_policy["durability"] == "required_when_governed" or policy == "allow":
+            kinds.extend(artifact_policy["artifacts"])
     if action["behavior_change"]:
         kinds.append("change_evidence")
     if action["test_change"]:
@@ -1088,6 +1276,7 @@ def resolve_task_route(
     """Return a deterministic, catalog-driven, fail-closed task route."""
 
     validate_task_descriptor(descriptor)
+    descriptor = _normalize_task_descriptor(descriptor)
     contract = contract or (
         DEFAULT_CATALOG_CONTRACT
         if catalog_path is None and repo_root.resolve() == REPO_ROOT.resolve()
@@ -1102,6 +1291,7 @@ def resolve_task_route(
     _add_checkpoint_gate(state)
     _add_evidence_gates(state)
     selected_skills, budget = _apply_skill_budget(state)
+    _add_required_artifact_gate(state, selected_skills, repo_root)
     permissions = _build_permissions(state)
     artifacts = _artifact_allowance(state, selected_skills, permissions)
     decision = _decision(state.vetoes)
@@ -1138,6 +1328,7 @@ def resolve_task_route(
                     f"operations={','.join(action['operations'])}",
                     f"flags={','.join(sorted(flags))}",
                     "source=skills/skill-catalog.json",
+                    *state.compatibility_traces,
                 ],
             },
             {
@@ -1202,13 +1393,125 @@ def _expectation_errors(scenario: Mapping[str, Any], result: Mapping[str, Any]) 
     return errors
 
 
+def _validate_fixture_contract(fixture: Mapping[str, Any]) -> None:
+    unknown_root_fields = sorted(set(fixture) - FIXTURE_ROOT_FIELDS)
+    if unknown_root_fields:
+        raise DescriptorError(
+            "fixture file contains unknown fields: " + ", ".join(unknown_root_fields)
+        )
+
+    scenarios = fixture.get("scenarios")
+    defaults = fixture.get("descriptor_defaults")
+    if not isinstance(defaults, dict) or not isinstance(scenarios, list) or not scenarios:
+        raise DescriptorError("fixture file requires descriptor_defaults and non-empty scenarios")
+
+    scenario_ids: set[str] = set()
+    for index, scenario in enumerate(scenarios):
+        label = f"fixture scenario at index {index}"
+        if not isinstance(scenario, dict):
+            raise DescriptorError(f"{label} must be an object")
+        unknown_scenario_fields = sorted(set(scenario) - FIXTURE_SCENARIO_FIELDS)
+        missing_scenario_fields = sorted(FIXTURE_SCENARIO_FIELDS - set(scenario))
+        if unknown_scenario_fields:
+            raise DescriptorError(
+                f"{label} contains unknown fields: " + ", ".join(unknown_scenario_fields)
+            )
+        if missing_scenario_fields:
+            raise DescriptorError(
+                f"{label} is missing required fields: " + ", ".join(missing_scenario_fields)
+            )
+
+        scenario_id = scenario["id"]
+        if not isinstance(scenario_id, str) or not scenario_id.strip():
+            raise DescriptorError(f"{label} id must be a non-empty string")
+        if scenario_id in scenario_ids:
+            raise DescriptorError(f"fixture scenario id is duplicated: {scenario_id}")
+        scenario_ids.add(scenario_id)
+        if not isinstance(scenario["description"], str) or not scenario["description"].strip():
+            raise DescriptorError(f"fixture scenario {scenario_id!r} description must be non-empty")
+        if not isinstance(scenario["descriptor"], dict):
+            raise DescriptorError(f"fixture scenario {scenario_id!r} descriptor must be an object")
+
+        expected = scenario["expected"]
+        if not isinstance(expected, dict) or not expected:
+            raise DescriptorError(
+                f"fixture scenario {scenario_id!r} expected must be a non-empty object"
+            )
+        unknown_expectations = sorted(set(expected) - FIXTURE_EXPECTATION_FIELDS)
+        if unknown_expectations:
+            raise DescriptorError(
+                f"fixture scenario {scenario_id!r} contains unknown expectation fields: "
+                + ", ".join(unknown_expectations)
+            )
+        if "decision" in expected and expected["decision"] not in {
+            "allow",
+            "needs_clarification",
+            "blocked",
+        }:
+            raise DescriptorError(
+                f"fixture scenario {scenario_id!r} expected.decision is invalid"
+            )
+        if "artifact_allowed" in expected and not isinstance(
+            expected["artifact_allowed"], bool
+        ):
+            raise DescriptorError(
+                f"fixture scenario {scenario_id!r} expected.artifact_allowed must be boolean"
+            )
+        if "max_selected_skills" in expected:
+            limit = expected["max_selected_skills"]
+            if isinstance(limit, bool) or not isinstance(limit, int) or limit < 0:
+                raise DescriptorError(
+                    f"fixture scenario {scenario_id!r} expected.max_selected_skills "
+                    "must be a non-negative integer"
+                )
+        for field_name in ("selected_skills", "veto_codes", "excluded_routes"):
+            if field_name not in expected:
+                continue
+            values = expected[field_name]
+            if not isinstance(values, list) or not all(
+                isinstance(value, str) for value in values
+            ):
+                raise DescriptorError(
+                    f"fixture scenario {scenario_id!r} expected.{field_name} "
+                    "must be a string array"
+                )
+        for field_name in ("permissions", "gate_statuses"):
+            if field_name in expected and not isinstance(expected[field_name], dict):
+                raise DescriptorError(
+                    f"fixture scenario {scenario_id!r} expected.{field_name} must be an object"
+                )
+        if "same_route_as" in expected and (
+            not isinstance(expected["same_route_as"], str)
+            or not expected["same_route_as"].strip()
+        ):
+            raise DescriptorError(
+                f"fixture scenario {scenario_id!r} expected.same_route_as "
+                "must be a non-empty scenario id"
+            )
+
+    for scenario in scenarios:
+        scenario_id = scenario["id"]
+        comparison_id = scenario["expected"].get("same_route_as")
+        if comparison_id is None:
+            continue
+        if comparison_id == scenario_id:
+            raise DescriptorError(
+                f"fixture scenario {scenario_id!r} cannot compare its route to itself"
+            )
+        if comparison_id not in scenario_ids:
+            raise DescriptorError(
+                f"fixture scenario {scenario_id!r} references unknown comparison target: "
+                f"{comparison_id}"
+            )
+
+
 def _deep_merge(base: Mapping[str, Any], override: Mapping[str, Any]) -> dict[str, Any]:
-    merged: dict[str, Any] = dict(base)
+    merged: dict[str, Any] = copy.deepcopy(dict(base))
     for key, value in override.items():
         if isinstance(value, dict) and isinstance(merged.get(key), dict):
             merged[key] = _deep_merge(merged[key], value)
         else:
-            merged[key] = value
+            merged[key] = copy.deepcopy(value)
     return merged
 
 
@@ -1220,11 +1523,10 @@ def evaluate_fixture_file(
 ) -> dict[str, Any]:
     fixture = _read_json(path)
     if not isinstance(fixture, dict) or fixture.get("schema_version") != SCHEMA_VERSION:
-        raise DescriptorError("fixture file must use schema_version '2.0'")
-    scenarios = fixture.get("scenarios")
-    defaults = fixture.get("descriptor_defaults", {})
-    if not isinstance(scenarios, list) or not scenarios or not isinstance(defaults, dict):
-        raise DescriptorError("fixture file requires descriptor_defaults and non-empty scenarios")
+        raise DescriptorError(f"fixture file must use schema_version {SCHEMA_VERSION!r}")
+    _validate_fixture_contract(fixture)
+    scenarios = fixture["scenarios"]
+    defaults = fixture["descriptor_defaults"]
     contract = (
         DEFAULT_CATALOG_CONTRACT
         if catalog_path is None and repo_root.resolve() == REPO_ROOT.resolve()

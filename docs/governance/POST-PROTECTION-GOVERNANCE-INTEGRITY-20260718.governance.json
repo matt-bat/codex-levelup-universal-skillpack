@@ -1,0 +1,647 @@
+{
+  "schema_version": 3,
+  "task_id": "POST-PROTECTION-GOVERNANCE-INTEGRITY-20260718",
+  "purpose": "change",
+  "authorized_operations": [
+    "commit",
+    "push"
+  ],
+  "release_metadata": null,
+  "project_id": "agent-command-center",
+  "created_at_utc": "2026-07-18T07:54:27.141091+00:00",
+  "profile": "internal",
+  "project_language": "Markdown/Python",
+  "project_description_max4": "Agent command center",
+  "model_runs_test_build_default": "yes",
+  "execution_scope": "external",
+  "deployment_requested": false,
+  "execution_skill": "scripted-command-execution",
+  "behavior_or_workflow_changed": true,
+  "uncertainty_high": false,
+  "requires_backup": false,
+  "requires_restore": false,
+  "quizme_mode": "off",
+  "quizme_multiple_choice": false,
+  "quizme_one_at_a_time": false,
+  "quizme_confirm": false,
+  "quizme_record": false,
+  "scores": {
+    "data_impact": 0,
+    "business_impact": 3,
+    "change_complexity": 3,
+    "dependency_uncertainty": 2,
+    "recoverability": 2
+  },
+  "total_score": 10,
+  "base_mode": "critical",
+  "mode_after_profile": "critical",
+  "selected_mode": "critical",
+  "critical_overrides": [],
+  "required_gates": [
+    "scripted-command-execution",
+    "regression-prevention",
+    "semantic-policy-audit",
+    "governance-enforcement",
+    "doc-maintenance"
+  ],
+  "gate_status": {
+    "scripted-command-execution": {
+      "status": "pass",
+      "evidence": [
+        {
+          "kind": "command",
+          "reference": "Pinned virtual-environment validation commands completed successfully",
+          "result": "pass",
+          "observed_at_utc": "2026-07-18T07:56:01Z",
+          "revision_sha": null,
+          "sha256": "f14568407a2a848488e67584820a11e90ab7b26f786397e42c06ad63455dda9f"
+        }
+      ],
+      "waiver_reason": ""
+    },
+    "regression-prevention": {
+      "status": "pass",
+      "evidence": [
+        {
+          "kind": "test",
+          "reference": "162 governance tests and 26 routing scenarios passed",
+          "result": "pass",
+          "observed_at_utc": "2026-07-18T07:56:01Z",
+          "revision_sha": null,
+          "sha256": "f14568407a2a848488e67584820a11e90ab7b26f786397e42c06ad63455dda9f"
+        }
+      ],
+      "waiver_reason": ""
+    },
+    "semantic-policy-audit": {
+      "status": "pass",
+      "evidence": [
+        {
+          "kind": "review",
+          "reference": "Independent forward tests and semantic policy audit passed",
+          "result": "pass",
+          "observed_at_utc": "2026-07-18T07:56:01Z",
+          "revision_sha": null,
+          "sha256": "f14568407a2a848488e67584820a11e90ab7b26f786397e42c06ad63455dda9f"
+        }
+      ],
+      "waiver_reason": ""
+    },
+    "governance-enforcement": {
+      "status": "pass",
+      "evidence": [
+        {
+          "kind": "test",
+          "reference": "Policy schema history workflow and exact-binding checks passed",
+          "result": "pass",
+          "observed_at_utc": "2026-07-18T07:56:01Z",
+          "revision_sha": null,
+          "sha256": "f14568407a2a848488e67584820a11e90ab7b26f786397e42c06ad63455dda9f"
+        }
+      ],
+      "waiver_reason": ""
+    },
+    "doc-maintenance": {
+      "status": "pass",
+      "evidence": [
+        {
+          "kind": "review",
+          "reference": "Public operator skill release and migration documentation cross-checked",
+          "result": "pass",
+          "observed_at_utc": "2026-07-18T07:56:01Z",
+          "revision_sha": null,
+          "sha256": "f14568407a2a848488e67584820a11e90ab7b26f786397e42c06ad63455dda9f"
+        }
+      ],
+      "waiver_reason": ""
+    }
+  },
+  "startup_declaration": {
+    "skills_in_use": [
+      "internal-lang",
+      "token-reduction",
+      "order-of-operations",
+      "hyperfocus-discovery",
+      "skill-governance",
+      "semantic-policy-audit",
+      "skill-usage-review",
+      "thoroughly-rate-review",
+      "deprecation-management",
+      "interdependent-change-planning",
+      "regression-prevention",
+      "effective-testing-methods",
+      "scripted-command-execution",
+      "file-maintenance",
+      "doc-maintenance",
+      "user-instructions-tracker",
+      "governance-enforcement"
+    ],
+    "skills_selection_rationale": "Cross-cutting router, evidence, CI, remote-policy, lifecycle, testing, documentation, instruction-tracking, and quality-review work requires deterministic governance and exact validation.",
+    "skills_execution_order": [
+      "internal-lang",
+      "token-reduction",
+      "order-of-operations",
+      "hyperfocus-discovery",
+      "skill-governance",
+      "semantic-policy-audit",
+      "skill-usage-review",
+      "thoroughly-rate-review",
+      "deprecation-management",
+      "interdependent-change-planning",
+      "regression-prevention",
+      "effective-testing-methods",
+      "scripted-command-execution",
+      "file-maintenance",
+      "doc-maintenance",
+      "user-instructions-tracker",
+      "governance-enforcement"
+    ]
+  },
+  "evidence_requirements": [
+    "mode + score",
+    "impact map",
+    "validation scope by layer",
+    "residual risks",
+    "rollback plan",
+    "release decision",
+    "operation-specific authority + target identity",
+    "rollback or recovery evidence",
+    "post-operation validation + audit evidence"
+  ],
+  "break_glass": {
+    "enabled": false,
+    "reason": "",
+    "risk_owner": "",
+    "remediation_ticket": "",
+    "expiry_hours": null
+  },
+  "recommendation": "go",
+  "change_binding": {
+    "base_sha": "accd30d4130b82bf004dc4f1fab73f9242280f12",
+    "manifest": [
+      {
+        "path": ".github/branch-protection-policy.json",
+        "status": "A",
+        "sha256": "8369a08b258a643a1a10a6e57a33c921accd3ac33c2343cb19c7e3ad00a321dc"
+      },
+      {
+        "path": ".github/workflows/skills-governance-ci.yml",
+        "status": "M",
+        "sha256": "fdf9dea59af33a6113872b47b76b0a3cb337556a8b95b85d142825fe40ae236f"
+      },
+      {
+        "path": "docs/project-index.md",
+        "status": "M",
+        "sha256": "11ab0644a7942e86929678d92408c06489736fb4219aee27dacf1c20747019ca"
+      },
+      {
+        "path": "skills/CHANGELOG.md",
+        "status": "M",
+        "sha256": "1e759bc678f8408d6b08e8ab819b896964d8a2cd31fe5de967f715555d14f98d"
+      },
+      {
+        "path": "skills/README.md",
+        "status": "M",
+        "sha256": "885b2a6835a22bbd6f51f41f28bfaf53f8fa9c6888c9c4e8ce9c19e6a13a0fd0"
+      },
+      {
+        "path": "skills/SKILL-MAP.md",
+        "status": "M",
+        "sha256": "3f22c05de6d4d0777b98200b82d8ff1a553d7d12772903ce3d29890ab0a4c402"
+      },
+      {
+        "path": "skills/USAGE.md",
+        "status": "M",
+        "sha256": "49a71949338375aba22147e62ae12f5d5bc7357e9324931840a66bebb01bdeda"
+      },
+      {
+        "path": "skills/artifact-budget-enforcement/SKILL.md",
+        "status": "M",
+        "sha256": "01ae85854ceada7efc4a030e89a2726fa29d43826bd84b2f349fa6de0afafb05"
+      },
+      {
+        "path": "skills/conversation-retention-summary/SKILL.md",
+        "status": "M",
+        "sha256": "a56172cfad19f715a54776a97fe41dfa7e491419f9b0fadc427b396f9533e623"
+      },
+      {
+        "path": "skills/deprecation-management/SKILL.md",
+        "status": "M",
+        "sha256": "c1f5f5530391ed171bb966a43dd6da1526e88e465a8128b2131b188c08036b9f"
+      },
+      {
+        "path": "skills/docs/adapters/agent.md",
+        "status": "M",
+        "sha256": "d2a8afd46fa75d24fb6e7b8d4d1549034b5cdeb804caa973370ec943a48f2665"
+      },
+      {
+        "path": "skills/docs/adapters/common-ai.md",
+        "status": "M",
+        "sha256": "b9a767297248d88611920a8c2ef301b12b8c6ad0614686ee3d05d409a4356fcc"
+      },
+      {
+        "path": "skills/docs/adapters/generic-agent.md",
+        "status": "M",
+        "sha256": "6e7f07c9206deb5dd88620a12f615ef1952988924384df6326182d60c7434ea9"
+      },
+      {
+        "path": "skills/docs/ci/skills-governance-ci.yml",
+        "status": "M",
+        "sha256": "fdf9dea59af33a6113872b47b76b0a3cb337556a8b95b85d142825fe40ae236f"
+      },
+      {
+        "path": "skills/docs/conflict-resolution-matrix.md",
+        "status": "M",
+        "sha256": "2131c93d761eccde0fef9ecb28622aa044e6f2f37a7d977cc5f8ec8ddc158eec"
+      },
+      {
+        "path": "skills/docs/examples/release-readiness-change.md",
+        "status": "M",
+        "sha256": "387dd42efb1c9549ce9b2637a2f803a9151cfbb1bc50be0302ddfce1ae87e960"
+      },
+      {
+        "path": "skills/docs/field-notes.md",
+        "status": "M",
+        "sha256": "44237713a6bb98d4a0a0e6c69ecff1b176f02f1b453a08a0376a9380ae44c3e1"
+      },
+      {
+        "path": "skills/docs/governance-walkthrough.md",
+        "status": "M",
+        "sha256": "c43b5246a41b5c1bf3e8088081d13184c515c313afcb7ebcadb5afbe4c0888cf"
+      },
+      {
+        "path": "skills/docs/install-profiles.md",
+        "status": "M",
+        "sha256": "1ca04154bbe1e0c1059dc8bdaacd371fd6d0c0f3eb390e1695ce6258ebd03ade"
+      },
+      {
+        "path": "skills/docs/known-limitations.md",
+        "status": "M",
+        "sha256": "6263d130d56ffc044a6ed5aca2d199af88ed5791ff8dd27daa7277049a029e95"
+      },
+      {
+        "path": "skills/docs/maturity-model.md",
+        "status": "M",
+        "sha256": "bb6cac05ca1c53741f1a58254203149e78b1ce1ac026e2cc974cbaf9d42d2be0"
+      },
+      {
+        "path": "skills/docs/release-provenance.md",
+        "status": "M",
+        "sha256": "e140f347afcc81419adcae0a430f8355005ced03a5191ff7c59e97cf61174e64"
+      },
+      {
+        "path": "skills/docs/routing-architecture-v2.md",
+        "status": "M",
+        "sha256": "f5736623c14c2b499d8ec9c0b87100abab038b8c8fc7449a1ca08f412dda0e05"
+      },
+      {
+        "path": "skills/docs/rubrics/release-readiness-rubric.md",
+        "status": "M",
+        "sha256": "5f339f424faa1278ef40c398a9f5f1eca1e2d6c2480b22de30b798a1edc30994"
+      },
+      {
+        "path": "skills/docs/skill-decision-tree.md",
+        "status": "M",
+        "sha256": "e3d5223f8d556b542399f64b890586ae9d495a02d6f19eff5615c5c8f7cea4f1"
+      },
+      {
+        "path": "skills/docs/skill-index.md",
+        "status": "M",
+        "sha256": "0cf6d00e202cccf23b3d70fea7c4c5a8566e29245b10073386d1a955e93033b8"
+      },
+      {
+        "path": "skills/docs/skill-migration-v2.md",
+        "status": "M",
+        "sha256": "1148b15ab2106e44c99ff528e9133913e97562faacea7e21591f09fabff25f0a"
+      },
+      {
+        "path": "skills/docs/validation-profiles.md",
+        "status": "M",
+        "sha256": "b659174d10d160f653850e25ee2cd365da4af7285112fb822ea778c286555444"
+      },
+      {
+        "path": "skills/docs/verification/constrained-environment-verification.md",
+        "status": "M",
+        "sha256": "769198079b50693873999d8d8f14fb9e70f702b939d60f8964e35df23045924c"
+      },
+      {
+        "path": "skills/effective-testing-methods/SKILL.md",
+        "status": "M",
+        "sha256": "7afeb704b34e600e80ef94a447dc7b34123ac750d024ec2fd15be2b13e3a0f53"
+      },
+      {
+        "path": "skills/file-maintenance/SKILL.md",
+        "status": "M",
+        "sha256": "65d5d9fc21805b7974229057da58f2678447a267e971fcdcd6205b09100f228c"
+      },
+      {
+        "path": "skills/file-structure-optimization/SKILL.md",
+        "status": "M",
+        "sha256": "9c11fe86aa88a6732767df3958b168f5a90b27eb2c19ee459e12c4e214204c54"
+      },
+      {
+        "path": "skills/governance-enforcement/SKILL.md",
+        "status": "M",
+        "sha256": "525111509b3f820a01d35c2b79a5888034dd8d3892ee44dc00830adf12bb2eb4"
+      },
+      {
+        "path": "skills/history-indexing/SKILL.md",
+        "status": "M",
+        "sha256": "95e0b72b34e9fdc55c4ba57045956b3b705b914c9e60f9e792b8f23197de0dba"
+      },
+      {
+        "path": "skills/semantic-policy-audit/SKILL.md",
+        "status": "M",
+        "sha256": "cd6dc11b9b24eff474da9d30083ec2de7f2b95fb8c7710b9fff3e175da2092bd"
+      },
+      {
+        "path": "skills/skill-catalog.json",
+        "status": "M",
+        "sha256": "ab0a666c805e6faa93c71d78b6a68a55a5b2b6bbd49118ce0c9bc0bf8317f795"
+      },
+      {
+        "path": "skills/skill-catalog.schema.json",
+        "status": "M",
+        "sha256": "9d1691e4bb986dcf6374c2bceea8e481efdd30573e6c0c178dcd9dcfc41d0292"
+      },
+      {
+        "path": "skills/skill-governance/SKILL.md",
+        "status": "M",
+        "sha256": "06035410f46d93d066f628fb85515a1601979d49bb6e9e3694ac50cc24c9f4fb"
+      },
+      {
+        "path": "skills/skill-governance/fixtures/routing-scenarios.json",
+        "status": "M",
+        "sha256": "ee2a9222dc7496da9a784cbbd1c041bafcf3aaa6fa0e179ea709859ca061efde"
+      },
+      {
+        "path": "skills/skill-governance/references/governance-artifacts.md",
+        "status": "M",
+        "sha256": "e0d1519e8be20a09022e80076767bf372edb892f6bae225f3f2e1771d823d2ee"
+      },
+      {
+        "path": "skills/skill-governance/references/risk-and-gates.md",
+        "status": "M",
+        "sha256": "5b1391c8817288aabde1599bde5b17a90ccbd79503428abb0b33457f1643e5d8"
+      },
+      {
+        "path": "skills/skill-governance/requirements.txt",
+        "status": "A",
+        "sha256": "6814f724f150c9880b9827eb0e852ba0ba4d8fccf0755cd835b3ca26354a2571"
+      },
+      {
+        "path": "skills/skill-governance/schemas/governance-artifact.schema.json",
+        "status": "M",
+        "sha256": "1a716063e6929ffab63b47c4b73dfb3a997a56e8c8165c0303498936911fa9d7"
+      },
+      {
+        "path": "skills/skill-governance/schemas/remote-configuration-policy.schema.json",
+        "status": "A",
+        "sha256": "4d52bc0858838fbd7f104ee82fe5c7c823d780d5f49975323f248c13193068f3"
+      },
+      {
+        "path": "skills/skill-governance/schemas/routing-result.schema.json",
+        "status": "M",
+        "sha256": "817ccf07f4a475c82dc58b1d81b6396e7e055ff053759f353cc271b159788c94"
+      },
+      {
+        "path": "skills/skill-governance/schemas/task-descriptor.schema.json",
+        "status": "M",
+        "sha256": "fcd6a2a3ac65c509f0c3d15b260a40877f75cf572925b40e8a02efe36e91e00f"
+      },
+      {
+        "path": "skills/skill-governance/scripts/enforce_governance_ci.py",
+        "status": "M",
+        "sha256": "7fb12619c644413f71a23d1cccb5e00f7c4755dcfe2f6b644f5804bcb86c4d95"
+      },
+      {
+        "path": "skills/skill-governance/scripts/generate_governance_artifact.py",
+        "status": "M",
+        "sha256": "c0ac69883cb8e571f3a09a7bfef98d4ad3769a0e7c5e9bdddb9f04d935775c76"
+      },
+      {
+        "path": "skills/skill-governance/scripts/generate_routing_views.py",
+        "status": "M",
+        "sha256": "6be5682010dead3fa9bbf477d6d6f23299cc9a52d237e9f72676a022529f3c20"
+      },
+      {
+        "path": "skills/skill-governance/scripts/governance_common.py",
+        "status": "M",
+        "sha256": "1ed539c3dc9176934168944ef604d2dad72f66fbff125908a946c7012059e094"
+      },
+      {
+        "path": "skills/skill-governance/scripts/resolve_task_route.py",
+        "status": "M",
+        "sha256": "14ea2e1ca20cc2b561c6d3271ec4642ac25a5cd992580fa4f0fbed1cc1be5acb"
+      },
+      {
+        "path": "skills/skill-governance/scripts/validate_governance_artifact.py",
+        "status": "M",
+        "sha256": "a44d33ab05741e6e47207c5963b81d0fbeb5e78b956a00b86ca5a78848afb1a9"
+      },
+      {
+        "path": "skills/skill-governance/scripts/validate_skill_policy.py",
+        "status": "M",
+        "sha256": "b8a634c76382755962fd3c7fe352089837046ea28d8f863e1251d08fa0b86b7d"
+      },
+      {
+        "path": "skills/skill-governance/scripts/verify_remote_configuration.py",
+        "status": "A",
+        "sha256": "bd0177147ef95e3dfa8e28270e37a30682e9cc04371b617b67f9afc77aa1306a"
+      },
+      {
+        "path": "skills/skill-governance/tests/test_conflict_matrix_integrity.py",
+        "status": "A",
+        "sha256": "c82edf897168bfaf98e0078cbbc0080344c58c6260b8ed82b69dea71e0490bda"
+      },
+      {
+        "path": "skills/skill-governance/tests/test_enforce_governance_scope.py",
+        "status": "M",
+        "sha256": "42a8333336000a36bfa7b4060931909e874db95cd7d7346b1d01e60a4a7c6636"
+      },
+      {
+        "path": "skills/skill-governance/tests/test_generate_governance_startup.py",
+        "status": "M",
+        "sha256": "d6001aa703421568a3c13cddc61e2fbca6f6b519aeb437758c228bf931f5d7dd"
+      },
+      {
+        "path": "skills/skill-governance/tests/test_generate_routing_views.py",
+        "status": "M",
+        "sha256": "1bc524047952dc466ec3f94ce62b60bdc98087a45672ad68ce3a1675f3a9e96a"
+      },
+      {
+        "path": "skills/skill-governance/tests/test_governance_history_and_pair_integrity.py",
+        "status": "A",
+        "sha256": "df5ed643c7788569b89b1374350ae12babe756d472caadb4268819d3435bbc28"
+      },
+      {
+        "path": "skills/skill-governance/tests/test_governance_integrity.py",
+        "status": "M",
+        "sha256": "20b4c18e6924f289e7b68f25fd7ba4b3275b74507ad25959d855697a4aab8d1b"
+      },
+      {
+        "path": "skills/skill-governance/tests/test_project_index_integrity.py",
+        "status": "A",
+        "sha256": "d88d4583394acd4e200d52d0cdbc6389e3ed560855de1a030a1a1a5a55357acf"
+      },
+      {
+        "path": "skills/skill-governance/tests/test_remote_configuration.py",
+        "status": "A",
+        "sha256": "4d97371675e3dc74538446dbc89388ae413c2166f920ae03634be3f716de349a"
+      },
+      {
+        "path": "skills/skill-governance/tests/test_task_routing.py",
+        "status": "M",
+        "sha256": "77e5a61985011db1531ada7b9d1e9568604f2399410cafca79b2ca652201d8ee"
+      },
+      {
+        "path": "skills/skill-usage-review/SKILL.md",
+        "status": "M",
+        "sha256": "d022ab95fb80373675e8f837d41fb69c70204dd76667deaf0fdbceddec23c004"
+      },
+      {
+        "path": "skills/user-instructions-tracker/SKILL.md",
+        "status": "M",
+        "sha256": "b83df01a921799379f70a08d5f4b7752cb1b978f4fecf03264085f8206d5c577"
+      },
+      {
+        "path": "user-instructions.md",
+        "status": "M",
+        "sha256": "103eeb76277ff6cbad6f716740ffcd7f735bb86af106f99b95ab89536ad66bee"
+      }
+    ],
+    "manifest_sha256": "f14568407a2a848488e67584820a11e90ab7b26f786397e42c06ad63455dda9f"
+  },
+  "notes": "Post-protection integrity hardening for router contract 2.1, governance schema v3, exact release binding, immutable governance history, closed remote desired-state verification, generated views, documentation, and adversarial regression coverage. No release, tag, deployment, deletion, migration, publication, or remote configuration is authorized.",
+  "catalog_binding": {
+    "path": "skills/skill-catalog.json",
+    "sha256": "ab0a666c805e6faa93c71d78b6a68a55a5b2b6bbd49118ce0c9bc0bf8317f795",
+    "catalog_version": "2.0.1",
+    "router_contract": "2.1",
+    "components": [
+      "core-policy",
+      "response-compositor",
+      "safety-kernel",
+      "task-router"
+    ],
+    "skills": {
+      "deprecation-management": {
+        "status": "active",
+        "requires": [],
+        "runs_after": [
+          "semantic-policy-audit"
+        ],
+        "conflicts_with": []
+      },
+      "doc-maintenance": {
+        "status": "active",
+        "requires": [],
+        "runs_after": [],
+        "conflicts_with": []
+      },
+      "effective-testing-methods": {
+        "status": "active",
+        "requires": [],
+        "runs_after": [],
+        "conflicts_with": []
+      },
+      "file-maintenance": {
+        "status": "active",
+        "requires": [],
+        "runs_after": [],
+        "conflicts_with": []
+      },
+      "governance-enforcement": {
+        "status": "active",
+        "requires": [
+          "skill-governance"
+        ],
+        "runs_after": [],
+        "conflicts_with": []
+      },
+      "hyperfocus-discovery": {
+        "status": "active",
+        "requires": [],
+        "runs_after": [
+          "order-of-operations"
+        ],
+        "conflicts_with": []
+      },
+      "interdependent-change-planning": {
+        "status": "active",
+        "requires": [],
+        "runs_after": [
+          "requirement-clarifier"
+        ],
+        "conflicts_with": []
+      },
+      "internal-lang": {
+        "status": "active",
+        "requires": [],
+        "runs_after": [],
+        "conflicts_with": []
+      },
+      "order-of-operations": {
+        "status": "active",
+        "requires": [],
+        "runs_after": [],
+        "conflicts_with": []
+      },
+      "regression-prevention": {
+        "status": "active",
+        "requires": [],
+        "runs_after": [
+          "diagnose-before-fix",
+          "interdependent-change-planning"
+        ],
+        "conflicts_with": []
+      },
+      "scripted-command-execution": {
+        "status": "active",
+        "requires": [],
+        "runs_after": [
+          "order-of-operations"
+        ],
+        "conflicts_with": [
+          "pseudo-agentic-automation"
+        ]
+      },
+      "semantic-policy-audit": {
+        "status": "active",
+        "requires": [],
+        "runs_after": [],
+        "conflicts_with": []
+      },
+      "skill-governance": {
+        "status": "active",
+        "requires": [],
+        "runs_after": [],
+        "conflicts_with": []
+      },
+      "skill-usage-review": {
+        "status": "active",
+        "requires": [],
+        "runs_after": [],
+        "conflicts_with": []
+      },
+      "thoroughly-rate-review": {
+        "status": "active",
+        "requires": [],
+        "runs_after": [],
+        "conflicts_with": []
+      },
+      "token-reduction": {
+        "status": "active",
+        "requires": [],
+        "runs_after": [],
+        "conflicts_with": []
+      },
+      "user-instructions-tracker": {
+        "status": "active",
+        "requires": [],
+        "runs_after": [],
+        "conflicts_with": []
+      }
+    }
+  }
+}

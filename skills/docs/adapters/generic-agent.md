@@ -17,8 +17,8 @@ Do not copy the whole pack into a tool that cannot honor most of it. Start with 
 ## Required Behaviors
 The agent should:
 
-1. allow zero selected skills and state selected modes only for governed/audited work or when explicitly requested
-2. use the router's smallest-sufficient process budget
+1. allow zero selected skills and state selected modes only when explicitly requested or when governed/audited work needs a durable routing record
+2. use router contract 2.1's smallest-sufficient process budget
 3. execute locally by default
 4. maintain docs when behavior or workflow changes
 5. record validation evidence for governed changes
@@ -28,6 +28,8 @@ The agent should:
 Some commands, approval flows, sandbox rules, and skill-loading behavior are implementation-specific. Replace them with the target agent's local command, approval, and artifact mechanisms.
 
 If a feature cannot be ported cleanly, document the gap instead of pretending the agent has the same controls.
+
+Preserve the contract boundaries: the catalog is schema v2, the router contract is 2.1, and new governance artifacts are schema v3. Keep schema-v1 and schema-v2 governance artifacts readable as historical evidence. When publication is authorized and `main` is protected, use the target platform's feature-branch and pull-request flow rather than bypassing required checks.
 
 For `--quizme`, replace the source agent's interactive clarification console with the target agent's equivalent prompt UI. Preserve supported options when possible: `--mc`, `--one-at-a-time`, `--confirm`, and `--record`.
 

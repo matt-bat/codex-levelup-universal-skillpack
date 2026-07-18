@@ -20,6 +20,8 @@ class TestGovernedScope(unittest.TestCase):
         self.assertTrue(module.is_governed_change("skills/SKILL-MAP.md"))
         self.assertTrue(module.is_governed_change("docs/governance/TASK-1.governance.json"))
         self.assertTrue(module.is_governed_change("docs/project-index.md"))
+        self.assertTrue(module.is_governed_change(".github/branch-protection-policy.json"))
+        self.assertTrue(module.is_governed_change("user-instructions.md"))
         self.assertTrue(module.is_governed_change("AGENTS.md"))
         self.assertTrue(module.is_governed_change(".github/workflows/ci.yml"))
 

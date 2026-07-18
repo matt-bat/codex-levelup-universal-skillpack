@@ -1,6 +1,6 @@
 ---
 name: file-maintenance
-description: Use for continuous maintenance of repository files with emphasis on correctness, factual accuracy, freshness, consistency, and duplicate/stale file prevention.
+description: Perform an explicitly requested repository file-hygiene review or maintenance pass focused on factual accuracy, freshness, consistency, and duplicate or stale file prevention; read-only audits do not authorize corrections.
 ---
 
 # File Maintenance
@@ -29,6 +29,11 @@ description: Use for continuous maintenance of repository files with emphasis on
 
 ## Mission
 Maintain repository files so they remain accurate, current, internally consistent, and actionable for developers and operators.
+
+## Authority and Artifact Policy
+1. Activating this skill grants no authority to correct, consolidate, move, archive, or delete files.
+2. A read-only maintenance audit may identify and prioritize findings without changing repository state.
+3. Apply corrections only when the task separately authorizes the affected files and operations.
 
 ## Use This Skill When
 1. documentation or policy files may be stale after changes
@@ -61,7 +66,7 @@ Use when:
 
 Do not use when:
 1. a single canonical doc is being updated as part of implementation
-2. no repository files are changing
+2. no file-hygiene audit or maintenance outcome is in scope
 3. `doc-maintenance` already covers the necessary change-driven doc update
 
 Stop after:

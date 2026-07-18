@@ -2,10 +2,11 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://agent-command-center.local/schemas/governance-artifact.schema.json",
   "title": "Governance Artifact",
-  "description": "Backward-compatible governance evidence contract. A missing schema_version is legacy v1; new artifacts use v2.",
+  "description": "Backward-compatible governance evidence contract. A missing schema_version is legacy v1, schema v2 remains readable historical evidence, and new governed artifacts use schema v3.",
   "oneOf": [
     {"$ref": "#/$defs/v1"},
-    {"$ref": "#/$defs/v2"}
+    {"$ref": "#/$defs/v2"},
+    {"$ref": "#/$defs/v3"}
   ],
   "$defs": {
     "common": {
@@ -35,17 +36,53 @@
         "task_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
         "created_at_utc": {"type": "string", "format": "date-time"},
         "project_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"},
+        "purpose": {"enum": ["change", "release"]},
+        "authorized_operations": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": ["commit", "configure_remote", "delete", "deploy", "message", "migrate", "publish", "push"]
+          }
+        },
+        "profile": {"enum": ["prototype", "internal", "production"]},
         "project_language": {"type": "string", "minLength": 1},
         "project_description_max4": {"type": "string", "minLength": 1},
         "model_runs_test_build_default": {"enum": ["yes", "no"]},
-        "execution_scope": {"enum": ["local_only", "deployment"]},
+        "execution_scope": {"enum": ["local_only", "external", "deployment"]},
         "deployment_requested": {"type": "boolean"},
+        "execution_skill": {"enum": ["scripted-command-execution", "pseudo-agentic-automation"]},
+        "behavior_or_workflow_changed": {"type": "boolean"},
+        "uncertainty_high": {"type": "boolean"},
+        "requires_backup": {"type": "boolean"},
+        "requires_restore": {"type": "boolean"},
         "quizme_mode": {"enum": ["off", "on"]},
         "quizme_multiple_choice": {"type": "boolean"},
         "quizme_one_at_a_time": {"type": "boolean"},
         "quizme_confirm": {"type": "boolean"},
         "quizme_record": {"type": "boolean"},
         "selected_mode": {"enum": ["quick", "standard", "critical"]},
+        "scores": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["data_impact", "business_impact", "change_complexity", "dependency_uncertainty", "recoverability"],
+          "properties": {
+            "data_impact": {"type": "integer", "minimum": 0, "maximum": 3},
+            "business_impact": {"type": "integer", "minimum": 0, "maximum": 3},
+            "change_complexity": {"type": "integer", "minimum": 0, "maximum": 3},
+            "dependency_uncertainty": {"type": "integer", "minimum": 0, "maximum": 3},
+            "recoverability": {"type": "integer", "minimum": 0, "maximum": 3}
+          }
+        },
+        "total_score": {"type": "integer", "minimum": 0, "maximum": 15},
+        "base_mode": {"enum": ["quick", "standard", "critical"]},
+        "mode_after_profile": {"enum": ["quick", "standard", "critical"]},
+        "critical_overrides": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": ["auth_or_permission_change", "payment_or_financial_change", "schema_or_data_deletion_change", "api_contract_break", "production_security_or_runtime_boundary_change", "missing_rollback_path"]
+          }
+        },
         "required_gates": {
           "type": "array",
           "minItems": 1,
@@ -53,8 +90,15 @@
           "items": {"type": "string", "minLength": 1}
         },
         "startup_declaration": {"$ref": "#/$defs/startupDeclaration"},
+        "evidence_requirements": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
         "recommendation": {"enum": ["no-go", "go-with-risk", "go"]},
-        "break_glass": {"type": "object"}
+        "break_glass": {"type": "object"},
+        "notes": {"type": "string"}
       }
     },
     "startupDeclaration": {
@@ -103,6 +147,131 @@
         "waiver_reason": {"type": "string"}
       }
     },
+    "startupDeclarationV3": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["skills_in_use", "skills_selection_rationale", "skills_execution_order"],
+      "properties": {
+        "skills_in_use": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[a-z0-9-]+$"}
+        },
+        "skills_selection_rationale": {"type": "string", "minLength": 1},
+        "skills_execution_order": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[a-z0-9-]+$"}
+        }
+      }
+    },
+    "evidenceRecordV3": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "reference", "result", "observed_at_utc", "revision_sha", "sha256"],
+      "properties": {
+        "kind": {"enum": ["artifact", "attestation", "command", "review", "test"]},
+        "reference": {"type": "string", "minLength": 8},
+        "result": {"const": "pass"},
+        "observed_at_utc": {"type": "string", "format": "date-time"},
+        "revision_sha": {
+          "oneOf": [
+            {"type": "string", "pattern": "^[0-9a-f]{40}([0-9a-f]{24})?$"},
+            {"type": "null"}
+          ]
+        },
+        "sha256": {
+          "oneOf": [
+            {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            {"type": "null"}
+          ]
+        }
+      },
+      "anyOf": [
+        {"properties": {"revision_sha": {"type": "string"}}},
+        {"properties": {"sha256": {"type": "string"}}}
+      ]
+    },
+    "gateRecordV3": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "evidence", "waiver_reason"],
+      "properties": {
+        "status": {"enum": ["pending", "pass", "fail", "waived"]},
+        "evidence": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/evidenceRecordV3"}
+        },
+        "waiver_reason": {"type": "string"}
+      }
+    },
+    "breakGlassV3": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "reason", "risk_owner", "remediation_ticket", "expiry_hours"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "reason": {"type": "string"},
+        "risk_owner": {"type": "string"},
+        "remediation_ticket": {"type": "string"},
+        "expiry_hours": {
+          "oneOf": [
+            {"type": "integer", "minimum": 1, "maximum": 168},
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "catalogSkillBindingV3": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "requires", "runs_after", "conflicts_with"],
+      "properties": {
+        "status": {"type": "string", "minLength": 1},
+        "requires": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "runs_after": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "conflicts_with": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "catalogBindingV3": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "catalog_version", "router_contract", "components", "skills"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "catalog_version": {"type": "string", "minLength": 1},
+        "router_contract": {"type": "string", "minLength": 1},
+        "components": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "skills": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {"pattern": "^[a-z0-9-]+$"},
+          "additionalProperties": {"$ref": "#/$defs/catalogSkillBindingV3"}
+        }
+      }
+    },
+    "releaseMetadataV3": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["version", "tag", "version_path", "changelog_path", "release_notes_path", "skill_count", "governance_test_count"],
+          "properties": {
+            "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z.-]+)?$"},
+            "tag": {"type": "string", "minLength": 2},
+            "version_path": {"type": "string", "minLength": 1},
+            "changelog_path": {"type": "string", "minLength": 1},
+            "release_notes_path": {"type": "string", "minLength": 1},
+            "skill_count": {"type": "integer", "minimum": 1},
+            "governance_test_count": {"type": "integer", "minimum": 1}
+          }
+        }
+      ]
+    },
     "v1": {
       "allOf": [
         {"$ref": "#/$defs/common"},
@@ -129,6 +298,60 @@
               "type": "object",
               "additionalProperties": {"$ref": "#/$defs/gateRecord"}
             },
+            "change_binding": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["base_sha", "manifest", "manifest_sha256"],
+              "properties": {
+                "base_sha": {"type": "string", "pattern": "^[0-9a-f]{40}([0-9a-f]{24})?$"},
+                "manifest": {
+                  "type": "array",
+                  "items": {"$ref": "#/$defs/manifestEntry"}
+                },
+                "manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+              }
+            }
+          }
+        }
+      ]
+    },
+    "v3": {
+      "type": "object",
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/common"},
+        {
+          "required": [
+            "schema_version",
+            "purpose",
+            "authorized_operations",
+            "release_metadata",
+            "profile",
+            "execution_skill",
+            "behavior_or_workflow_changed",
+            "uncertainty_high",
+            "requires_backup",
+            "requires_restore",
+            "scores",
+            "total_score",
+            "base_mode",
+            "mode_after_profile",
+            "critical_overrides",
+            "evidence_requirements",
+            "change_binding",
+            "catalog_binding",
+            "notes"
+          ],
+          "properties": {
+            "schema_version": {"const": 3},
+            "release_metadata": {"$ref": "#/$defs/releaseMetadataV3"},
+            "startup_declaration": {"$ref": "#/$defs/startupDeclarationV3"},
+            "gate_status": {
+              "type": "object",
+              "additionalProperties": {"$ref": "#/$defs/gateRecordV3"}
+            },
+            "break_glass": {"$ref": "#/$defs/breakGlassV3"},
+            "catalog_binding": {"$ref": "#/$defs/catalogBindingV3"},
             "change_binding": {
               "type": "object",
               "additionalProperties": false,

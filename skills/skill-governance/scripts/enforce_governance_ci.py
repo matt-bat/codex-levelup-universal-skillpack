@@ -4,9 +4,11 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import fnmatch
 import hashlib
 import json
+import re
 import subprocess
 import sys
 from datetime import UTC, datetime
@@ -21,6 +23,7 @@ if str(SCRIPT_DIR) not in sys.path:
 
 from governance_common import (  # noqa: E402
     SCHEMA_V2,
+    SCHEMA_V3,
     build_manifest,
     diff_name_status,
     discover_repo_root,
@@ -31,6 +34,7 @@ from governance_common import (  # noqa: E402
     run_git,
 )
 from validate_governance_artifact import (  # noqa: E402
+    AUTHORIZED_OPERATIONS,
     artifact_schema_version,
     validate_artifact_data,
 )
@@ -60,7 +64,7 @@ def parse_args() -> argparse.Namespace:
         "--release-check",
         action="store_true",
         help=(
-            "Find a strict v2 artifact whose recorded base and manifest bind the exact release head. "
+            "Find one strict v3 release artifact whose recorded base and full manifest bind the exact release head. "
             "This mode does not publish or mutate remote settings."
         ),
     )
@@ -163,11 +167,11 @@ def _validate_artifact(
 
 def binding_errors(data: dict[str, Any], resolved_base: str, actual_manifest: list[dict[str, Any]]) -> list[str]:
     errors: list[str] = []
-    if artifact_schema_version(data) != SCHEMA_V2:
-        return ["only schema v2 artifacts can authorize governed changes"]
+    if artifact_schema_version(data) not in {SCHEMA_V2, SCHEMA_V3}:
+        return ["only content-bound schema v2 or v3 artifacts have change bindings"]
     binding = data.get("change_binding")
     if not isinstance(binding, dict):
-        return ["schema v2 artifact has no change_binding object"]
+        return ["content-bound artifact has no change_binding object"]
     if binding.get("base_sha") != resolved_base:
         errors.append(
             "change_binding.base_sha does not match the exact enforced base "
@@ -183,35 +187,226 @@ def binding_errors(data: dict[str, Any], resolved_base: str, actual_manifest: li
     return errors
 
 
-def _paired_json_path(path: str) -> str | None:
-    if path.endswith(".governance.json"):
-        return path
-    if path.endswith(".governance.md"):
-        return path[: -len(".governance.md")] + ".governance.json"
-    return None
+def catalog_binding_errors(
+    data: dict[str, Any],
+    repo_root: Path,
+    head_sha: str,
+) -> list[str]:
+    """Bind v3 startup semantics to the exact catalog at the enforced head."""
+    if artifact_schema_version(data) != SCHEMA_V3:
+        return []
+    binding = data.get("catalog_binding")
+    if not isinstance(binding, dict):
+        return ["schema v3 artifact has no catalog_binding object"]
+    path = binding.get("path")
+    if not isinstance(path, str):
+        return ["catalog_binding.path must be a repository-relative string"]
+    try:
+        raw = _head_bytes(repo_root, head_sha, path)
+        catalog = json.loads(raw)
+    except (SystemExit, json.JSONDecodeError) as exc:
+        return [f"catalog_binding.path cannot be verified at the enforced head: {exc}"]
+    errors: list[str] = []
+    if hashlib.sha256(raw).hexdigest() != binding.get("sha256"):
+        errors.append("catalog_binding.sha256 does not match the exact catalog at the enforced head")
+    if str(catalog.get("catalog_version")) != binding.get("catalog_version"):
+        errors.append("catalog_binding.catalog_version does not match the exact catalog")
+    if str(catalog.get("router_contract")) != binding.get("router_contract"):
+        errors.append("catalog_binding.router_contract does not match the exact catalog")
+    return errors
+
+
+def _head_governance_test_count(repo_root: Path, head_sha: str) -> int:
+    output = run_git(
+        repo_root,
+        [
+            "ls-tree",
+            "-r",
+            "--name-only",
+            "-z",
+            head_sha,
+            "--",
+            "skills/skill-governance/tests",
+        ],
+    )
+    assert isinstance(output, bytes)
+    paths = sorted(
+        raw.decode("utf-8", errors="strict")
+        for raw in output.split(b"\0")
+        if raw and raw.rsplit(b"/", 1)[-1].startswith(b"test_") and raw.endswith(b".py")
+    )
+    count = 0
+    for path in paths:
+        try:
+            tree = ast.parse(_head_bytes(repo_root, head_sha, path).decode("utf-8"), filename=path)
+        except (UnicodeDecodeError, SyntaxError) as exc:
+            raise SystemExit(f"Unable to inventory governance tests at release head: {path}: {exc}") from exc
+        count += sum(
+            1
+            for node in ast.walk(tree)
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and node.name.startswith("test_")
+        )
+    return count
+
+
+def release_metadata_errors(
+    data: dict[str, Any],
+    repo_root: Path,
+    head_sha: str,
+    manifest: list[dict[str, Any]],
+) -> list[str]:
+    if data.get("purpose") != "release":
+        return []
+    metadata = data.get("release_metadata")
+    if not isinstance(metadata, dict):
+        return ["release artifact has no release_metadata object"]
+    errors: list[str] = []
+    try:
+        version = _head_bytes(repo_root, head_sha, str(metadata.get("version_path"))).decode(
+            "utf-8"
+        ).strip()
+        changelog = _head_bytes(
+            repo_root, head_sha, str(metadata.get("changelog_path"))
+        ).decode("utf-8")
+        notes = _head_bytes(
+            repo_root, head_sha, str(metadata.get("release_notes_path"))
+        ).decode("utf-8")
+        catalog = json.loads(_head_bytes(repo_root, head_sha, "skills/skill-catalog.json"))
+    except (SystemExit, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        return [f"release metadata files cannot be verified at the exact head: {exc}"]
+
+    recorded_version = metadata.get("version")
+    recorded_tag = metadata.get("tag")
+    if version != recorded_version:
+        errors.append("release_metadata.version does not match the exact version file")
+    if recorded_tag != f"v{recorded_version}":
+        errors.append("release_metadata.tag does not equal v<version>")
+    if not re.search(
+        rf"^## \[{re.escape(str(recorded_version))}\] - \d{{4}}-\d{{2}}-\d{{2}}$",
+        changelog,
+        flags=re.MULTILINE,
+    ):
+        errors.append("release changelog lacks a dated heading for the exact version")
+
+    actual_skill_count = len(catalog.get("skills", []))
+    actual_test_count = _head_governance_test_count(repo_root, head_sha)
+    if metadata.get("skill_count") != actual_skill_count:
+        errors.append("release_metadata.skill_count does not match the exact catalog")
+    if metadata.get("governance_test_count") != actual_test_count:
+        errors.append("release_metadata.governance_test_count does not match the exact test tree")
+    for marker in (
+        str(recorded_tag),
+        f"- Skill count: `{actual_skill_count}`",
+        f"- Governance test count: `{actual_test_count}`",
+    ):
+        if marker not in notes:
+            errors.append(f"release notes are missing exact metadata marker: {marker}")
+
+    manifest_paths = {entry.get("path") for entry in manifest}
+    for field in ("version_path", "changelog_path", "release_notes_path"):
+        if metadata.get(field) not in manifest_paths:
+            errors.append(f"release metadata path is absent from the full manifest: {metadata.get(field)}")
+    return errors
 
 
 def reject_historical_artifact_mutation(
     changes: list[tuple[str, str]],
-    repo_root: Path,
-    head_sha: str,
 ) -> None:
-    """Keep legacy evidence append-only while allowing new v2 evidence."""
+    """Keep every committed governance record append-only."""
     for status, path in changes:
         if not is_governance_artifact_path(path):
             continue
         if status == "D":
             raise SystemExit(f"Governance evidence is immutable and cannot be deleted: {path}")
-        json_path = _paired_json_path(path)
-        if not json_path:
-            continue
-        try:
-            data, _ = _head_json(repo_root, head_sha, json_path)
-        except SystemExit as exc:
-            raise SystemExit(f"Unable to prove governance evidence version for {path}: {exc}") from exc
-        if artifact_schema_version(data) != SCHEMA_V2:
+        if status != "A":
             raise SystemExit(
-                f"Legacy schema v1 governance evidence is immutable and cannot be edited: {path}"
+                f"Committed governance evidence is immutable; add a superseding artifact instead: {path}"
+            )
+
+
+def _commit_changes_not_carried_from_a_parent(
+    repo_root: Path,
+    commit_sha: str,
+) -> list[tuple[str, str]]:
+    """Return changes authored by one commit, excluding files merely carried through a merge."""
+    parent_line = run_git(
+        repo_root,
+        ["rev-list", "--parents", "-n", "1", commit_sha],
+        text=True,
+    )
+    assert isinstance(parent_line, str)
+    tokens = parent_line.strip().split()
+    if not tokens or tokens[0] != commit_sha:
+        raise SystemExit(f"Unable to resolve commit parents for governance history: {commit_sha}")
+    parents = tokens[1:]
+    if not parents:
+        raise SystemExit(
+            "Governance history enforcement cannot compare a root commit without a parent: "
+            f"{commit_sha}"
+        )
+
+    changes_by_parent: list[dict[str, str]] = []
+    for parent_sha in parents:
+        _, _, changes = diff_name_status(repo_root, parent_sha, commit_sha)
+        changes_by_parent.append({path: status for status, path in changes})
+
+    if len(changes_by_parent) == 1:
+        return [
+            (status, path)
+            for path, status in sorted(changes_by_parent[0].items())
+        ]
+
+    authored: list[tuple[str, str]] = []
+    candidate_paths = set().union(*(set(changes) for changes in changes_by_parent))
+    for path in sorted(candidate_paths):
+        statuses = [changes.get(path) for changes in changes_by_parent]
+        if any(status is None for status in statuses):
+            # The merge commit reused this path unchanged from at least one parent.
+            continue
+        concrete = [status for status in statuses if status is not None]
+        if all(status == "A" for status in concrete):
+            authored.append(("A", path))
+        elif all(status == "D" for status in concrete):
+            authored.append(("D", path))
+        else:
+            authored.append(("M", path))
+    return authored
+
+
+def reject_artifact_mutation_within_range(
+    repo_root: Path,
+    base_sha: str,
+    head_sha: str,
+) -> None:
+    """Reject edits to any governance record after its first commit in base..head."""
+    resolved_base = resolve_commit(repo_root, base_sha, "base SHA")
+    resolved_head = resolve_commit(repo_root, head_sha, "head SHA")
+    raw_commits = run_git(
+        repo_root,
+        ["rev-list", "--reverse", "--topo-order", f"{resolved_base}..{resolved_head}"],
+        text=True,
+    )
+    assert isinstance(raw_commits, str)
+
+    additions: dict[str, str] = {}
+    for commit_sha in (line.strip() for line in raw_commits.splitlines() if line.strip()):
+        for status, path in _commit_changes_not_carried_from_a_parent(repo_root, commit_sha):
+            if not is_governance_artifact_path(path):
+                continue
+            first_addition = additions.get(path)
+            if first_addition is None:
+                if status == "A":
+                    additions[path] = commit_sha
+                    continue
+                raise SystemExit(
+                    "Committed governance evidence is immutable within the enforced commit range; "
+                    f"add a superseding artifact instead: {path} changed at {commit_sha}"
+                )
+            raise SystemExit(
+                "Governance evidence cannot change after its first commit in the enforced range; "
+                f"add a superseding artifact instead: {path} was added at {first_addition} "
+                f"and changed again at {commit_sha} ({status})"
             )
 
 
@@ -226,15 +421,17 @@ def _normal_enforcement(
     if not base_sha.strip():
         raise SystemExit("--base-sha is required unless --release-check is used")
     resolved_base, resolved_head, changes = diff_name_status(repo_root, base_sha, head_sha)
-    reject_historical_artifact_mutation(changes, repo_root, resolved_head)
+    reject_artifact_mutation_within_range(repo_root, resolved_base, resolved_head)
+    reject_historical_artifact_mutation(changes)
 
     governed_changes = [(status, path) for status, path in changes if is_governed_change(path)]
-    actual_manifest = build_manifest(
+    governed_manifest = build_manifest(
         repo_root,
         changes,
         head_sha=resolved_head,
         governed_predicate=is_governed_change,
     )
+    full_manifest = build_manifest(repo_root, changes, head_sha=resolved_head)
     changed_artifacts = [
         path
         for status, path in changes
@@ -245,21 +442,32 @@ def _normal_enforcement(
     print(f"Governed changed files: {len(governed_changes)}")
     print(f"Changed governance artifacts: {len(changed_artifacts)}")
     if governed_changes and not changed_artifacts:
-        print("ERROR: Governed changes detected without a changed schema v2 governance artifact.")
+        print("ERROR: Governed changes detected without a changed schema v3 governance artifact.")
         for _, path in governed_changes:
             print(f" - {path}")
         raise SystemExit(1)
 
     validated: list[dict[str, Any]] = []
+    validated_manifest: list[dict[str, Any]] | None = None
     for artifact_path in sorted(changed_artifacts):
         data, raw = _head_json(repo_root, resolved_head, artifact_path)
+        if artifact_schema_version(data) != SCHEMA_V3:
+            raise SystemExit(
+                f"New governed changes require an append-only schema v3 artifact: {artifact_path}"
+            )
         _validate_artifact(
             artifact_path,
             data,
             strict=strict,
             require_recommendation=require_recommendation,
         )
+        actual_manifest = full_manifest if data.get("purpose") == "release" else governed_manifest
+        if validated_manifest is not None and actual_manifest != validated_manifest:
+            raise SystemExit("Changed governance artifacts use incompatible manifest scopes")
+        validated_manifest = actual_manifest
         errors = binding_errors(data, resolved_base, actual_manifest)
+        errors.extend(catalog_binding_errors(data, repo_root, resolved_head))
+        errors.extend(release_metadata_errors(data, repo_root, resolved_head, actual_manifest))
         if errors:
             for error in errors:
                 print(f"ERROR: {artifact_path}: {error}")
@@ -277,8 +485,8 @@ def _normal_enforcement(
         )
 
     if governed_changes and not validated:
-        raise SystemExit("No change-bound schema v2 governance artifact validated the governed diff")
-    return resolved_base, resolved_head, actual_manifest, validated
+        raise SystemExit("No change-bound schema v3 governance artifact validated the governed diff")
+    return resolved_base, resolved_head, validated_manifest or governed_manifest, validated
 
 
 def _head_governance_artifact_paths(repo_root: Path, head_sha: str) -> list[str]:
@@ -308,22 +516,28 @@ def _release_enforcement(
 
     for artifact_path in _head_governance_artifact_paths(repo_root, resolved_head):
         data, raw = _head_json(repo_root, resolved_head, artifact_path)
-        if artifact_schema_version(data) != SCHEMA_V2:
+        if artifact_schema_version(data) != SCHEMA_V3:
+            continue
+        if data.get("purpose") != "release" or "publish" not in data.get(
+            "authorized_operations", []
+        ):
             continue
         binding = data.get("change_binding")
         base_sha = binding.get("base_sha") if isinstance(binding, dict) else ""
         try:
             resolved_base, _, changes = diff_name_status(repo_root, str(base_sha), resolved_head)
+            reject_artifact_mutation_within_range(repo_root, resolved_base, resolved_head)
             actual_manifest = build_manifest(
                 repo_root,
                 changes,
                 head_sha=resolved_head,
-                governed_predicate=is_governed_change,
             )
         except SystemExit as exc:
             diagnostics.append(f"{artifact_path}: invalid recorded base: {exc}")
             continue
         errors = binding_errors(data, resolved_base, actual_manifest)
+        errors.extend(catalog_binding_errors(data, repo_root, resolved_head))
+        errors.extend(release_metadata_errors(data, repo_root, resolved_head, actual_manifest))
         if errors:
             diagnostics.append(f"{artifact_path}: {'; '.join(errors)}")
             continue
@@ -338,18 +552,21 @@ def _release_enforcement(
         candidates.append((resolved_base, actual_manifest, data, raw, artifact_path))
 
     if not candidates:
-        print("ERROR: No strict schema v2 governance artifact binds the exact release head.")
+        print("ERROR: No strict schema v3 release artifact binds the exact release head.")
         for diagnostic in diagnostics:
             print(f" - {diagnostic}")
         raise SystemExit(1)
 
-    resolved_base, manifest, data, raw, artifact_path = sorted(candidates, key=lambda item: item[4])[0]
+    if len(candidates) != 1:
+        names = ", ".join(sorted(candidate[4] for candidate in candidates))
+        raise SystemExit(f"Release enforcement requires exactly one matching artifact; found: {names}")
+    resolved_base, manifest, data, raw, artifact_path = candidates[0]
     plan_digest = hashlib.sha256(raw).hexdigest()
     validated = [
         {
             "path": artifact_path,
             "task_id": data.get("task_id"),
-            "schema_version": SCHEMA_V2,
+            "schema_version": SCHEMA_V3,
             "recommendation": data.get("recommendation"),
             "artifact_sha256": plan_digest,
             "plan_sha256": plan_digest,

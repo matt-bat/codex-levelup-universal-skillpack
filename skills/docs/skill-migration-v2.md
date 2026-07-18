@@ -2,7 +2,7 @@
 
 ## Policy
 
-Version 2 narrows activation and introduces typed routing without immediately deleting public skill names. Existing explicit commands and supported names continue through the observation window.
+Version 2 narrows activation and introduces typed routing without immediately deleting public skill names. The canonical catalog remains schema v2, its current router contract is 2.1, and new governance artifacts use schema v3. Existing explicit commands and supported names continue through the observation window.
 
 ## Immediate Changes
 
@@ -19,8 +19,8 @@ Version 2 narrows activation and introduces typed routing without immediately de
 ## Compatibility Rules
 
 1. Use one-way aliases or wrappers only.
-2. Emit canonical version 2 names and relations in new governance evidence.
-3. Validate historical artifacts with their recorded schema and names.
+2. Emit current canonical names and typed relations in router-contract-2.1 results and new schema-v3 governance evidence.
+3. Keep schema-v1 and schema-v2 governance artifacts readable as historical evidence with their recorded names; never rewrite them into schema v3.
 4. Exclude wrappers from active skill-count budgets.
 5. Warn on new use of discouraged names without breaking existing explicit use.
 6. Record only bounded operational routing metadata; never prompts, source content, secrets, credentials, hidden reasoning, or private user data.
@@ -34,6 +34,8 @@ Do not remove or merge public names until:
 3. aliases have zero unexplained failures
 4. corrections, backtracking, validation failures, and task time do not materially worsen
 5. an exact-commit release attestation passes
+
+When `main` is protected and remote publication is authorized, exercise the migration through a feature branch and pull request so the required governance check evaluates the candidate before merge.
 
 If a replacement changes command behavior, omits a safety gate, breaks artifact compatibility, or exceeds the accepted regression threshold, restore the previous routing entry and keep the compatibility name active.
 

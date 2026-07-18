@@ -23,10 +23,15 @@ Detect policy drift that passes simple text checks but fails intent-level correc
 
 ## Trigger Rule
 Use this skill when:
-1. policy compliance confidence is important
-2. tasks are high-risk or multi-skill
-3. governance artifacts exist but applicability is uncertain
-4. user requests strict audit/compliance review
+1. a policy or routing system itself is being audited for intent-level correctness
+2. governed work requires an explicit high-confidence semantic review beyond mechanical checks
+3. governance artifacts exist but their applicability or evidence claims are uncertain
+4. the user requests a strict semantic policy or compliance review
+
+Do not use merely because:
+1. an implementation touches several files or selects several skills
+2. a task is ordinary implementation with no policy-conformance decision
+3. schema, snippet, or command checks fully answer the validation question
 
 ## Scope Boundary
 This skill audits semantic correctness.

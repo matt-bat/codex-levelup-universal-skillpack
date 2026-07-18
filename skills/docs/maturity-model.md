@@ -2,6 +2,8 @@
 
 Adopt capabilities gradually. An installed or available skill is not an active skill: the task router may select zero skills, and each package activates only when its catalog trigger matches.
 
+Keep the version surfaces distinct: the catalog uses schema v2, the current router contract is 2.1, and new governance artifacts use schema v3. Schema-v1 and schema-v2 governance artifacts remain readable historical evidence.
+
 ## Level 1: Core Policy and Routing
 
 Goal: preserve authority, user work, instruction precedence, and proportional validation without routine ceremony.
@@ -17,7 +19,7 @@ Evidence:
 
 1. routine tasks do not create governance or tracking artifacts
 2. read-only tasks perform zero writes
-3. startup declarations appear only when explicitly requested or required as governed evidence
+3. startup declarations appear only when explicitly requested or when governed/audited work needs a durable routing record
 
 ## Level 2: Development Workflows
 
@@ -40,10 +42,11 @@ Available packages include `skill-governance`, `governance-enforcement`, and `se
 
 Evidence:
 
-1. governed changes bind evidence to the exact base and candidate content
+1. new schema-v3 governed changes bind evidence and their catalog snapshot to the exact base and candidate content
 2. mandatory gates fail closed on missing, stale, or pending evidence
 3. release attestations identify the exact commit
 4. external release controls are verified independently
+5. authorized changes to a protected `main` branch flow through a feature branch, pull request, and required governance check
 
 ## Level 4: Lifecycle Management
 
@@ -64,7 +67,7 @@ Goal: improve from representative task outcomes rather than speculative rules.
 
 Evidence:
 
-1. at least 30 representative routed tasks or two releases cover the migration observation window
+1. at least 30 representative tasks or two releases cover the migration observation window
 2. recurring friction becomes a tested catalog, router, or skill change
 3. rarely used skills are justified, merged, deprecated, or removed through an explicit lifecycle decision
 4. validation profiles reflect actual risk boundaries

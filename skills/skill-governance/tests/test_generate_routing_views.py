@@ -52,7 +52,7 @@ def catalog(skills: list[dict]) -> dict:
         "$schema": "./skill-catalog.schema.json",
         "schema_version": 2,
         "catalog_version": "2.0.0",
-        "router_contract": "2.0",
+        "router_contract": "2.1",
         "components": ["core-policy", "task-router", "safety-kernel", "response-compositor"],
         "generated_views": [
             "skills/SKILL-MAP.md",
@@ -95,6 +95,20 @@ def catalog(skills: list[dict]) -> dict:
 
 
 class RoutingViewTest(unittest.TestCase):
+    def test_startup_declaration_policy_matches_repository_core_policy(self) -> None:
+        catalog_path = Path(__file__).resolve().parents[2] / "skill-catalog.json"
+        payload = json.loads(catalog_path.read_text(encoding="utf-8"))
+        self.assertEqual(
+            payload["router_policy"]["startup_declaration"],
+            {
+                "required_when": [
+                    "explicitly_requested",
+                    "governed_or_audited_work_requiring_durable_routing_record",
+                ],
+                "otherwise": "omit",
+            },
+        )
+
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)
@@ -154,6 +168,24 @@ class RoutingViewTest(unittest.TestCase):
         with self.assertRaisesRegex(MODULE.CatalogError, "requires graph cycle"):
             MODULE.validate_catalog(payload, self.root)
 
+    def test_combined_requires_and_runs_after_cycle_fails(self) -> None:
+        alpha, beta = skill("alpha"), skill("beta")
+        alpha["relations"]["requires"] = ["beta"]
+        beta["relations"]["runs_after"] = ["alpha"]
+        payload = catalog([alpha, beta])
+        self.write_fixture(payload)
+        with self.assertRaisesRegex(MODULE.CatalogError, "combined requires/runs_after"):
+            MODULE.validate_catalog(payload, self.root)
+
+    def test_active_decision_domain_has_one_owner(self) -> None:
+        alpha, beta = skill("alpha"), skill("beta")
+        beta["decision_domains"] = list(alpha["decision_domains"])
+        payload = catalog([alpha, beta])
+        payload["decision_domains"] = list(alpha["decision_domains"])
+        self.write_fixture(payload)
+        with self.assertRaisesRegex(MODULE.CatalogError, "multiple active owners"):
+            MODULE.validate_catalog(payload, self.root)
+
     def test_unknown_relation_target_fails(self) -> None:
         alpha = skill("alpha")
         alpha["relations"]["supports"] = ["missing"]
@@ -198,6 +230,25 @@ class RoutingViewTest(unittest.TestCase):
         self.write_fixture(payload)
         with self.assertRaisesRegex(MODULE.CatalogError, "unknown artifact"):
             MODULE.validate_catalog(payload, self.root)
+
+    def test_authorized_only_artifact_requires_explicit_authority_section(self) -> None:
+        alpha = skill("alpha")
+        alpha["artifact_policy"] = {
+            "durability": "authorized_only",
+            "artifacts": ["change_evidence"],
+        }
+        payload = catalog([alpha])
+        self.write_fixture(payload)
+        with self.assertRaisesRegex(MODULE.CatalogError, "Authority and Artifact Policy"):
+            MODULE.validate_catalog(payload, self.root)
+
+        skill_path = self.root / "skills" / "alpha" / "SKILL.md"
+        skill_path.write_text(
+            skill_path.read_text(encoding="utf-8")
+            + "\n## Authority and Artifact Policy\n\nActivation grants no write authority.\n",
+            encoding="utf-8",
+        )
+        MODULE.validate_catalog(payload, self.root)
 
     def test_automatic_and_explicit_routing_modes_are_enforced(self) -> None:
         alpha = skill("alpha")

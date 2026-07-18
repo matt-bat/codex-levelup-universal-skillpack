@@ -26,6 +26,13 @@ from generate_routing_views import (  # noqa: E402
     expected_outputs as expected_routing_outputs,
     validate_catalog as validate_catalog_v2,
 )
+from generate_governance_artifact import (  # noqa: E402
+    GovernanceArtifact,
+    ProjectIndexValidationError,
+    render_markdown as render_governance_markdown,
+    validate_project_index,
+)
+from verify_remote_configuration import validate_policy_file as validate_remote_policy_file  # noqa: E402
 
 DEFAULT_SKILLS_ROOT = SCRIPT_PATH.parents[2]
 UTC_REGEX = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
@@ -128,6 +135,13 @@ REQUIRED_SKILL_INDEX_COLUMNS = [
 ]
 
 ALLOWED_STATUSES = {"pending", "in_progress", "blocked", "done", "won_t_do"}
+
+CONFLICT_MATRIX_COLUMNS = [
+    "Decision Type",
+    "Catalog Domain or Policy Key",
+    "Owning Skill or Component",
+    "Supporting Skills",
+]
 
 
 def parse_args() -> argparse.Namespace:
@@ -334,6 +348,14 @@ def validate_required_file_snippets(skills_root: Path) -> list[str]:
     return errors
 
 
+def validate_project_index_policy(path: Path) -> list[str]:
+    try:
+        validate_project_index(path)
+    except ProjectIndexValidationError as exc:
+        return [f"project index: {error}" for error in exc.errors]
+    return []
+
+
 def validate_skill_catalog_sync(skills_root: Path) -> list[str]:
     errors: list[str] = []
     actual_skills, catalog_errors = load_skill_catalog(skills_root)
@@ -524,6 +546,70 @@ def _table_rows(lines: list[str], required_columns: list[str]) -> tuple[list[lis
     return rows, errors
 
 
+def _code_value(value: str) -> str:
+    stripped = value.strip()
+    if len(stripped) >= 2 and stripped.startswith("`") and stripped.endswith("`"):
+        return stripped[1:-1]
+    return stripped
+
+
+def validate_conflict_resolution_matrix(path: Path, catalog_path: Path) -> list[str]:
+    """Require conflict-matrix owner labels to match typed catalog domains."""
+
+    if not path.is_file():
+        return [f"conflict matrix: missing required file: {path}"]
+    try:
+        catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return [f"conflict matrix: cannot load catalog: {exc}"]
+    if not isinstance(catalog, dict) or not isinstance(catalog.get("skills"), list):
+        return ["conflict matrix: catalog lacks a skills array"]
+
+    active_skills = {
+        str(skill.get("name")): skill
+        for skill in catalog["skills"]
+        if isinstance(skill, dict) and skill.get("status") == "active"
+    }
+    domain_owners = {
+        str(domain): name
+        for name, skill in active_skills.items()
+        for domain in skill.get("decision_domains", [])
+    }
+    allowed_policy_owners = {"router_policy.skill_budget": "task router"}
+    allowed_labels = set(domain_owners) | set(allowed_policy_owners)
+
+    rows, table_errors = _table_rows(path.read_text(encoding="utf-8").splitlines(), CONFLICT_MATRIX_COLUMNS)
+    errors = [f"conflict matrix: {error}" for error in table_errors]
+    seen: set[str] = set()
+    for decision, raw_label, raw_owner, supporting in rows:
+        label = _code_value(raw_label)
+        owner = _code_value(raw_owner)
+        if label in seen:
+            errors.append(f"conflict matrix: duplicate domain or policy key `{label}`")
+        seen.add(label)
+        if label not in allowed_labels:
+            errors.append(
+                f"conflict matrix: `{decision}` uses unknown domain or policy key `{label}`"
+            )
+            continue
+        expected_owner = domain_owners.get(label, allowed_policy_owners.get(label))
+        if owner != expected_owner:
+            errors.append(
+                f"conflict matrix: `{label}` owner must be `{expected_owner}`, found `{owner}`"
+            )
+        unknown_supporters = sorted(
+            name
+            for name in re.findall(r"`([a-z0-9-]+)`", supporting)
+            if name not in active_skills
+        )
+        if unknown_supporters:
+            errors.append(
+                f"conflict matrix: `{label}` has unknown supporting skills: "
+                + ", ".join(unknown_supporters)
+            )
+    return errors
+
+
 def validate_user_instructions(path: Path, compatibility_path: Path | None = None) -> list[str]:
     errors: list[str] = []
     if not path.exists():
@@ -626,12 +712,31 @@ def validate_artifact_pair(json_path: Path) -> list[str]:
         if marker not in md_content:
             errors.append(f"{md_path}: missing quizme state marker {marker}")
     schema_version = data.get("schema_version", 1)
-    if schema_version == 2:
+    if schema_version in {2, 3}:
         if "change_binding" not in data:
-            errors.append(f"{json_path}: schema v2 artifact missing change_binding")
-        for marker in ("`schema_version`: 2", "## Change Binding", "`manifest_sha256`"):
+            errors.append(f"{json_path}: content-bound artifact missing change_binding")
+        for marker in (
+            f"`schema_version`: {schema_version}",
+            "## Change Binding",
+            "`manifest_sha256`",
+        ):
             if marker not in md_content:
-                errors.append(f"{md_path}: schema v2 pair missing marker {marker}")
+                errors.append(f"{md_path}: content-bound pair missing marker {marker}")
+    if schema_version == 3:
+        try:
+            canonical_markdown = render_governance_markdown(
+                GovernanceArtifact(**data)
+            ) + "\n"
+        except (AttributeError, KeyError, TypeError, ValueError) as exc:
+            errors.append(
+                f"{json_path}: schema v3 artifact cannot be rendered canonically: {exc}"
+            )
+        else:
+            if md_content != canonical_markdown:
+                errors.append(
+                    f"{md_path}: schema v3 Markdown pair does not equal the canonical "
+                    "generator rendering of its JSON"
+                )
     return errors
 
 
@@ -682,11 +787,24 @@ def main() -> None:
     errors.extend(validate_machine_readable_catalog(skills_root))
     errors.extend(validate_skill_order_sync(skills_root))
     errors.extend(
+        validate_conflict_resolution_matrix(
+            skills_root / "docs" / "conflict-resolution-matrix.md",
+            skills_root / "skill-catalog.json",
+        )
+    )
+    errors.extend(validate_project_index_policy(repo_root / "docs" / "project-index.md"))
+    errors.extend(
         validate_user_instructions(
             repo_root / "user-instructions.md",
             compatibility_path=skills_root / "user-instructions.md",
         )
     )
+    remote_policy_path = repo_root / ".github" / "branch-protection-policy.json"
+    if remote_policy_path.exists():
+        errors.extend(
+            f"remote branch-protection policy: {error}"
+            for error in validate_remote_policy_file(remote_policy_path)
+        )
 
     changed = changed_files(args.base_sha, args.head_sha, repo_root)
     artifacts = collect_target_artifacts(governance_dir, changed, repo_root)
