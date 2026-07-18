@@ -1,0 +1,139 @@
+{
+  "schema_version": 2,
+  "task_id": "SKILLPACK-ARCHITECTURE-V2-CI-BINDING-20260717",
+  "project_id": "agent-command-center",
+  "created_at_utc": "2026-07-18T02:20:37.146744+00:00",
+  "profile": "internal",
+  "project_language": "Markdown/Python",
+  "project_description_max4": "Agent command center",
+  "model_runs_test_build_default": "yes",
+  "execution_scope": "local_only",
+  "deployment_requested": false,
+  "execution_skill": "scripted-command-execution",
+  "behavior_or_workflow_changed": true,
+  "quizme_mode": "off",
+  "quizme_multiple_choice": false,
+  "quizme_one_at_a_time": false,
+  "quizme_confirm": false,
+  "quizme_record": false,
+  "scores": {
+    "data_impact": 0,
+    "business_impact": 2,
+    "change_complexity": 2,
+    "dependency_uncertainty": 1,
+    "recoverability": 1
+  },
+  "total_score": 6,
+  "base_mode": "standard",
+  "mode_after_profile": "standard",
+  "selected_mode": "standard",
+  "critical_overrides": [],
+  "required_gates": [
+    "scripted-command-execution",
+    "regression-prevention",
+    "doc-maintenance"
+  ],
+  "gate_status": {
+    "scripted-command-execution": {
+      "status": "pass",
+      "evidence": [
+        "The first normal push advanced origin/main to 09345b5a2dd0bc7e46c67f36238cb1b4224035b8 and post-push fetch verified local and remote equality.",
+        "The follow-up operation remains a normal non-force push to origin/main after exact-head attestation; force, tag, release, deployment, and remote-settings operations remain excluded."
+      ],
+      "waiver_reason": ""
+    },
+    "regression-prevention": {
+      "status": "pass",
+      "evidence": [
+        "python3 -m unittest discover -s skills/skill-governance/tests -p test_*.py completed 103 tests successfully.",
+        "The new regression test proves normal enforcement rejects any changed unbound version 2 plan even when another changed plan binds correctly; 25 routing scenarios and 31 skill validations also passed."
+      ],
+      "waiver_reason": ""
+    },
+    "doc-maintenance": {
+      "status": "pass",
+      "evidence": [
+        "Governance artifact lifecycle, enforcement workflow, walkthrough, changelog, and field notes now document the one-diff one-binding invariant and GitHub Actions run 29626703980 evidence.",
+        "Checked 102 Markdown files and 207 relative links with zero broken targets; policy, ordering, catalog, schema, YAML, workflow-parity, and diff checks passed."
+      ],
+      "waiver_reason": ""
+    }
+  },
+  "startup_declaration": {
+    "skills_in_use": [
+      "skill-governance",
+      "order-of-operations",
+      "user-instructions-tracker",
+      "doc-maintenance",
+      "scripted-command-execution",
+      "regression-prevention",
+      "governance-enforcement"
+    ],
+    "skills_selection_rationale": "Governance and ordering constrain the CI remediation and follow-up push; documentation and field evidence record the discovered invariant; the tracker gate excludes transient authorization; regression and enforcement prove the existing fail-closed behavior.",
+    "skills_execution_order": [
+      "skill-governance",
+      "order-of-operations",
+      "user-instructions-tracker",
+      "doc-maintenance",
+      "scripted-command-execution",
+      "regression-prevention",
+      "governance-enforcement"
+    ]
+  },
+  "evidence_requirements": [
+    "mode + score",
+    "impact map",
+    "validation scope by layer",
+    "residual risks"
+  ],
+  "break_glass": {
+    "enabled": false,
+    "reason": "",
+    "risk_owner": "",
+    "remediation_ticket": "",
+    "expiry_hours": null
+  },
+  "recommendation": "go",
+  "change_binding": {
+    "base_sha": "09345b5a2dd0bc7e46c67f36238cb1b4224035b8",
+    "manifest": [
+      {
+        "path": "docs/project-index.md",
+        "status": "M",
+        "sha256": "f28746c277247d1110947b30d823a56c5631dc75b10a5377b1a1ec845f61b417"
+      },
+      {
+        "path": "skills/CHANGELOG.md",
+        "status": "M",
+        "sha256": "e5007d0f706b0366a0da68a65b2fcddd075c68016bde79348b75e96bf09831a3"
+      },
+      {
+        "path": "skills/docs/field-notes.md",
+        "status": "M",
+        "sha256": "a22953e1e5cc921ea442722eb71d29ebb1e77c5f3310f49e0d1b1a6e8cbe7ba7"
+      },
+      {
+        "path": "skills/docs/governance-walkthrough.md",
+        "status": "M",
+        "sha256": "9fd4f198cdb09c1174270a2002fd74b87eb2f11627439a6353ef87d4617259ed"
+      },
+      {
+        "path": "skills/governance-enforcement/SKILL.md",
+        "status": "M",
+        "sha256": "01e7fcb9be07ba4e97bacb1234598d67ba2c9d2106ce51f7f3560db6b784c9c4"
+      },
+      {
+        "path": "skills/skill-governance/references/governance-artifacts.md",
+        "status": "M",
+        "sha256": "df859ceadb82c9ad86ab3760325d681b9849334c8f74e2f08456218f298d2d0f"
+      },
+      {
+        "path": "skills/skill-governance/tests/test_governance_integrity.py",
+        "status": "M",
+        "sha256": "0a5c3de958c58a2f7dd7f6b778e2931430a86c3df634a8c0be83ab7ff21baddd"
+      }
+    ],
+    "manifest_sha256": "e590e16b224d5a2b66d679bf7f240d3dba7ce5435c9b80240678f59785ac6eff"
+  },
+  "notes": "Follow-up to GitHub Actions run 29626703980. The change documents and regression-tests the rule that every version 2 plan changed in one diff must bind the same exact manifest. User authorization remains limited to a normal non-force push to origin/main; no tag, hosted release, deployment, or remote-settings change is authorized."
+}

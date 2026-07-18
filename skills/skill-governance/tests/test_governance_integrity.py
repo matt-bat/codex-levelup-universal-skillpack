@@ -1,4 +1,6 @@
+from contextlib import redirect_stdout
 import importlib.util
+from io import StringIO
 import json
 from pathlib import Path
 import subprocess
@@ -485,6 +487,58 @@ class TestChangeBindingAndAttestation(unittest.TestCase):
                 "manifest_sha256": common.manifest_sha256(actual_manifest),
             }
             self.assertEqual(enforce.binding_errors(data, resolved_base, actual_manifest), [])
+
+    def test_normal_enforcement_rejects_any_changed_unbound_v2_plan(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            repo = Path(raw)
+            base = init_repo(repo)
+            (repo / "skills" / "policy.md").write_text("changed\n", encoding="utf-8")
+            _, working_changes = common.working_tree_name_status(repo, base)
+            manifest = common.build_manifest(
+                repo,
+                working_changes,
+                governed_predicate=common.is_governed_change,
+            )
+            governance = repo / "docs" / "governance"
+            governance.mkdir(parents=True)
+
+            exact = v2_artifact(status="pass", recommendation="go")
+            exact["gate_status"]["order-of-operations"]["evidence"] = ["tests passed"]
+            exact["change_binding"] = {
+                "base_sha": base,
+                "manifest": manifest,
+                "manifest_sha256": common.manifest_sha256(manifest),
+            }
+            stale = v2_artifact(status="pass", recommendation="go")
+            stale["task_id"] = "TASK-2"
+            stale["gate_status"]["order-of-operations"]["evidence"] = ["older phase passed"]
+
+            for name, data in (("TASK-1", exact), ("TASK-2", stale)):
+                (governance / f"{name}.governance.json").write_text(
+                    json.dumps(data, indent=2) + "\n",
+                    encoding="utf-8",
+                )
+                (governance / f"{name}.governance.md").write_text(
+                    f"# {name}\n",
+                    encoding="utf-8",
+                )
+
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            subprocess.run(
+                ["git", "-C", str(repo), "commit", "-qm", "multiple governed plans"],
+                check=True,
+            )
+            head = run_git(repo, "rev-parse", "HEAD")
+
+            with redirect_stdout(StringIO()):
+                with self.assertRaisesRegex(SystemExit, "unrelated to the governed diff"):
+                    enforce._normal_enforcement(
+                        base_sha=base,
+                        head_sha=head,
+                        repo_root=repo,
+                        strict=True,
+                        require_recommendation="go",
+                    )
 
     def test_legacy_artifact_mutation_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as raw:

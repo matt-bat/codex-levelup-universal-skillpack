@@ -117,6 +117,8 @@ Both run the same core checks:
 4. validate catalog-derived routing views
 5. enforce exact-revision governance evidence for release checks
 
+CI validates every schema-version-2 plan added or modified by one governed diff. If several changed plans describe different phase snapshots, a final exact plan does not excuse the stale ones. Commit those snapshots separately, omit intermediate plans from the final commit, or rebind every changed plan to the same final diff.
+
 ## Bind The Exact Candidate Commit
 After an authorized commit exists, check out that exact candidate commit with a clean worktree. Set `CANDIDATE_SHA` from the intended release commit, not from a moving branch name.
 

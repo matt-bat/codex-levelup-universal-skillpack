@@ -44,6 +44,18 @@ Keep entries short. The goal is a useful pattern over time, not a transcript.
 - Validation run: 31 skill quick-validations, 101 governance unit tests, 25 routing scenarios, policy and ordering checks, 4 schema checks, 6 YAML parses, 9 script compilations, workflow parity, and 207 relative Markdown links passed locally.
 - Follow-up candidate: Evaluate routing observations after at least 30 representative tasks and two governed release candidates; verify exact-head attestation and remote branch-protection behavior only in an explicitly authorized release workflow.
 
+## FIELD-20260717-02
+- Date: 2026-07-17
+- Task: Commit and normally push routing architecture version 2 to `origin/main` with complete documentation and governance metadata.
+- Install profile: Internal, governed, external-reversible Git operation.
+- Skills selected: `skill-governance`, `order-of-operations`, `scripted-command-execution`, `regression-prevention`, `governance-enforcement`, `doc-maintenance`, and the `user-instructions-tracker` recordability gate.
+- Skills skipped: Force push, tag creation, hosted release publication, deployment, and remote-settings administration remained outside scope.
+- What helped: Target identity checks, zero-divergence verification, a metadata-rich commit, content-bound plans, and exact-head attestation proved the local candidate and remote target precisely.
+- What slowed work: The first commit introduced two version 2 plans from different task phases. The final push plan bound correctly, but main-push enforcement correctly rejected the earlier changed snapshot because every changed plan must bind the same diff.
+- User corrections: The user explicitly authorized a Git push with full metadata and documentation updates.
+- Validation run: 103 unit tests passed after adding a regression case for the multi-plan failure. GitHub Actions run `29626703980` supplied the real-world failing evidence that drove the documentation and test update.
+- Follow-up candidate: Keep one exact binding across every version 2 plan changed in a commit; commit distinct phase snapshots separately or leave intermediate plans out of the final diff.
+
 ## Pruning Signal
 Consider pruning or merging when field notes show:
 

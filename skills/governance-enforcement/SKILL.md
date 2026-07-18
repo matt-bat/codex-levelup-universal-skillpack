@@ -39,7 +39,7 @@ Do not use it merely because ordinary unit tests, linters, or project checks wil
 1. Resolve an immutable base commit and generate a schema-version-2 plan bound to the governed working-tree manifest.
 2. Keep the recommendation `no-go` while any mandatory gate is pending, blocked, missing evidence, or supported only by an invalid waiver.
 3. Record evidence-bearing gate objects; a status word alone is not evidence.
-4. Rebind after the final governed diff. The governance artifact cannot satisfy a different change set merely by existing in the tree.
+4. Rebind after the final governed diff. The governance artifact cannot satisfy a different change set merely by existing in the tree. If one commit adds or modifies multiple version 2 plans, every changed plan must bind that same exact base and governed manifest.
 5. Validate the catalog and generated views, repository policy, artifact pair, governed scope, and regression tests.
 6. For release readiness, use a clean checkout of the exact candidate commit and create an exact-head attestation. Verify any release tag resolves to that same commit.
 7. Report failures precisely and rerun the narrow failing check before the full enforcement profile.

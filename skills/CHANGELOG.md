@@ -32,6 +32,7 @@ All notable changes to Agent Command Center are documented in this file.
 - Made backup and restore governance gates effect-driven instead of mode-driven. Deployment still requires rollback evidence but does not imply recovery controls without credible loss exposure or an explicit recovery requirement.
 - Replaced hard-coded runtime skill selection with executable catalog routing modes and clauses. `requires`, `runs_after`, `supports`, `conflicts_with`, and lifecycle status now have distinct validated runtime behavior.
 - Added exact-candidate-commit release provenance requirements. This work remains Unreleased; a normal source-branch push does not create a tag or publication, and remote branch-protection configuration remains a separate administrative action.
+- Clarified that every version 2 governance plan added or modified in one diff must share its exact base and governed manifest; added regression coverage for rejecting a stale changed plan even when another plan binds correctly.
 - Refreshed user-facing documentation with a more casual tone, fuller explanations, clearer setup guidance, and stronger validation/readiness context across the root docs, usage docs, install/routing docs, adapters, rubrics, examples, and constrained-environment guidance.
 - Added minimum viable skill-use rules to reduce over-governance on small tasks.
 - Added anti-overuse rules to high-overlap skills covering documentation, file maintenance, history/cache management, and governance.
