@@ -1,0 +1,5 @@
+{
+  "fixture": "passed-artifact-evidence",
+  "contract": "routing-digest-only",
+  "schema_version": 1
+}

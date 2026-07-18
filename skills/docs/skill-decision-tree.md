@@ -9,126 +9,188 @@
 
 ## Route Conditions
 
-- `artifact-budget-enforcement` (active)
+- `artifact-budget-enforcement` (active; explicit_only; required)
+  - Requires: none
+  - Conflicts: none
   - Include: A bounded cache, summary, index, or metadata artifact needs an explicit size or retention limit.
   - Exclude: No bounded artifact exists or ordinary source/document maintenance is sufficient.
 
-- `conversation-retention-summary` (active)
+- `conversation-retention-summary` (active; explicit_only; required)
+  - Requires: `artifact-budget-enforcement`
+  - Conflicts: none
   - Include: The requested work is specifically to refresh the bounded ten-conversation retention summary.
   - Exclude: The task needs a full transcript, archive reconstruction, or no summary maintenance.
 
-- `deprecation-management` (active)
+- `deprecation-management` (active; explicit_only; required)
+  - Requires: none
+  - Conflicts: none
   - Include: An approved lifecycle change needs compatibility routing, migration guidance, or removal criteria.
   - Exclude: A direct correction resolves the issue without changing lifecycle status.
 
-- `diagnose-before-fix` (active)
+- `diagnose-before-fix` (active; automatic; required)
+  - Requires: none
+  - Conflicts: none
   - Include: A defect or remediation request has an unverified cause.
   - Exclude: The cause is already proven and the task is a fixed mechanical patch.
 
-- `doc-maintenance` (active)
+- `doc-maintenance` (active; automatic; required)
+  - Requires: none
+  - Conflicts: none
   - Include: An authorized change makes existing canonical documentation inaccurate, or documentation is the requested deliverable.
   - Exclude: No canonical documentation becomes stale and no documentation was requested.
 
-- `effective-testing-methods` (active)
+- `effective-testing-methods` (active; automatic; required)
+  - Requires: none
+  - Conflicts: none
   - Include: The task requires designing, adding, or changing tests.
   - Exclude: Only an existing test command needs to run or no test design changes are required.
 
-- `file-maintenance` (active)
+- `file-maintenance` (active; explicit_only; required)
+  - Requires: none
+  - Conflicts: none
   - Include: File correctness, freshness, duplication, or stale-file cleanup is the requested maintenance outcome.
   - Exclude: The task is ordinary implementation or documentation accuracy is the actual decision domain.
 
-- `file-structure-optimization` (active)
+- `file-structure-optimization` (active; explicit_only; required)
+  - Requires: none
+  - Conflicts: none
   - Include: Repository organization or structural drift is the explicit design problem.
   - Exclude: Several files change but their locations and ownership remain coherent.
 
-- `governance-enforcement` (active)
+- `governance-enforcement` (active; safety_only; required)
+  - Requires: `skill-governance`
+  - Conflicts: none
   - Include: Governance artifacts, validators, CI policy enforcement, or release attestations are being generated, run, or debugged.
   - Exclude: The work is only a policy design discussion or ordinary project validation.
 
-- `history-indexing` (active)
+- `history-indexing` (active; explicit_only; required)
+  - Requires: `artifact-budget-enforcement`
+  - Conflicts: none
   - Include: Long-session retrieval overhead makes a bounded durable index the requested or established solution.
   - Exclude: Direct context retrieval is cheaper or durable history maintenance is not authorized.
 
-- `hyperfocus-discovery` (active)
+- `hyperfocus-discovery` (active; explicit_only; optional)
+  - Requires: none
+  - Conflicts: none
   - Include: The user requests bounded adjacent exploration or multiple active task branches need resumable control.
   - Exclude: The task is routine, single-threaded, answer-only, or a one-command workflow.
 
-- `interdependent-change-planning` (active)
+- `interdependent-change-planning` (active; automatic; required)
+  - Requires: none
+  - Conflicts: none
   - Include: Known coupled files, contracts, flows, or data paths must change together to remain valid.
   - Exclude: Multiple files are independent or a small local edit has no coupled downstream surface.
 
-- `internal-lang` (active)
+- `internal-lang` (active; explicit_only; optional)
+  - Requires: none
+  - Conflicts: none
   - Include: The user invokes an internal-lang command or directly requests compact notation.
   - Exclude: The task merely benefits from concise planning or output.
 
-- `order-of-operations` (active)
+- `order-of-operations` (active; automatic; required)
+  - Requires: none
+  - Conflicts: none
   - Include: Real dependencies, unsafe requested order, hidden prerequisites, or parallel branches require explicit sequencing.
   - Exclude: The task is single-step, routine, or its local ordering is obvious.
 
-- `process-budget-controller` (deprecated)
+- `process-budget-controller` (deprecated; nonselectable; optional)
+  - Requires: none
+  - Conflicts: none
   - Include: The user or a legacy integration explicitly invokes the old skill name.
   - Exclude: All automatic routing and all new integrations.
 
-- `project-backup` (active)
+- `project-backup` (active; safety_only; required)
+  - Requires: none
+  - Conflicts: none
   - Include: An authorized operation exposes external, production, or non-reconstructable state to credible data loss, or backup work is explicitly requested.
   - Exclude: The change is an ordinary reversible local source edit or source-only migration design.
 
-- `pseudo-agentic-automation` (active)
+- `pseudo-agentic-automation` (active; automatic; required)
+  - Requires: none
+  - Conflicts: `scripted-command-execution`
   - Include: An authorized browser or native-GUI workflow needs runtime observation and adaptive interaction.
   - Exclude: A deterministic shell/API workflow or ordinary existing browser test runner is sufficient.
 
-- `quizme-mode` (active)
+- `quizme-mode` (active; explicit_only; required)
+  - Requires: `requirement-clarifier`
+  - Conflicts: none
   - Include: The user invokes --quizme or conversation-local quizme mode remains active.
   - Exclude: Quizme mode was never enabled or has been toggled off.
 
-- `regression-prevention` (active)
+- `regression-prevention` (active; automatic; required)
+  - Requires: none
+  - Conflicts: none
   - Include: Non-trivial code, behavior, dependency, API, authentication, data, runtime, tooling, or qualitative code-review work is in scope.
   - Exclude: The change is copy-only, the user requested scoring, or the only decision domain is test design.
 
-- `requirement-clarifier` (active)
+- `requirement-clarifier` (active; automatic; required)
+  - Requires: none
+  - Conflicts: none
   - Include: Material ambiguity or conflict could change behavior, compatibility, security, data handling, authorization, or acceptance criteria.
   - Exclude: The task is clear and bounded or uncertainty concerns harmless implementation details.
 
-- `restore-drill` (active)
+- `restore-drill` (active; safety_only; required)
+  - Requires: none
+  - Conflicts: none
   - Include: A restore exercise is requested or a recovery-sensitive external operation requires proof against recovery objectives.
   - Exclude: The task is an ordinary local code change or source-only migration design.
 
-- `scripted-command-execution` (active)
+- `scripted-command-execution` (active; automatic; required)
+  - Requires: none
+  - Conflicts: `pseudo-agentic-automation`
   - Include: The deliverable is a deterministic local shell, setup, service, batch, or repeatable command workflow.
   - Exclude: The task only incidentally runs a command or requires adaptive browser/GUI interaction.
 
-- `semantic-policy-audit` (active)
+- `semantic-policy-audit` (active; safety_only; required)
+  - Requires: none
+  - Conflicts: none
   - Include: Intent-level policy conformance or a high-confidence governed review must be assessed beyond mechanical schema checks.
   - Exclude: The task is ordinary implementation or only mechanical validation is needed.
 
-- `skill-governance` (active)
+- `skill-governance` (active; safety_only; required)
+  - Requires: none
+  - Conflicts: none
   - Include: Work affects release policy, governance policy, external state, destructive operations, or another explicitly high-risk boundary.
   - Exclude: The task is an ordinary answer, read-only inspection, tiny reversible edit, or only appears complex because optional helpers were added.
 
-- `skill-usage-review` (active)
+- `skill-usage-review` (active; explicit_only; required)
+  - Requires: none
+  - Conflicts: none
   - Include: Recent task evidence is available and skill overuse, underuse, missing triggers, or friction is the requested review subject.
   - Exclude: No usage evidence exists or the request concerns one skill's content rather than observed routing performance.
 
-- `thoroughly-rate-review` (active)
+- `thoroughly-rate-review` (active; automatic; required)
+  - Requires: none
+  - Conflicts: none
   - Include: The user explicitly requests a rating, score, grade, benchmark, or numeric/weighted rubric.
   - Exclude: The request is a qualitative review, audit, assessment, evaluation, comparison, critique, or feedback without scoring.
 
-- `thoughtful-approach` (active)
+- `thoughtful-approach` (active; automatic; optional)
+  - Requires: none
+  - Conflicts: none
   - Include: A feature decision requires product judgment about user goals, baseline expectations, or meaningful tradeoffs.
   - Exclude: Requirements are fixed and mechanical or a proposed enhancement is merely adjacent value.
 
-- `token-reduction` (active)
+- `token-reduction` (active; explicit_only; optional)
+  - Requires: none
+  - Conflicts: none
   - Include: The user requests lower-token output or concrete context/response overhead needs bounded compression.
   - Exclude: The task is routine or the need is project intake, testing, deployment policy, or repository bookkeeping.
 
-- `ui-design-skills` (active)
+- `ui-design-skills` (active; automatic; required)
+  - Requires: none
+  - Conflicts: none
   - Include: Authorized frontend work or UI review requires general interaction, accessibility, or visual-quality judgment.
   - Exclude: The task is backend/CLI-only or an explicit established design-system owner fully determines the decisions.
 
-- `ui-spatial-canvas` (active)
+- `ui-spatial-canvas` (active; automatic; required)
+  - Requires: none
+  - Conflicts: none
   - Include: The user explicitly requests Spatial Canvas or repository evidence establishes it as the current interface architecture.
   - Exclude: The task is generic frontend, UI, UX, layout, navigation, interaction, or visual-system work.
 
-- `user-instructions-tracker` (active)
+- `user-instructions-tracker` (active; explicit_only; required)
+  - Requires: none
+  - Conflicts: none
   - Include: The user asks to record/audit instructions, an opted-in durable directive changes, or ledger maintenance is the task.
   - Exclude: The request is transient, a status question has no ledger, or a tracker file is merely absent.

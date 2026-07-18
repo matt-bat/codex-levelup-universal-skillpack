@@ -103,8 +103,8 @@ def validate_catalog(catalog: dict[str, Any], repo_root: Path) -> list[dict[str,
         raise CatalogError("schema_version must be 2")
     if not isinstance(catalog.get("catalog_version"), str):
         raise CatalogError("catalog_version must be a semantic-version string")
-    if catalog.get("router_contract") != "2.0":
-        raise CatalogError("router_contract must be '2.0'")
+    if catalog.get("router_contract") != "2.1":
+        raise CatalogError("router_contract must be '2.1'")
 
     schema_path = repo_root / "skills" / "skill-catalog.schema.json"
     if schema_path.exists():
@@ -261,7 +261,8 @@ def validate_catalog(catalog: dict[str, Any], repo_root: Path) -> list[dict[str,
         description = skill.get("description")
         if not isinstance(description, str) or not description:
             raise CatalogError(f"{name}.description must be a non-empty string")
-        metadata = frontmatter(repo_root / "skills" / name / "SKILL.md")
+        skill_path = repo_root / "skills" / name / "SKILL.md"
+        metadata = frontmatter(skill_path)
         if metadata.get("name") != name:
             raise CatalogError(f"frontmatter name mismatch for {name}")
         if metadata.get("description") != description:
@@ -318,6 +319,13 @@ def validate_catalog(catalog: dict[str, Any], repo_root: Path) -> list[dict[str,
             raise CatalogError(f"{name}.artifact_policy must be an object")
         if artifact_policy.get("durability") not in DURABILITY:
             raise CatalogError(f"{name}.artifact_policy.durability is invalid")
+        if artifact_policy.get("durability") == "authorized_only":
+            skill_text = skill_path.read_text(encoding="utf-8")
+            if "## Authority and Artifact Policy" not in skill_text:
+                raise CatalogError(
+                    f"{name} uses authorized_only artifacts but lacks an explicit "
+                    "Authority and Artifact Policy section"
+                )
         artifacts = require_string_list(
             artifact_policy.get("artifacts"), f"{name}.artifact_policy.artifacts"
         )
@@ -363,6 +371,18 @@ def validate_catalog(catalog: dict[str, Any], repo_root: Path) -> list[dict[str,
             raise CatalogError(f"selection_order cannot contain non-active skill {name}")
 
     by_name = {skill["name"]: skill for skill in skills}
+    domain_owners: dict[str, str] = {}
+    for skill in skills:
+        if skill["status"] != "active":
+            continue
+        for domain in skill["decision_domains"]:
+            existing = domain_owners.get(domain)
+            if existing:
+                raise CatalogError(
+                    f"decision domain {domain!r} has multiple active owners: "
+                    f"{existing} and {skill['name']}"
+                )
+            domain_owners[domain] = skill["name"]
     routable = {
         skill["name"]
         for skill in skills
@@ -408,6 +428,29 @@ def validate_catalog(catalog: dict[str, Any], repo_root: Path) -> list[dict[str,
     for name in names:
         visit(name, [])
 
+    ordering_visiting: set[str] = set()
+    ordering_visited: set[str] = set()
+
+    def visit_ordering(name: str, trail: list[str]) -> None:
+        if name in ordering_visiting:
+            cycle = " -> ".join([*trail, name])
+            raise CatalogError(f"combined requires/runs_after ordering cycle: {cycle}")
+        if name in ordering_visited:
+            return
+        ordering_visiting.add(name)
+        predecessors = [
+            *by_name[name]["relations"]["requires"],
+            *by_name[name]["relations"]["runs_after"],
+        ]
+        for target in predecessors:
+            if target in by_name:
+                visit_ordering(target, [*trail, name])
+        ordering_visiting.remove(name)
+        ordering_visited.add(name)
+
+    for name in names:
+        visit_ordering(name, [])
+
     return skills
 
 
@@ -430,9 +473,11 @@ def render_map(catalog: dict[str, Any], skills: list[dict[str, Any]]) -> str:
     for skill in skills:
         role = skill.get("role", "owner" if skill["decision_domains"] else "compatibility")
         rows.append(
-            "| `{}` | {} | {} | {} | {} |\n".format(
+            "| `{}` | {} | {} / {} | {} | {} | {} |\n".format(
                 skill["name"],
                 skill["status"],
+                skill["routing_mode"],
+                skill["routing"]["selection_strength"],
                 role,
                 md(", ".join(skill["decision_domains"]) or "None"),
                 md(relation_summary(skill)),
@@ -453,8 +498,8 @@ def render_map(catalog: dict[str, Any], skills: list[dict[str, Any]]) -> str:
         "## Typed Relations\n\n"
         f"{relations}\n\n"
         "## Decision Ownership\n\n"
-        "| Skill | Status | Role | Decision domains | Relations |\n"
-        "|---|---|---|---|---|\n"
+        "| Skill | Status | Routing | Role | Decision domains | Relations |\n"
+        "|---|---|---|---|---|---|\n"
         + "".join(rows)
     )
 
@@ -465,9 +510,11 @@ def render_index(catalog: dict[str, Any], skills: list[dict[str, Any]]) -> str:
         policy = skill["artifact_policy"]
         artifacts = ", ".join(policy["artifacts"]) or "none"
         rows.append(
-            "| [`{0}`](../{0}/SKILL.md) | {1} | {2} | {3} | {4} |\n".format(
+            "| [`{0}`](../{0}/SKILL.md) | {1} | {2} / {3} | {4} | {5} | {6} |\n".format(
                 skill["name"],
                 skill["status"],
+                skill["routing_mode"],
+                skill["routing"]["selection_strength"],
                 skill["risk_level"],
                 md(policy["durability"] + ": " + artifacts),
                 md(skill["description"]),
@@ -476,8 +523,8 @@ def render_index(catalog: dict[str, Any], skills: list[dict[str, Any]]) -> str:
     return (
         f"{GENERATED_NOTICE}\n# Skill Index\n\n"
         f"Catalog version: `{catalog['catalog_version']}`. Packages: **{len(skills)}**.\n\n"
-        "| Skill | Status | Risk | Artifact policy | Description |\n"
-        "|---|---|---|---|---|\n"
+        "| Skill | Status | Routing | Risk | Artifact policy | Description |\n"
+        "|---|---|---|---|---|---|\n"
         + "".join(rows)
     )
 
@@ -489,8 +536,17 @@ def render_tree(catalog: dict[str, Any], skills: list[dict[str, Any]]) -> str:
         exclusions = skill.get("exclusions", skill.get("exclude_when"))
         trigger_lines = "\n".join(f"  - Include: {item}" for item in triggers)
         exclusion_lines = "\n".join(f"  - Exclude: {item}" for item in exclusions)
+        requires = ", ".join(f"`{item}`" for item in skill["relations"]["requires"]) or "none"
+        conflicts = (
+            ", ".join(f"`{item}`" for item in skill["relations"]["conflicts_with"])
+            or "none"
+        )
         blocks.append(
-            f"- `{skill['name']}` ({skill['status']})\n{trigger_lines}\n{exclusion_lines}\n"
+            f"- `{skill['name']}` ({skill['status']}; {skill['routing_mode']}; "
+            f"{skill['routing']['selection_strength']})\n"
+            f"  - Requires: {requires}\n"
+            f"  - Conflicts: {conflicts}\n"
+            f"{trigger_lines}\n{exclusion_lines}\n"
         )
     return (
         f"{GENERATED_NOTICE}\n# Skill Decision Tree\n\n"

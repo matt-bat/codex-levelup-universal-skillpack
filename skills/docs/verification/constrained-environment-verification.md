@@ -36,6 +36,7 @@ The goal is to be honest about what was checked and what was not checked.
    - risk level
    - missing dependency
    - exact command to rerun once unblocked
+7. For an authorized governed change to a protected `main` branch, use a feature branch and pull request and require the governance check to pass before merge. A constrained local environment does not authorize bypassing branch protection.
 
 ## Output Contract
 1. `full_matrix_requested`: list of intended validation layers

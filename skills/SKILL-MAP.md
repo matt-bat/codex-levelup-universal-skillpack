@@ -23,36 +23,36 @@
 
 ## Decision Ownership
 
-| Skill | Status | Role | Decision domains | Relations |
-|---|---|---|---|---|
-| `artifact-budget-enforcement` | active | owner | artifact_retention | consumes: `bounded_artifact`; supports: `file-maintenance` |
-| `conversation-retention-summary` | active | owner | conversation_retention | consumes: `repository_evidence`; requires: `artifact-budget-enforcement`; supports: `history-indexing` |
-| `deprecation-management` | active | owner | lifecycle | consumes: `routing_observations`; runs_after: `semantic-policy-audit`; supports: `doc-maintenance` |
-| `diagnose-before-fix` | active | owner | diagnosis | consumes: `repository_evidence`; supports: `regression-prevention` |
-| `doc-maintenance` | active | owner | documentation_accuracy | consumes: `authorized_change_contract`; supports: `regression-prevention` |
-| `effective-testing-methods` | active | owner | test_design | consumes: `authorized_change_contract`; supports: `regression-prevention` |
-| `file-maintenance` | active | owner | file_hygiene | consumes: `repository_evidence` |
-| `file-structure-optimization` | active | owner | repository_structure | consumes: `repository_evidence`; supports: `doc-maintenance` |
-| `governance-enforcement` | active | safety | governance_enforcement | consumes: `governance_plan`, `change_evidence`; gates: `governance_evidence`, `release`; requires: `skill-governance` |
-| `history-indexing` | active | owner | history_retrieval | consumes: `repository_evidence`; requires: `artifact-budget-enforcement` |
-| `hyperfocus-discovery` | active | support | branch_control | consumes: `task_contract`; runs_after: `order-of-operations` |
-| `interdependent-change-planning` | active | owner | change_coherence | consumes: `task_contract`; runs_after: `requirement-clarifier`; supports: `regression-prevention` |
-| `internal-lang` | active | mode | notation_mode | supports: `token-reduction` |
-| `order-of-operations` | active | support | execution_order | consumes: `task_contract`; supports: `scripted-command-execution` |
-| `process-budget-controller` | deprecated | compatibility | None | superseded_by: `task-router` |
-| `project-backup` | active | safety | backup_readiness | consumes: `operation_plan`; gates: `backup_evidence`; supports: `restore-drill` |
-| `pseudo-agentic-automation` | active | execution | adaptive_execution | conflicts_with: `scripted-command-execution`; consumes: `task_contract`; gates: `authorization`, `external_action`; supports: `regression-prevention` |
-| `quizme-mode` | active | mode | interactive_clarification | consumes: `task_contract`; requires: `requirement-clarifier` |
-| `regression-prevention` | active | owner | implementation_quality, qualitative_code_review | consumes: `task_contract`, `impact_map`; runs_after: `diagnose-before-fix`, `interdependent-change-planning`; supports: `doc-maintenance`, `effective-testing-methods` |
-| `requirement-clarifier` | active | owner | task_meaning | consumes: `repository_evidence`; gates: `authorization`; supports: `thoughtful-approach` |
-| `restore-drill` | active | safety | restore_verification | consumes: `backup_evidence`; gates: `restore_evidence`, `restore_readiness`; runs_after: `project-backup` |
-| `scripted-command-execution` | active | execution | deterministic_execution | conflicts_with: `pseudo-agentic-automation`; consumes: `task_contract`; gates: `authorization`; runs_after: `order-of-operations` |
-| `semantic-policy-audit` | active | safety | semantic_policy_conformance | consumes: `task_contract`, `governance_plan`; gates: `governance_evidence`; supports: `skill-governance` |
-| `skill-governance` | active | safety | governance_decision | consumes: `task_contract`, `change_evidence`; gates: `authorization`, `destructive_action`, `external_action`, `governance_evidence`, `release` |
-| `skill-usage-review` | active | owner | routing_quality_review | consumes: `routing_observations`, `governance_plan`; supports: `deprecation-management` |
-| `thoroughly-rate-review` | active | owner | quality_scoring | consumes: `repository_evidence` |
-| `thoughtful-approach` | active | owner | product_behavior | consumes: `task_contract`; runs_after: `requirement-clarifier`; supports: `regression-prevention`, `ui-design-skills` |
-| `token-reduction` | active | support | context_and_output_budget | supports: `response-compositor` |
-| `ui-design-skills` | active | owner | general_ui_quality | consumes: `task_contract`; runs_after: `thoughtful-approach`; supports: `regression-prevention` |
-| `ui-spatial-canvas` | active | owner | spatial_canvas_system | consumes: `repository_evidence`, `task_contract`; runs_after: `thoughtful-approach`; supports: `regression-prevention` |
-| `user-instructions-tracker` | active | owner | instruction_lifecycle | consumes: `instruction_ledger`; supports: `doc-maintenance` |
+| Skill | Status | Routing | Role | Decision domains | Relations |
+|---|---|---|---|---|---|
+| `artifact-budget-enforcement` | active | explicit_only / required | owner | artifact_retention | consumes: `bounded_artifact`; supports: `file-maintenance` |
+| `conversation-retention-summary` | active | explicit_only / required | owner | conversation_retention | consumes: `repository_evidence`; requires: `artifact-budget-enforcement`; supports: `history-indexing` |
+| `deprecation-management` | active | explicit_only / required | owner | lifecycle | consumes: `routing_observations`; runs_after: `semantic-policy-audit`; supports: `doc-maintenance` |
+| `diagnose-before-fix` | active | automatic / required | owner | diagnosis | consumes: `repository_evidence`; supports: `regression-prevention` |
+| `doc-maintenance` | active | automatic / required | owner | documentation_accuracy | consumes: `authorized_change_contract`; supports: `regression-prevention` |
+| `effective-testing-methods` | active | automatic / required | owner | test_design | consumes: `authorized_change_contract`; supports: `regression-prevention` |
+| `file-maintenance` | active | explicit_only / required | owner | file_hygiene | consumes: `repository_evidence` |
+| `file-structure-optimization` | active | explicit_only / required | owner | repository_structure | consumes: `repository_evidence`; supports: `doc-maintenance` |
+| `governance-enforcement` | active | safety_only / required | safety | governance_enforcement | consumes: `governance_plan`, `change_evidence`; gates: `exact_commit`, `governance_evidence`; requires: `skill-governance` |
+| `history-indexing` | active | explicit_only / required | owner | history_retrieval | consumes: `repository_evidence`; requires: `artifact-budget-enforcement` |
+| `hyperfocus-discovery` | active | explicit_only / optional | support | branch_control | consumes: `task_contract`; runs_after: `order-of-operations` |
+| `interdependent-change-planning` | active | automatic / required | owner | change_coherence | consumes: `task_contract`; runs_after: `requirement-clarifier`; supports: `regression-prevention` |
+| `internal-lang` | active | explicit_only / optional | mode | notation_mode | supports: `token-reduction` |
+| `order-of-operations` | active | automatic / required | support | execution_order | consumes: `task_contract`; supports: `scripted-command-execution` |
+| `process-budget-controller` | deprecated | nonselectable / optional | compatibility | None | superseded_by: `task-router` |
+| `project-backup` | active | safety_only / required | safety | backup_readiness | consumes: `operation_plan`; gates: `backup_evidence`; supports: `restore-drill` |
+| `pseudo-agentic-automation` | active | automatic / required | execution | adaptive_execution | conflicts_with: `scripted-command-execution`; consumes: `task_contract`; gates: `authorization`, `external_checkpoint`; supports: `regression-prevention` |
+| `quizme-mode` | active | explicit_only / required | mode | interactive_clarification | consumes: `task_contract`; requires: `requirement-clarifier` |
+| `regression-prevention` | active | automatic / required | owner | implementation_quality, qualitative_code_review | consumes: `task_contract`, `impact_map`; runs_after: `diagnose-before-fix`, `interdependent-change-planning`; supports: `doc-maintenance`, `effective-testing-methods` |
+| `requirement-clarifier` | active | automatic / required | owner | task_meaning | consumes: `repository_evidence`; gates: `authorization`; supports: `thoughtful-approach` |
+| `restore-drill` | active | safety_only / required | safety | restore_verification | consumes: `backup_evidence`; gates: `restore_evidence`; runs_after: `project-backup` |
+| `scripted-command-execution` | active | automatic / required | execution | deterministic_execution | conflicts_with: `pseudo-agentic-automation`; consumes: `task_contract`; gates: `authorization`; runs_after: `order-of-operations` |
+| `semantic-policy-audit` | active | safety_only / required | safety | semantic_policy_conformance | consumes: `task_contract`, `governance_plan`; gates: `governance_evidence`; supports: `skill-governance` |
+| `skill-governance` | active | safety_only / required | safety | governance_decision | consumes: `task_contract`, `change_evidence`; gates: `authorization`, `exact_commit`, `external_checkpoint`, `governance_evidence` |
+| `skill-usage-review` | active | explicit_only / required | owner | routing_quality_review | consumes: `routing_observations`, `governance_plan`; supports: `deprecation-management` |
+| `thoroughly-rate-review` | active | automatic / required | owner | quality_scoring | consumes: `repository_evidence` |
+| `thoughtful-approach` | active | automatic / optional | owner | product_behavior | consumes: `task_contract`; runs_after: `requirement-clarifier`; supports: `regression-prevention`, `ui-design-skills` |
+| `token-reduction` | active | explicit_only / optional | support | context_and_output_budget | supports: `response-compositor` |
+| `ui-design-skills` | active | automatic / required | owner | general_ui_quality | consumes: `task_contract`; runs_after: `thoughtful-approach`; supports: `regression-prevention` |
+| `ui-spatial-canvas` | active | automatic / required | owner | spatial_canvas_system | consumes: `repository_evidence`, `task_contract`; runs_after: `thoughtful-approach`; supports: `regression-prevention` |
+| `user-instructions-tracker` | active | explicit_only / required | owner | instruction_lifecycle | consumes: `instruction_ledger`; supports: `doc-maintenance` |

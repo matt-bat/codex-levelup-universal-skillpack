@@ -1,7 +1,7 @@
 {
-  "schema_version": "2.0",
+  "schema_version": "2.1",
   "descriptor_defaults": {
-    "schema_version": "2.0",
+    "schema_version": "2.1",
     "task_id": "scenario",
     "deliverables": [
       {
@@ -44,6 +44,7 @@
       "read_only": true,
       "artifact_policy": "forbid",
       "max_optional_skills": 5,
+      "explicit_skills": [],
       "explicit": [],
       "non_goals": []
     },
@@ -55,7 +56,8 @@
       "rollback": "not_applicable",
       "backup": "not_applicable",
       "restore": "not_applicable",
-      "exact_commit": "not_applicable"
+      "exact_commit": "not_applicable",
+      "artifacts": []
     },
     "checkpoint": "initial"
   },
@@ -494,7 +496,10 @@
           "tests": "passed",
           "rollback": "passed",
           "backup": "passed",
-          "restore": "passed"
+          "restore": "passed",
+          "artifacts": [
+            {"kind": "governance_plan", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"}
+          ]
         },
         "checkpoint": "pre_external_action"
       },
@@ -597,7 +602,12 @@
         "evidence": {
           "rollback": "passed",
           "backup": "passed",
-          "restore": "passed"
+          "restore": "passed",
+          "artifacts": [
+            {"kind": "governance_plan", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"},
+            {"kind": "backup_evidence", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"},
+            {"kind": "restore_evidence", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"}
+          ]
         },
         "checkpoint": "pre_external_action"
       },
@@ -781,7 +791,7 @@
         ],
         "action": {
           "primary": "release",
-          "operations": ["read", "run_commands", "write_files", "publish"],
+          "operations": ["read", "run_commands", "publish"],
           "execution_mode": "deterministic_workflow",
           "command_effect": "external",
           "test_intent": "run_existing",
@@ -791,21 +801,23 @@
           "level": "external",
           "targets": ["release registry", "release attestation"]
         },
-        "effects": ["workspace_files", "published_artifact"],
+        "effects": ["published_artifact"],
         "surfaces": ["cli", "repository", "release"],
         "domains": ["release", "repository"],
         "authority": {
           "run_commands": "granted",
-          "write_files": "granted",
           "publish": "granted"
         },
         "constraints": {
-          "read_only": false,
-          "artifact_policy": "allow_required"
+          "read_only": false
         },
         "evidence": {
           "tests": "passed",
-          "exact_commit": "passed"
+          "exact_commit": "passed",
+          "artifacts": [
+            {"kind": "governance_plan", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"},
+            {"kind": "release_attestation", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"}
+          ]
         },
         "checkpoint": "pre_external_action"
       },
@@ -817,7 +829,7 @@
           "regression-prevention",
           "scripted-command-execution"
         ],
-        "artifact_allowed": true,
+        "artifact_allowed": false,
         "max_selected_skills": 4
       }
     },
@@ -858,7 +870,11 @@
         },
         "evidence": {
           "tests": "passed",
-          "exact_commit": "unknown"
+          "exact_commit": "unknown",
+          "artifacts": [
+            {"kind": "governance_plan", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"},
+            {"kind": "release_attestation", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"}
+          ]
         },
         "checkpoint": "pre_external_action"
       },
@@ -986,7 +1002,12 @@
         "evidence": {
           "rollback": "passed",
           "backup": "passed",
-          "restore": "passed"
+          "restore": "passed",
+          "artifacts": [
+            {"kind": "governance_plan", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"},
+            {"kind": "backup_evidence", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"},
+            {"kind": "restore_evidence", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"}
+          ]
         },
         "checkpoint": "pre_external_action"
       },
@@ -1001,6 +1022,56 @@
         ],
         "artifact_allowed": false,
         "max_selected_skills": 5
+      }
+    },
+    {
+      "id": "remote-branch-protection-authorized",
+      "description": "Remote repository configuration has exact authority without granting Git push.",
+      "descriptor": {
+        "task_id": "remote-branch-protection-authorized",
+        "deliverables": [
+          {
+            "id": "branch-protection",
+            "kind": "operation",
+            "summary": "Configure the approved protected-branch policy.",
+            "acceptance_criteria": ["Only the approved remote settings change."]
+          }
+        ],
+        "action": {
+          "primary": "operate",
+          "operations": ["read", "run_commands", "configure_remote"],
+          "execution_mode": "deterministic_workflow",
+          "command_effect": "external"
+        },
+        "mutation": {
+          "level": "external",
+          "targets": ["main branch protection"]
+        },
+        "effects": ["remote_repository", "governance_policy"],
+        "surfaces": ["repository", "governance", "external_service"],
+        "domains": ["repository", "policy", "operations"],
+        "authority": {
+          "run_commands": "granted",
+          "configure_remote": "granted",
+          "push": "denied"
+        },
+        "constraints": {
+          "read_only": false,
+          "explicit": ["Do not push or change unrelated repository settings."]
+        },
+        "evidence": {
+          "rollback": "passed",
+          "artifacts": [
+            {"kind": "governance_plan", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"}
+          ]
+        },
+        "checkpoint": "pre_external_action"
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": ["skill-governance", "scripted-command-execution"],
+        "artifact_allowed": false,
+        "max_selected_skills": 2
       }
     },
     {

@@ -1,4 +1,5 @@
 import copy
+import hashlib
 import json
 from pathlib import Path
 import subprocess
@@ -14,13 +15,63 @@ FIXTURE_PATH = SKILL_ROOT / "fixtures" / "routing-scenarios.json"
 SCRIPT_PATH = SCRIPT_ROOT / "resolve_task_route.py"
 
 sys.path.insert(0, str(SCRIPT_ROOT))
+import enforce_governance_ci as governance_enforcer  # noqa: E402
+import generate_governance_artifact as governance_generator  # noqa: E402
 import resolve_task_route as router  # noqa: E402
+import validate_governance_artifact as governance_validator  # noqa: E402
 
 
 def permission_set(**overrides: bool) -> dict[str, bool]:
     permissions = {operation: False for operation in router.OPERATIONS}
     permissions.update(overrides)
     return permissions
+
+
+FROZEN_V2_RESULT = {
+    "schema_version": "2.0",
+    "task_id": "frozen-v2-result",
+    "checkpoint": "initial",
+    "decision": "allow",
+    "selected_skills": [],
+    "decision_domain_owners": {
+        "routing": "task-router-v2",
+        "safety": "safety-kernel-v2",
+    },
+    "typed_gates": [],
+    "permissions": {
+        "read": True,
+        "run_commands": False,
+        "write_files": False,
+        "commit": False,
+        "push": False,
+        "publish": False,
+        "deploy": False,
+        "delete": False,
+        "migrate": False,
+        "message": False,
+    },
+    "artifact_allowance": {
+        "allowed": False,
+        "kinds": [],
+        "reason": "Frozen v2 result did not authorize artifacts.",
+    },
+    "must_surface": [],
+    "vetoes": [],
+    "excluded_routes": [],
+    "route_trace": [
+        {"stage": "descriptor", "outcome": "accepted", "evidence": []},
+        {"stage": "intent_routing", "outcome": "zero skills", "evidence": []},
+        {"stage": "safety_kernel", "outcome": "allow", "evidence": []},
+        {"stage": "result", "outcome": "allow", "evidence": []},
+    ],
+    "skill_budget": {
+        "max_optional_skills": 5,
+        "optional_before_budget": 0,
+        "optional_after_budget": 0,
+        "mandatory_skills": [],
+        "mandatory_safety_exempt": True,
+    },
+}
 
 
 class TestTaskRouting(unittest.TestCase):
@@ -81,6 +132,99 @@ class TestTaskRouting(unittest.TestCase):
                 schema = json.loads((SCHEMA_ROOT / schema_name).read_text(encoding="utf-8"))
                 Draft202012Validator.check_schema(schema)
 
+    def test_operation_namespaces_are_synchronized_across_contract_surfaces(self) -> None:
+        catalog = json.loads((SKILL_ROOT.parent / "skill-catalog.json").read_text(encoding="utf-8"))
+        catalog_schema = json.loads(
+            (SKILL_ROOT.parent / "skill-catalog.schema.json").read_text(encoding="utf-8")
+        )
+        task_schema = json.loads(
+            (SCHEMA_ROOT / "task-descriptor.schema.json").read_text(encoding="utf-8")
+        )
+        result_schema = json.loads(
+            (SCHEMA_ROOT / "routing-result.schema.json").read_text(encoding="utf-8")
+        )
+        governance_schema = json.loads(
+            (SCHEMA_ROOT / "governance-artifact.schema.json").read_text(encoding="utf-8")
+        )
+
+        expected = set(router.OPERATIONS)
+        task_operations = set(
+            task_schema["properties"]["action"]["properties"]["operations"]["items"]["enum"]
+        )
+        task_authority = set(task_schema["properties"]["authority"]["properties"])
+        result_permissions = set(result_schema["properties"]["permissions"]["properties"])
+        latest_result_required = set(
+            result_schema["properties"]["permissions"]["required"]
+        ) | set(
+            result_schema["allOf"][0]["then"]["properties"]["permissions"]["required"]
+        )
+
+        self.assertEqual(catalog["router_contract"], router.SCHEMA_VERSION)
+        self.assertEqual(catalog_schema["properties"]["router_contract"]["const"], router.SCHEMA_VERSION)
+        self.assertEqual(set(catalog["routing_vocabulary"]["operations"]), expected)
+        self.assertEqual(task_operations, expected)
+        self.assertEqual(task_authority, expected)
+        self.assertEqual(result_permissions, expected)
+        self.assertEqual(latest_result_required, expected)
+        self.assertEqual(
+            set(result_schema["properties"]["permissions"]["required"]),
+            expected - {"configure_remote"},
+        )
+        governance_operations = expected - {"read", "run_commands", "write_files"}
+        governance_schema_operations = set(
+            governance_schema["$defs"]["common"]["properties"]
+            ["authorized_operations"]["items"]["enum"]
+        )
+        self.assertEqual(set(governance_generator.AUTHORIZED_OPERATIONS), governance_operations)
+        self.assertEqual(set(governance_validator.AUTHORIZED_OPERATIONS), governance_operations)
+        self.assertEqual(set(governance_enforcer.AUTHORIZED_OPERATIONS), governance_operations)
+        self.assertEqual(governance_schema_operations, governance_operations)
+        self.assertIn("configure_remote", governance_operations)
+
+    def test_fixture_contract_rejects_unknown_expectation_fields(self) -> None:
+        fixture = copy.deepcopy(self.fixture)
+        fixture["scenarios"][0]["expected"]["decison"] = "allow"
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "routing-scenarios.json"
+            path.write_text(json.dumps(fixture), encoding="utf-8")
+            with self.assertRaisesRegex(
+                router.DescriptorError,
+                "unknown expectation fields: decison",
+            ):
+                router.evaluate_fixture_file(path)
+
+    def test_fixture_contract_rejects_unknown_comparison_targets(self) -> None:
+        fixture = copy.deepcopy(self.fixture)
+        fixture["scenarios"][0]["expected"]["same_route_as"] = "missing-scenario"
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "routing-scenarios.json"
+            path.write_text(json.dumps(fixture), encoding="utf-8")
+            with self.assertRaisesRegex(
+                router.DescriptorError,
+                "unknown comparison target: missing-scenario",
+            ):
+                router.evaluate_fixture_file(path)
+
+    def test_frozen_v2_result_remains_valid_without_configure_remote(self) -> None:
+        frozen = copy.deepcopy(FROZEN_V2_RESULT)
+        router.validate_routing_result(frozen)
+
+        result_schema = json.loads(
+            (SCHEMA_ROOT / "routing-result.schema.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(router._fallback_schema_errors(frozen, result_schema), [])
+
+        latest = copy.deepcopy(frozen)
+        latest["schema_version"] = router.SCHEMA_VERSION
+        with self.assertRaisesRegex(router.DescriptorError, "configure_remote"):
+            router.validate_routing_result(latest)
+        self.assertTrue(
+            any(
+                "configure_remote" in error
+                for error in router._fallback_schema_errors(latest, result_schema)
+            )
+        )
+
     def test_standard_library_schema_fallback_rejects_malformed_descriptor(self) -> None:
         schema = json.loads(
             (SCHEMA_ROOT / "task-descriptor.schema.json").read_text(encoding="utf-8")
@@ -97,9 +241,34 @@ class TestTaskRouting(unittest.TestCase):
         self.assertTrue(any("items must be unique" in error for error in errors))
         self.assertTrue(any("below 0" in error for error in errors))
 
-    def test_all_25_scenarios_match_declared_expectations_and_schemas(self) -> None:
+    def test_v2_descriptor_omission_is_normalized_without_mutating_input(self) -> None:
+        legacy = self.descriptor("simple-answer")
+        legacy["schema_version"] = "2.0"
+        legacy["constraints"].pop("explicit_skills")
+
+        result = router.resolve_task_route(legacy)
+
+        self.assertEqual(result["schema_version"], router.SCHEMA_VERSION)
+        self.assertEqual(result["selected_skills"], [])
+        self.assertNotIn("explicit_skills", legacy["constraints"])
+
+        latest = copy.deepcopy(legacy)
+        latest["schema_version"] = router.SCHEMA_VERSION
+        with self.assertRaisesRegex(router.DescriptorError, "explicit_skills"):
+            router.resolve_task_route(latest)
+        task_schema = json.loads(
+            (SCHEMA_ROOT / "task-descriptor.schema.json").read_text(encoding="utf-8")
+        )
+        self.assertTrue(
+            any(
+                "explicit_skills" in error
+                for error in router._fallback_schema_errors(latest, task_schema)
+            )
+        )
+
+    def test_all_26_scenarios_match_declared_expectations_and_schemas(self) -> None:
         evaluation = router.evaluate_fixture_file(FIXTURE_PATH)
-        self.assertEqual(evaluation["scenario_count"], 25)
+        self.assertEqual(evaluation["scenario_count"], 26)
         self.assertEqual(evaluation["failed"], 0, evaluation["failures"])
         for scenario_id, result in self.results.items():
             with self.subTest(scenario=scenario_id):
@@ -215,7 +384,10 @@ class TestTaskRouting(unittest.TestCase):
                 "scripted-command-execution",
             ],
         )
-        self.assertEqual(live["permissions"], permission_set(read=True, run_commands=True, deploy=True))
+        self.assertEqual(
+            live["permissions"],
+            permission_set(read=True, run_commands=True, deploy=True),
+        )
         self.assertEqual(self.gate_statuses("auth-live-operation")["rollback-ready-deploy"], "passed")
 
     def test_source_migration_excludes_operational_recovery_but_apply_requires_it(self) -> None:
@@ -253,11 +425,15 @@ class TestTaskRouting(unittest.TestCase):
                 "material-uncertainty": "passed",
                 "pre-external-checkpoint": "passed",
                 "rollback-ready-migrate": "passed",
+                "required-governance-artifacts": "passed",
                 "backup-evidence": "passed",
                 "restore-evidence": "passed",
             },
         )
-        self.assertEqual(apply_result["permissions"], permission_set(read=True, run_commands=True, migrate=True))
+        self.assertEqual(
+            apply_result["permissions"],
+            permission_set(read=True, run_commands=True, migrate=True),
+        )
 
     def test_strict_read_only_audit_has_exact_permissions_and_no_artifacts(self) -> None:
         result = self.results["strict-read-only-policy-audit"]
@@ -298,19 +474,140 @@ class TestTaskRouting(unittest.TestCase):
             ["Commit locally after validation.", "Do not push."],
         )
 
+    def test_remote_configuration_does_not_broaden_authority_to_push(self) -> None:
+        result = self.results["remote-branch-protection-authorized"]
+        self.assertEqual(result["decision"], "allow")
+        self.assertEqual(
+            result["permissions"],
+            permission_set(
+                read=True,
+                run_commands=True,
+                configure_remote=True,
+            ),
+        )
+        self.assertFalse(result["permissions"]["push"])
+        self.assertEqual(
+            self.gate_statuses("remote-branch-protection-authorized")[
+                "rollback-ready-configure_remote"
+            ],
+            "passed",
+        )
+
     def test_release_permission_depends_on_exact_commit_evidence(self) -> None:
         ready = self.results["release-ready"]
         missing = self.results["release-missing-exact-commit"]
         self.assertEqual(ready["decision"], "allow")
         self.assertEqual(
             ready["permissions"],
-            permission_set(read=True, run_commands=True, write_files=True, publish=True),
+            permission_set(read=True, run_commands=True, publish=True),
         )
         self.assertEqual(self.gate_statuses("release-ready")["exact-commit-green"], "passed")
         self.assertEqual(missing["decision"], "blocked")
         self.assertFalse(missing["permissions"]["publish"])
         self.assertEqual(self.gate_statuses("release-missing-exact-commit")["exact-commit-green"], "blocked")
         self.assertEqual(self.veto_codes("release-missing-exact-commit"), ["evidence_not_passed"])
+
+    def test_verified_governance_artifacts_are_independent_of_creation_policy(self) -> None:
+        descriptor = self.descriptor("release-ready")
+        descriptor["task_id"] = "release-artifact-forbidden"
+        descriptor["constraints"]["artifact_policy"] = "forbid"
+        result = router.resolve_task_route(descriptor)
+
+        self.assertEqual(result["decision"], "allow")
+        self.assertTrue(result["permissions"]["publish"])
+        self.assertFalse(result["artifact_allowance"]["allowed"])
+        statuses = {gate["id"]: gate["status"] for gate in result["typed_gates"]}
+        self.assertEqual(statuses["required-governance-artifacts"], "passed")
+
+    def test_checked_in_passed_artifact_fixture_is_byte_stable(self) -> None:
+        evidence_path = "skills/skill-governance/fixtures/passed-artifact-evidence.json"
+        records = [
+            record
+            for scenario in self.fixture["scenarios"]
+            for record in router._deep_merge(
+                self.defaults,
+                scenario["descriptor"],
+            )["evidence"]["artifacts"]
+            if record["status"] == "passed"
+        ]
+        self.assertTrue(records)
+        self.assertEqual({record["path"] for record in records}, {evidence_path})
+
+        repo_root = SKILL_ROOT.parents[1]
+        raw = (repo_root / evidence_path).read_bytes()
+        digest = hashlib.sha256(raw).hexdigest()
+        self.assertEqual({record["sha256"] for record in records}, {digest})
+        attributes = (repo_root / ".gitattributes").read_text(encoding="utf-8")
+        self.assertIn(f"{evidence_path} -text", attributes.splitlines())
+
+    def test_write_authority_is_artifact_allowance_not_artifact_evidence(self) -> None:
+        descriptor = self.descriptor("remote-branch-protection-authorized")
+        descriptor["task_id"] = "remote-plan-in-progress"
+        descriptor["checkpoint"] = "post_plan"
+        descriptor["action"]["operations"].append("write_files")
+        descriptor["effects"].append("workspace_files")
+        descriptor["authority"]["write_files"] = "granted"
+        descriptor["constraints"]["artifact_policy"] = "allow_required"
+        descriptor["evidence"]["artifacts"] = []
+        result = router.resolve_task_route(descriptor)
+
+        self.assertTrue(result["artifact_allowance"]["allowed"])
+        self.assertEqual(
+            self.gate_status_from_result(result, "required-governance-artifacts"),
+            "required",
+        )
+        self.assertNotIn("required_artifact_missing", [item["code"] for item in result["vetoes"]])
+
+    def test_missing_artifact_blocks_only_external_operation_at_terminal_checkpoint(self) -> None:
+        descriptor = self.descriptor("remote-branch-protection-authorized")
+        descriptor["task_id"] = "remote-plan-missing"
+        descriptor["evidence"]["artifacts"] = []
+        result = router.resolve_task_route(descriptor)
+
+        self.assertEqual(result["decision"], "blocked")
+        self.assertTrue(result["permissions"]["read"])
+        self.assertFalse(result["permissions"]["configure_remote"])
+        artifact_vetoes = [
+            item for item in result["vetoes"] if item["code"] == "required_artifact_missing"
+        ]
+        self.assertEqual([item["operation"] for item in artifact_vetoes], ["configure_remote"])
+        self.assertEqual(
+            self.gate_status_from_result(result, "required-governance-artifacts"),
+            "blocked",
+        )
+
+    def test_invalid_passed_artifact_path_or_digest_fails_closed(self) -> None:
+        for field, value, message in (
+            ("path", "../escape", "path is invalid"),
+            ("sha256", "0" * 64, "digest mismatch"),
+        ):
+            with self.subTest(field=field):
+                descriptor = self.descriptor("remote-branch-protection-authorized")
+                descriptor["task_id"] = f"invalid-artifact-{field}"
+                descriptor["evidence"]["artifacts"][0][field] = value
+                with self.assertRaisesRegex(router.DescriptorError, message):
+                    router.resolve_task_route(descriptor)
+
+    def test_all_required_release_artifact_kinds_must_be_verified(self) -> None:
+        descriptor = self.descriptor("release-ready")
+        descriptor["task_id"] = "release-missing-attestation-artifact"
+        descriptor["evidence"]["artifacts"] = [
+            item
+            for item in descriptor["evidence"]["artifacts"]
+            if item["kind"] == "governance_plan"
+        ]
+        result = router.resolve_task_route(descriptor)
+
+        self.assertFalse(result["permissions"]["publish"])
+        gate = next(
+            item for item in result["typed_gates"] if item["id"] == "required-governance-artifacts"
+        )
+        self.assertEqual(gate["status"], "blocked")
+        self.assertIn("release_attestation", gate["reason"])
+
+    @staticmethod
+    def gate_status_from_result(result: dict, gate_id: str) -> str:
+        return next(item["status"] for item in result["typed_gates"] if item["id"] == gate_id)
 
     def test_read_only_constraint_overrides_granted_write_authority(self) -> None:
         result = self.results["read-only-conflict"]
@@ -344,6 +641,46 @@ class TestTaskRouting(unittest.TestCase):
         self.assertEqual(result["skill_budget"]["max_optional_skills"], 0)
         self.assertEqual(result["skill_budget"]["mandatory_skills"], expected)
         self.assertTrue(result["skill_budget"]["mandatory_safety_exempt"])
+
+    def test_explicit_only_skills_are_reachable_only_through_typed_requests(self) -> None:
+        descriptor = self.descriptor("simple-answer")
+        descriptor["task_id"] = "explicit-internal-lang"
+        descriptor["constraints"]["explicit_skills"] = ["internal-lang"]
+        result = router.resolve_task_route(descriptor)
+        self.assertEqual(result["selected_skills"], ["internal-lang"])
+
+        descriptor["task_id"] = "explicit-quizme"
+        descriptor["constraints"]["explicit_skills"] = ["quizme-mode"]
+        result = router.resolve_task_route(descriptor)
+        self.assertEqual(
+            result["selected_skills"],
+            ["requirement-clarifier", "quizme-mode"],
+        )
+
+        descriptor["task_id"] = "deprecated-explicit-request"
+        descriptor["constraints"]["explicit_skills"] = ["process-budget-controller"]
+        result = router.resolve_task_route(descriptor)
+        self.assertEqual(result["selected_skills"], [])
+        self.assertEqual(result["skill_budget"]["mandatory_skills"], [])
+        self.assertEqual(
+            [item["route"] for item in result["excluded_routes"]],
+            ["process-budget-controller"],
+        )
+        self.assertIn(
+            "explicit_skill_alias=process-budget-controller->task-router",
+            next(
+                item["evidence"]
+                for item in result["route_trace"]
+                if item["stage"] == "intent_routing"
+            ),
+        )
+
+        def invalidate_successor(catalog):
+            skill = self._skill(catalog, "process-budget-controller")
+            skill["relations"]["superseded_by"] = ["requirement-clarifier"]
+
+        with self.assertRaisesRegex(router.DescriptorError, "invalid task-router successor"):
+            self.resolve_with_catalog_mutation(descriptor, invalidate_successor)
 
     def test_optional_budget_removes_omitted_supporter_ownership(self) -> None:
         descriptor = router._deep_merge(
@@ -400,6 +737,17 @@ class TestTaskRouting(unittest.TestCase):
         result = router.resolve_task_route(descriptor)
         self.assertEqual(result["selected_skills"], ["scripted-command-execution"])
         self.assertNotIn("effective-testing-methods", result["selected_skills"])
+
+    def test_selected_skill_emits_every_owned_decision_domain(self) -> None:
+        result = self.results["qualitative-code-review"]
+        self.assertEqual(
+            result["decision_domain_owners"]["implementation_quality"],
+            "regression-prevention",
+        )
+        self.assertEqual(
+            result["decision_domain_owners"]["qualitative_code_review"],
+            "regression-prevention",
+        )
 
     def test_incidental_validation_does_not_select_execution_workflow(self) -> None:
         descriptor = self.descriptor("cli-code-implementation")
@@ -568,8 +916,10 @@ class TestTaskRouting(unittest.TestCase):
 
     def test_runtime_output_stays_inside_catalog_namespaces(self) -> None:
         catalog = router.load_catalog_contract()
+        emitted_gate_ids: set[str] = set()
         for result in self.results.values():
             self.assertTrue(set(result["selected_skills"]).issubset(catalog.active_skills))
+            emitted_gate_ids.update(gate["policy_gate_id"] for gate in result["typed_gates"])
             self.assertTrue(
                 {gate["policy_gate_id"] for gate in result["typed_gates"]}.issubset(catalog.gate_ids)
             )
@@ -578,6 +928,21 @@ class TestTaskRouting(unittest.TestCase):
             )
         operation = self.results["migration-apply"]["artifact_allowance"]
         self.assertNotIn("operation_evidence", operation["kinds"])
+        self.assertEqual(operation["kinds"], [])
+        verified_kinds = {
+            item["kind"]
+            for item in self.descriptor("migration-apply")["evidence"]["artifacts"]
+            if item["status"] == "passed"
+        }
+        self.assertTrue({"backup_evidence", "restore_evidence"}.issubset(verified_kinds))
+
+        relation_gate_ids = {
+            gate_id
+            for skill in catalog.skills.values()
+            for gate_id in skill["relations"]["gates"]
+        }
+        self.assertEqual(emitted_gate_ids, catalog.gate_ids)
+        self.assertTrue(relation_gate_ids.issubset(emitted_gate_ids))
 
     @staticmethod
     def _skill(catalog: dict, name: str) -> dict:
@@ -655,7 +1020,8 @@ class TestTaskRouting(unittest.TestCase):
         )
         self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
         payload = json.loads(completed.stdout)
-        self.assertEqual(payload["passed"], 25)
+        self.assertEqual(payload["schema_version"], router.SCHEMA_VERSION)
+        self.assertEqual(payload["passed"], 26)
         self.assertEqual(payload["failed"], 0)
 
 

@@ -9,10 +9,11 @@ The short version:
 3. put the selected skill folders where the assistant can read them
 4. copy the default policy from this repository into your project instructions
 5. let the router select zero or more skills from the task's actual triggers
-6. use a startup declaration only when you request one or the work is governed or audited
+6. use a startup declaration only when you request one or governed/audited work needs a durable routing record
 7. keep generated routing views and governance checks in sync when you change the pack
 
 ## What These Skills Are
+
 Each skill is a folder with a `SKILL.md` file.
 
 The assistant uses those files as task-specific operating instructions. A skill can define:
@@ -24,9 +25,10 @@ The assistant uses those files as task-specific operating instructions. A skill 
 
 This pack is intentionally more structured than a single prompt. It is meant to slow the assistant down on the parts where mistakes are expensive: requirements, sequencing, validation, documentation drift, policy changes, and release readiness.
 
-Routing architecture version 2 includes a process budget, so simple work can still stay simple. The legacy `process-budget-controller` skill is deprecated and remains only as a compatibility wrapper.
+Router contract 2.1 implements the architecture-version-2 process budget, typed explicit-skill requests, verified artifact evidence, and separate remote-configuration authority. Version 2.0 descriptors and frozen results remain accepted for compatibility; new results use 2.1. The legacy `process-budget-controller` skill is deprecated and remains only as a compatibility wrapper.
 
 ## Quizme Clarification Mode
+
 Use `quizme-mode` when you want the agent to clarify every material detail before substantive execution.
 
 Toggle it on:
@@ -47,6 +49,7 @@ Optional arguments:
 ```
 
 Rules:
+
 1. `--mc` prefers multiple-choice questions with free-form fallback
 2. `--one-at-a-time` asks one adaptive question per round
 3. `--confirm` requires approval of the final task contract
@@ -65,6 +68,7 @@ Combined example:
 ```
 
 ## Internal Language Mode
+
 `internal-lang` is an optional explicit control for compact private scratch work. It is inactive until you turn it on, does not make the assistant expose hidden reasoning, and should not rewrite your requirements into compressed shorthand.
 
 Controls:
@@ -77,13 +81,15 @@ Controls:
 ```
 
 Rules:
+
 1. private scratch compression starts only after `/internal-lang on`
 2. compressed user-facing responses default off when the mode is first activated
 3. normal clear language remains the default response style
 4. high-risk or action-critical details should stay fully written out
 
 ## Recommended Setup
-Use schema-v2 [skill-catalog.json](./skill-catalog.json) as the canonical routing source. Individual `SKILL.md` files define procedures for selected skills.
+
+Use schema-v2 [skill-catalog.json](./skill-catalog.json) as the canonical routing source and router contract 2.1 as the current task-routing interface. Individual `SKILL.md` files define procedures for selected skills.
 
 Typical setup:
 
@@ -92,23 +98,17 @@ Typical setup:
 3. copy the `AGENTS.md` policy into the project where you want these skills enforced
 4. restart or refresh the assistant so it reloads the available skills
 
-The skill folders are directories such as:
-
-1. `skill-governance/`
-2. `order-of-operations/`
-3. `regression-prevention/`
-4. `doc-maintenance/`
-5. `token-reduction/`
-6. `quizme-mode/`
+Use the generated [skill index](./docs/skill-index.md) for the current skill inventory and dependency detail instead of maintaining a second manual list here.
 
 Avoid copying one random `SKILL.md` by itself unless you already understand the dependency chain. Several skills deliberately reference the same routing docs and validation artifacts.
 
 The generated routing views are `SKILL-MAP.md`, `docs/skill-index.md`, and `docs/skill-decision-tree.md`. Generate them from the catalog rather than editing them independently.
 
 ## How I Expect the Assistant To Use The Pack
+
 The router starts at zero. Zero selected skills is valid when core policy already covers the task. For routine work, target a median of no more than two selected skills and a normal cap of five. Mandatory safety skills and gates are never budgeted away or capped.
 
-Require a startup declaration only when the user explicitly requests it or the work is governed or audited. When required, include:
+Require a startup declaration only when the user explicitly requests it or when governed or audited work needs a durable routing record. When required, include:
 
 1. `Skills in use`
 2. why each skill was selected
@@ -153,6 +153,7 @@ For browser or GUI automation, add:
 1. `pseudo-agentic-automation`
 
 ## Basic Task Prompt
+
 Use a direct instruction like this:
 
 ```md
@@ -166,7 +167,8 @@ Use the governed routing path and required safety gates. Validate the exact cand
 ```
 
 ## Governance Files
-The canonical routing file is `skill-catalog.json` schema version 2. It generates:
+
+The canonical routing file is `skill-catalog.json` schema version 2 and currently declares router contract 2.1. It generates:
 
 1. `SKILL-MAP.md` for the high-level routing model
 2. `docs/skill-index.md` for detailed cross-skill triggers
@@ -190,9 +192,16 @@ Do not edit those three views independently. Other supporting files are:
 For governed changes in this repository, keep these root-level artifacts current:
 
 1. `.github/workflows/skills-governance-ci.yml`
-2. `docs/governance/*.governance.json`
-3. `docs/governance/*.governance.md`
-4. `docs/project-index.md`
+2. `.github/branch-protection-policy.json`
+3. `docs/governance/*.governance.json`
+4. `docs/governance/*.governance.md`
+5. `docs/project-index.md`
+
+New governed changes use a unique schema-v3 JSON and generated Markdown pair. Schema v3 records operation-specific authority, typed gate evidence, exact catalog state, and the governed manifest. Committed governance evidence is append-only; v1 and v2 artifacts remain historical evidence and must not be rewritten.
+
+A release is a separate governance purpose. Its v3 artifact requires explicit `publish` authority, exact version, tag, changelog, release-notes, skill-count, and governance-test-count metadata, and a full-diff binding.
+
+The branch-protection file is a closed desired-state contract backed by `skill-governance/schemas/remote-configuration-policy.schema.json`. `skill-governance/scripts/verify_remote_configuration.py` compares it with current GitHub evidence read-only and fails closed on drift or unknown fields. Use the one canonical operator command in [release-provenance.md](./docs/release-provenance.md); a successful comparison grants no `configure_remote` authority.
 
 Lifecycle and quality review docs:
 
@@ -206,15 +215,19 @@ Lifecycle and quality review docs:
 8. `docs/pruning-policy.md`
 
 ## Validation Commands
-Run these from the repository root before publishing normal skillpack changes:
+
+Run these from the repository root before proposing normal skillpack changes:
 
 ```sh
+python3 -m pip install --disable-pip-version-check -r skills/skill-governance/requirements.txt
 python3 skills/skill-governance/scripts/validate_skill_policy.py --agents-path AGENTS.md --skills-root skills --repo-root .
 python3 skills/skill-governance/scripts/validate_skill_order_sync.py --skills-root skills
 python3 -m unittest discover -s skills/skill-governance/tests -p 'test_*.py'
 ```
 
-Run this when a governed change includes a governance artifact:
+The policy validator checks the desired-state file against its closed schema. That is a repository check, not a live remote-state observation.
+
+Run this when a governed change includes a new schema-v3 governance artifact:
 
 ```sh
 TASK_ID=YOUR_CURRENT_TASK_ID
@@ -227,7 +240,7 @@ python3 skills/skill-governance/scripts/validate_governance_artifact.py \
 
 If you are in a constrained environment and a check cannot run, record the exact blocker instead of claiming a clean pass.
 
-For a release-readiness claim, use a clean checkout of one exact candidate commit and generate its exact-head attestation:
+For an ordinary governed ready-to-push claim, use a clean checkout of one exact candidate commit and run exact-head enforcement without `--release-check`:
 
 ```sh
 TASK_ID=YOUR_CURRENT_TASK_ID
@@ -245,32 +258,36 @@ python3 skills/skill-governance/scripts/enforce_governance_ci.py \
   --head-sha "$CANDIDATE_SHA" \
   --strict \
   --require-recommendation go \
-  --release-check \
   --attestation-out "$ATTESTATION_PATH"
 ```
 
-Version, changelog, release notes, skill count, and test count must describe `CANDIDATE_SHA`. If an authorized local tag already exists, verify its exact equality:
+For a release-publication claim, first create exactly one strict purpose=`release` schema-v3 artifact for the candidate. It must include explicit `publish` authority, exact release metadata, and the full candidate diff. Then run the same command with `--release-check`.
+
+Version, changelog, release notes, skill count, and governance test count must describe `CANDIDATE_SHA`. If an authorized local tag already exists, verify its exact equality:
 
 ```sh
 TAG_NAME=INTENDED_RELEASE_TAG
 test "$(git rev-parse "${TAG_NAME}^{commit}")" = "$CANDIDATE_SHA"
 ```
 
-These checks do not create a release or verify remote tag state, branch protection, or required remote checks. Those are separate authorized administrative actions. See [release-provenance.md](./docs/release-provenance.md).
+These checks do not create a release or verify mutable remote state. `main` protection and the required `governance` check were verified on 2026-07-18, but recheck them before relying on a current remote-state claim. Changing remote settings is a separate `configure_remote` operation and requires explicit authority. See [release-provenance.md](./docs/release-provenance.md).
 
 ## How To Add A New Skill
+
 When adding a skill, keep the change connected across the pack:
 
 1. add `<skill-name>/SKILL.md`
 2. update `README.md`
 3. update schema-v2 `skill-catalog.json`
-4. regenerate `SKILL-MAP.md`, `docs/skill-index.md`, and `docs/skill-decision-tree.md`
-5. update governance validation snippets if the new skill becomes required policy
-6. update `CHANGELOG.md`
-7. update `user-instructions.md` only when durable directive tracking was explicitly enabled
-8. run the validation commands
+4. add an explicit `Authority and Artifact Policy` section when artifact durability is `authorized_only`
+5. regenerate `SKILL-MAP.md`, `docs/skill-index.md`, and `docs/skill-decision-tree.md`
+6. update governance validation snippets if the new skill becomes required policy
+7. update `CHANGELOG.md`
+8. update `user-instructions.md` only when durable directive tracking was explicitly enabled
+9. run the validation commands
 
 ## Examples
+
 Use these examples to avoid over-applying skills:
 
 1. [simple-code-fix.md](./docs/examples/simple-code-fix.md)
@@ -281,6 +298,7 @@ Use these examples to avoid over-applying skills:
 6. [quizme-clarification.md](./docs/examples/quizme-clarification.md)
 
 ## Licensing And Attribution
+
 This pack uses an attribution-required non-commercial license.
 
 If you use, copy, modify, or redistribute it, keep the license intact and credit:

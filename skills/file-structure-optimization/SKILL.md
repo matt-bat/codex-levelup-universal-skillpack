@@ -30,6 +30,11 @@ description: Use for designing and maintaining repository file structure for cla
 ## Mission
 Keep repository layout predictable, modular, and easy to navigate while minimizing duplication and stale artifacts.
 
+## Authority and Artifact Policy
+1. Activating this skill grants no authority to create, move, rename, merge, or delete files or directories.
+2. Read-only structure work produces an assessment or proposed map only.
+3. Implement a structural migration only when the task separately authorizes its affected paths and operations.
+
 ## Use This Skill When
 1. adding major features introducing new directories/files
 2. repo navigation or discoverability has become difficult

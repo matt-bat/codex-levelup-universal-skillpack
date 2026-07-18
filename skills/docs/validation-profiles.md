@@ -3,6 +3,7 @@
 Use validation profiles to match check depth to task risk. The point is not to run every command every time; the point is to make the validation claim honest.
 
 ## Quick
+
 Use Quick for:
 
 1. answer-only work
@@ -25,9 +26,10 @@ python3 skills/skill-governance/scripts/validate_skill_order_sync.py --skills-ro
 Quick is enough when the change cannot affect skill behavior, release policy, CI, or validation logic.
 
 ## Standard
+
 Use Standard for:
 
-1. normal skillpack docs changes
+1. normal skillpack documentation changes
 2. non-critical skill updates
 3. examples, profiles, or rubrics
 4. changes where routing or wording should stay synchronized
@@ -35,26 +37,31 @@ Use Standard for:
 Run:
 
 ```sh
+python3 -m pip install --disable-pip-version-check -r skills/skill-governance/requirements.txt
 python3 skills/skill-governance/scripts/validate_skill_policy.py --agents-path AGENTS.md --skills-root skills --repo-root .
 python3 skills/skill-governance/scripts/validate_skill_order_sync.py --skills-root skills
+python3 skills/skill-governance/scripts/generate_routing_views.py --repo-root . --check
 python3 -m unittest discover -s skills/skill-governance/tests -p 'test_*.py'
 git diff --check
 ```
 
-Standard is the best default for most edits in this repo.
+Standard is the best default for most edits in this repo. For routing changes, the policy validator checks schema-v2 `skills/skill-catalog.json`, router contract 2.1, and exact generated content for `skills/SKILL-MAP.md`, `skills/docs/skill-index.md`, and `skills/docs/skill-decision-tree.md`.
 
-For routing changes, the policy validator must validate schema-v2 `skills/skill-catalog.json` and verify that `skills/SKILL-MAP.md`, `skills/docs/skill-index.md`, and `skills/docs/skill-decision-tree.md` match their generated content.
+The same validator checks `.github/branch-protection-policy.json` against its closed schema and requires an explicit `Authority and Artifact Policy` section in every `authorized_only` skill. These are repository-structure checks; they do not observe GitHub or grant artifact-write authority.
 
 ## Release
-Use Release for:
+
+Use Release-depth validation for:
 
 1. governed files
 2. CI or validator changes
-3. release-readiness claims
-4. skill membership changes
-5. governance artifact changes
+3. ready-to-push claims for a governed candidate
+4. release-publication claims
+5. skill membership or governance artifact changes
 
-Run Standard plus:
+Run Standard first. New governed changes require a unique, append-only schema-v3 governance JSON and canonical Markdown pair. Schema v3 binds operation-specific authority, typed gate evidence, the exact catalog, and the exact governed manifest. Historical schema-v1 and schema-v2 artifacts remain readable but cannot authorize a new change.
+
+For an ordinary governed candidate, validate its artifact and run exact-head enforcement without `--release-check`:
 
 ```sh
 TASK_ID=YOUR_CURRENT_TASK_ID
@@ -77,11 +84,21 @@ python3 skills/skill-governance/scripts/enforce_governance_ci.py \
   --repo-root . \
   --strict \
   --require-recommendation go \
-  --release-check \
   --attestation-out "$ATTESTATION_PATH"
 ```
 
-Release is heavier by design. Use it when the repo needs to support a ready-to-push or ready-to-release claim. Resolve every placeholder to the current task and immutable commit identifiers. Run the exact-head checks from a clean checkout, then bind the version, changelog, release notes, skill count, test count, validation output, governance evidence, and attestation to `CANDIDATE_SHA`.
+For a release-publication claim, create exactly one strict schema-v3 artifact with purpose=`release`, explicit `publish` authority, exact release metadata, and a binding over the full candidate diff. Version, tag, changelog, release notes, skill count, and governance test count must all describe the same candidate. Then run:
+
+```sh
+python3 skills/skill-governance/scripts/enforce_governance_ci.py \
+  --head-sha "$CANDIDATE_SHA" \
+  --skills-root skills \
+  --repo-root . \
+  --strict \
+  --require-recommendation go \
+  --release-check \
+  --attestation-out "$ATTESTATION_PATH"
+```
 
 If an authorized local release tag already exists, verify that it resolves to the same commit:
 
@@ -90,9 +107,14 @@ TAG_NAME=INTENDED_RELEASE_TAG
 test "$(git rev-parse "${TAG_NAME}^{commit}")" = "$CANDIDATE_SHA"
 ```
 
-Running this profile does not perform a release. It does not create or move a tag, publish release notes, push changes, verify a remote tag, or configure remote branch protection. Remote protection and required-check verification remain external repository-administration actions. See [release-provenance.md](./release-provenance.md).
+Running this profile does not push, create or move a tag, publish release notes, deploy, or alter remote settings. `main` protection and its required `governance` check were verified on 2026-07-18, but remote state is mutable and must be rechecked before a current-state claim.
+
+Use the single read-only operator workflow in [release-provenance.md](./release-provenance.md) for that live comparison. The verifier fails closed on unknown fields or desired-state drift and grants no `configure_remote` authority; a remote-setting change remains a separate operation requiring explicit authorization.
+
+The pull-request governance job always runs for pull requests targeting `main`. It requires a new v3 plan only when the diff contains governed paths; non-governed diffs still receive policy and regression checks.
 
 ## Profile Selection Rule
+
 1. start with Quick
 2. move to Standard when docs, skills, tests, or policy change
 3. move to Release when governed files, CI, validators, governance artifacts, or release claims change

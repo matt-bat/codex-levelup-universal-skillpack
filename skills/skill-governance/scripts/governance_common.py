@@ -8,13 +8,15 @@ import json
 import os
 import re
 import subprocess
+import tempfile
 from pathlib import Path, PurePosixPath
 from typing import Any, Iterable
 
 
 SCHEMA_V1 = 1
 SCHEMA_V2 = 2
-SUPPORTED_SCHEMA_VERSIONS = {SCHEMA_V1, SCHEMA_V2}
+SCHEMA_V3 = 3
+SUPPORTED_SCHEMA_VERSIONS = {SCHEMA_V1, SCHEMA_V2, SCHEMA_V3}
 COMMIT_SHA_RE = re.compile(r"^[0-9a-f]{40}(?:[0-9a-f]{24})?$")
 TASK_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
@@ -25,7 +27,12 @@ GOVERNED_PATH_PREFIXES = (
     "docs/governance/",
     ".github/workflows/",
 )
-GOVERNED_PATH_EXACT = {"AGENTS.md", "docs/project-index.md"}
+GOVERNED_PATH_EXACT = {
+    ".github/branch-protection-policy.json",
+    "AGENTS.md",
+    "docs/project-index.md",
+    "user-instructions.md",
+}
 
 
 def validate_task_id(task_id: str) -> str:
@@ -128,7 +135,13 @@ def discover_repo_root(repo_root_arg: str, skills_root: Path) -> Path:
     )
 
 
-def run_git(repo_root: Path, args: list[str], *, text: bool = False) -> bytes | str:
+def run_git(
+    repo_root: Path,
+    args: list[str],
+    *,
+    text: bool = False,
+    env: dict[str, str] | None = None,
+) -> bytes | str:
     resolved_root = repo_root.resolve()
     try:
         result = subprocess.run(
@@ -136,6 +149,7 @@ def run_git(repo_root: Path, args: list[str], *, text: bool = False) -> bytes | 
             check=True,
             capture_output=True,
             text=text,
+            env=env,
         )
     except FileNotFoundError as exc:
         raise SystemExit(f"Git is required for governance integrity checks: {exc}") from exc
@@ -231,14 +245,47 @@ def _head_file_bytes(repo_root: Path, head_sha: str, path: str) -> bytes:
     return output
 
 
-def _working_file_bytes(repo_root: Path, path: str) -> bytes:
-    candidate = repo_root.resolve() / normalize_repo_path(path)
-    if candidate.is_symlink():
-        return os.readlink(candidate).encode("utf-8")
-    resolved_candidate = candidate.resolve()
-    if not _is_relative_to(resolved_candidate, repo_root.resolve()):
-        raise SystemExit(f"Changed path escapes repository root: {path}")
-    return resolved_candidate.read_bytes()
+def _git_clean_working_tree_bytes(
+    repo_root: Path,
+    changes: list[tuple[str, str]],
+) -> dict[str, bytes]:
+    """Return would-be commit bytes without modifying the caller's Git index.
+
+    A temporary index and object directory let Git apply every configured clean
+    filter, including end-of-line normalization. The resulting bytes therefore
+    match a later commit instead of the platform-specific working-tree bytes.
+    """
+    paths = [path for status, path in changes if status != "D"]
+    if not paths:
+        return {}
+
+    common_dir_raw = str(run_git(repo_root, ["rev-parse", "--git-common-dir"], text=True)).strip()
+    common_dir = Path(common_dir_raw)
+    if not common_dir.is_absolute():
+        common_dir = (repo_root.resolve() / common_dir).resolve()
+    object_directory = common_dir / "objects"
+    if not object_directory.is_dir():
+        raise SystemExit(f"Git object directory is unavailable: {object_directory}")
+
+    with tempfile.TemporaryDirectory(prefix="governance-index-") as raw_temp:
+        temp_root = Path(raw_temp)
+        temporary_objects = temp_root / "objects"
+        temporary_objects.mkdir()
+        env = os.environ.copy()
+        env["GIT_INDEX_FILE"] = str(temp_root / "index")
+        env["GIT_OBJECT_DIRECTORY"] = str(temporary_objects)
+        alternates = [str(object_directory)]
+        inherited_alternates = env.get("GIT_ALTERNATE_OBJECT_DIRECTORIES", "")
+        if inherited_alternates:
+            alternates.append(inherited_alternates)
+        env["GIT_ALTERNATE_OBJECT_DIRECTORIES"] = os.pathsep.join(alternates)
+
+        run_git(repo_root, ["read-tree", "HEAD"], env=env)
+        run_git(repo_root, ["add", "--all", "--", *paths], env=env)
+        return {
+            path: bytes(run_git(repo_root, ["show", f":{path}"], env=env))
+            for path in paths
+        }
 
 
 def build_manifest(
@@ -249,7 +296,7 @@ def build_manifest(
     governed_predicate: Any | None = None,
 ) -> list[dict[str, Any]]:
     """Build a sorted, content-addressed manifest from normalized changes."""
-    manifest: list[dict[str, Any]] = []
+    selected_changes: list[tuple[str, str]] = []
     seen: set[str] = set()
     for status, raw_path in changes:
         path = normalize_repo_path(raw_path)
@@ -260,10 +307,21 @@ def build_manifest(
             continue
         if is_governance_artifact_path(path):
             continue
+        selected_changes.append((status, path))
+
+    working_tree_bytes = (
+        {} if head_sha else _git_clean_working_tree_bytes(repo_root, selected_changes)
+    )
+    manifest: list[dict[str, Any]] = []
+    for status, path in selected_changes:
         if status == "D":
             digest = None
         else:
-            content = _head_file_bytes(repo_root, head_sha, path) if head_sha else _working_file_bytes(repo_root, path)
+            content = (
+                _head_file_bytes(repo_root, head_sha, path)
+                if head_sha
+                else working_tree_bytes[path]
+            )
             digest = hashlib.sha256(content).hexdigest()
         manifest.append({"path": path, "status": status, "sha256": digest})
     return sorted(manifest, key=lambda item: item["path"])

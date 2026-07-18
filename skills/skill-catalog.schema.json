@@ -23,7 +23,7 @@
     "$schema": {"const": "./skill-catalog.schema.json"},
     "schema_version": {"const": 2},
     "catalog_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
-    "router_contract": {"const": "2.0"},
+    "router_contract": {"const": "2.1"},
     "components": {"$ref": "#/$defs/uniqueNames"},
     "generated_views": {"$ref": "#/$defs/uniqueStrings"},
     "router_policy": {
