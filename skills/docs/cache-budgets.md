@@ -7,6 +7,7 @@ One-line overview: Default caps for cached summaries, indexes, and compact metad
 | `docs/chat-history-summary.md` | 10 | 60 words | 20 words | Remove oldest low-value entry |
 | `docs/chat-history-index.md` | 30 | 40 words | 25 words | Merge duplicates, then trim oldest superseded entries |
 | `user-instructions.md` | 80 rows | 30 words | 25 words | Consolidate stale or superseded rows where possible |
+| `skills/.routing-observations.jsonl` | 100 records | aggregate output only | no free-text notes | Drop oldest records atomically; never retain prompts or source content |
 | Compact tracker tables | 50 rows | 40 words | 20 words | Prefer canonical file of record and prune duplicates |
 
 Notes:

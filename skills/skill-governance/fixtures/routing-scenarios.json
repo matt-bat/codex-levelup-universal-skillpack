@@ -1,0 +1,1086 @@
+{
+  "schema_version": "2.0",
+  "descriptor_defaults": {
+    "schema_version": "2.0",
+    "task_id": "scenario",
+    "deliverables": [
+      {
+        "id": "result",
+        "kind": "response",
+        "summary": "Produce the requested scenario result.",
+        "acceptance_criteria": ["Honor the normalized task descriptor."]
+      }
+    ],
+    "action": {
+      "primary": "answer",
+      "operations": ["read"],
+      "execution_mode": "none",
+      "command_effect": "not_applicable",
+      "test_intent": "none",
+      "behavior_change": false,
+      "test_change": false,
+      "coupled_change": false,
+      "product_judgment": false,
+      "ui_quality_judgment": false,
+      "release_enforcement": false,
+      "governance_tooling": false,
+      "documentation_sync": false,
+      "sequencing_required": false
+    },
+    "mutation": {
+      "level": "none",
+      "targets": [],
+      "destructive": false,
+      "data_loss_risk": "none",
+      "recovery_requirement": "not_required"
+    },
+    "effects": [],
+    "surfaces": ["response"],
+    "domains": ["general"],
+    "authority": {
+      "read": "granted"
+    },
+    "constraints": {
+      "read_only": true,
+      "artifact_policy": "forbid",
+      "max_optional_skills": 5,
+      "explicit": [],
+      "non_goals": []
+    },
+    "inferred_requirements": [],
+    "material_uncertainties": [],
+    "evidence": {
+      "root_cause": "not_applicable",
+      "tests": "not_applicable",
+      "rollback": "not_applicable",
+      "backup": "not_applicable",
+      "restore": "not_applicable",
+      "exact_commit": "not_applicable"
+    },
+    "checkpoint": "initial"
+  },
+  "scenarios": [
+    {
+      "id": "simple-answer",
+      "description": "A direct answer needs core invariants but no formal skill stack.",
+      "descriptor": {
+        "task_id": "simple-answer"
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": [],
+        "artifact_allowed": false,
+        "max_selected_skills": 0
+      }
+    },
+    {
+      "id": "tiny-typo",
+      "description": "A tiny non-behavioral documentation typo is a granted local write without process expansion.",
+      "descriptor": {
+        "task_id": "tiny-typo",
+        "deliverables": [
+          {
+            "id": "typo",
+            "kind": "file_change",
+            "summary": "Correct one documentation typo.",
+            "acceptance_criteria": ["Only the typo changes."]
+          }
+        ],
+        "action": {
+          "primary": "edit",
+          "operations": ["read", "write_files"]
+        },
+        "mutation": {
+          "level": "workspace",
+          "targets": ["documentation file"]
+        },
+        "effects": ["workspace_files", "documentation"],
+        "surfaces": ["documentation"],
+        "domains": ["documentation"],
+        "authority": {
+          "write_files": "granted"
+        },
+        "constraints": {
+          "read_only": false,
+          "explicit": ["Change only the typo."],
+          "non_goals": ["Do not reformat the document."]
+        }
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": [],
+        "artifact_allowed": false,
+        "max_selected_skills": 0
+      }
+    },
+    {
+      "id": "diagnose-only-cli",
+      "description": "Read-only command diagnostics verify a cause without authorizing a fix.",
+      "descriptor": {
+        "task_id": "diagnose-only-cli",
+        "deliverables": [
+          {
+            "id": "diagnosis",
+            "kind": "diagnosis",
+            "summary": "Identify the verified failure cause.",
+            "acceptance_criteria": ["No corrective mutation occurs."]
+          }
+        ],
+        "action": {
+          "primary": "diagnose",
+          "operations": ["read", "run_commands"],
+          "execution_mode": "deterministic_workflow",
+          "command_effect": "read_only"
+        },
+        "surfaces": ["cli", "source"],
+        "domains": ["code"],
+        "authority": {
+          "run_commands": "granted"
+        },
+        "evidence": {
+          "root_cause": "pending"
+        }
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": ["diagnose-before-fix", "scripted-command-execution"],
+        "artifact_allowed": false,
+        "max_selected_skills": 2
+      }
+    },
+    {
+      "id": "cli-code-implementation",
+      "description": "A behavioral CLI implementation selects regression and command owners but not test design.",
+      "descriptor": {
+        "task_id": "cli-code-implementation",
+        "deliverables": [
+          {
+            "id": "implementation",
+            "kind": "file_change",
+            "summary": "Implement a CLI behavior change.",
+            "acceptance_criteria": ["The changed CLI behavior is validated."]
+          }
+        ],
+        "action": {
+          "primary": "implement",
+          "operations": ["read", "run_commands", "write_files"],
+          "execution_mode": "deterministic_workflow",
+          "command_effect": "workspace",
+          "test_intent": "run_existing",
+          "behavior_change": true
+        },
+        "mutation": {
+          "level": "workspace",
+          "targets": ["CLI source"]
+        },
+        "effects": ["workspace_files", "user_visible_behavior"],
+        "surfaces": ["source", "cli"],
+        "domains": ["code"],
+        "authority": {
+          "run_commands": "granted",
+          "write_files": "granted"
+        },
+        "constraints": {
+          "read_only": false,
+          "artifact_policy": "allow_required"
+        },
+        "evidence": {
+          "tests": "pending"
+        }
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": ["regression-prevention", "scripted-command-execution"],
+        "artifact_allowed": true,
+        "max_selected_skills": 2
+      }
+    },
+    {
+      "id": "cli-code-with-test-design",
+      "description": "Explicit test changes add the test-design owner.",
+      "descriptor": {
+        "task_id": "cli-code-with-test-design",
+        "deliverables": [
+          {
+            "id": "implementation",
+            "kind": "file_change",
+            "summary": "Implement CLI behavior and tests.",
+            "acceptance_criteria": ["Code and targeted tests change together."]
+          }
+        ],
+        "action": {
+          "primary": "implement",
+          "operations": ["read", "run_commands", "write_files"],
+          "execution_mode": "deterministic_workflow",
+          "command_effect": "workspace",
+          "test_intent": "design_or_change",
+          "behavior_change": true,
+          "test_change": true
+        },
+        "mutation": {
+          "level": "workspace",
+          "targets": ["CLI source", "CLI tests"]
+        },
+        "effects": ["workspace_files", "user_visible_behavior", "test_suite"],
+        "surfaces": ["source", "cli", "tests"],
+        "domains": ["code", "testing"],
+        "authority": {
+          "run_commands": "granted",
+          "write_files": "granted"
+        },
+        "constraints": {
+          "read_only": false,
+          "artifact_policy": "allow_required"
+        },
+        "evidence": {
+          "tests": "pending"
+        }
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": [
+          "regression-prevention",
+          "effective-testing-methods",
+          "scripted-command-execution"
+        ],
+        "artifact_allowed": true,
+        "max_selected_skills": 3
+      }
+    },
+    {
+      "id": "qualitative-code-review",
+      "description": "A qualitative code review excludes the numerical rating skill.",
+      "descriptor": {
+        "task_id": "qualitative-code-review",
+        "deliverables": [
+          {
+            "id": "review",
+            "kind": "review",
+            "summary": "Review code qualitatively.",
+            "acceptance_criteria": ["Report evidence-backed findings without a score."]
+          }
+        ],
+        "action": {
+          "primary": "review"
+        },
+        "surfaces": ["source"],
+        "domains": ["code"]
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": ["regression-prevention"],
+        "artifact_allowed": false,
+        "max_selected_skills": 1
+      }
+    },
+    {
+      "id": "scored-code-review",
+      "description": "An explicit score selects the rating owner.",
+      "descriptor": {
+        "task_id": "scored-code-review",
+        "deliverables": [
+          {
+            "id": "score",
+            "kind": "score",
+            "summary": "Score code quality with a rubric.",
+            "acceptance_criteria": ["Provide a weighted numeric score."]
+          }
+        ],
+        "action": {
+          "primary": "score"
+        },
+        "surfaces": ["source"],
+        "domains": ["code"]
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": ["thoroughly-rate-review"],
+        "artifact_allowed": false,
+        "max_selected_skills": 1
+      }
+    },
+    {
+      "id": "generic-ui-implementation",
+      "description": "Generic frontend implementation excludes Spatial Canvas.",
+      "descriptor": {
+        "task_id": "generic-ui-implementation",
+        "deliverables": [
+          {
+            "id": "ui",
+            "kind": "file_change",
+            "summary": "Implement a generic frontend interaction.",
+            "acceptance_criteria": ["Behavior and tests cover the user flow."]
+          }
+        ],
+        "action": {
+          "primary": "implement",
+          "operations": ["read", "run_commands", "write_files"],
+          "execution_mode": "deterministic_workflow",
+          "command_effect": "workspace",
+          "test_intent": "design_or_change",
+          "ui_quality_judgment": true,
+          "behavior_change": true,
+          "test_change": true
+        },
+        "mutation": {
+          "level": "workspace",
+          "targets": ["frontend source", "frontend tests"]
+        },
+        "effects": ["workspace_files", "user_visible_behavior", "test_suite"],
+        "surfaces": ["source", "frontend", "tests"],
+        "domains": ["code", "frontend"],
+        "authority": {
+          "run_commands": "granted",
+          "write_files": "granted"
+        },
+        "constraints": {
+          "read_only": false,
+          "artifact_policy": "allow_required"
+        },
+        "evidence": {
+          "tests": "pending"
+        }
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": [
+          "ui-design-skills",
+          "regression-prevention",
+          "effective-testing-methods",
+          "scripted-command-execution"
+        ],
+        "artifact_allowed": true,
+        "max_selected_skills": 5
+      }
+    },
+    {
+      "id": "spatial-canvas-implementation",
+      "description": "An explicit normalized Spatial Canvas domain adds its specialist.",
+      "descriptor": {
+        "task_id": "spatial-canvas-implementation",
+        "deliverables": [
+          {
+            "id": "spatial-ui",
+            "kind": "file_change",
+            "summary": "Implement an established Spatial Canvas flow.",
+            "acceptance_criteria": ["Preserve the Spatial Canvas interaction model."]
+          }
+        ],
+        "action": {
+          "primary": "implement",
+          "operations": ["read", "run_commands", "write_files"],
+          "execution_mode": "deterministic_workflow",
+          "command_effect": "workspace",
+          "test_intent": "design_or_change",
+          "ui_quality_judgment": true,
+          "behavior_change": true,
+          "test_change": true
+        },
+        "mutation": {
+          "level": "workspace",
+          "targets": ["spatial frontend", "frontend tests"]
+        },
+        "effects": ["workspace_files", "user_visible_behavior", "test_suite"],
+        "surfaces": ["source", "frontend", "tests"],
+        "domains": ["code", "frontend", "spatial_canvas"],
+        "authority": {
+          "run_commands": "granted",
+          "write_files": "granted"
+        },
+        "constraints": {
+          "read_only": false,
+          "artifact_policy": "allow_required"
+        },
+        "evidence": {
+          "tests": "pending"
+        }
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": [
+          "ui-design-skills",
+          "ui-spatial-canvas",
+          "regression-prevention",
+          "effective-testing-methods",
+          "scripted-command-execution"
+        ],
+        "artifact_allowed": true,
+        "max_selected_skills": 6
+      }
+    },
+    {
+      "id": "auth-source-change",
+      "description": "Auth source code is regression-sensitive but does not imply live backup operations.",
+      "descriptor": {
+        "task_id": "auth-source-change",
+        "deliverables": [
+          {
+            "id": "auth-code",
+            "kind": "file_change",
+            "summary": "Change an auth source-code path locally.",
+            "acceptance_criteria": ["No live auth state is modified."]
+          }
+        ],
+        "action": {
+          "primary": "implement",
+          "operations": ["read", "run_commands", "write_files"],
+          "execution_mode": "deterministic_workflow",
+          "command_effect": "workspace",
+          "test_intent": "run_existing",
+          "behavior_change": true
+        },
+        "mutation": {
+          "level": "workspace",
+          "targets": ["auth source"]
+        },
+        "effects": ["workspace_files", "user_visible_behavior"],
+        "surfaces": ["source", "backend"],
+        "domains": ["code", "auth"],
+        "authority": {
+          "run_commands": "granted",
+          "write_files": "granted"
+        },
+        "constraints": {
+          "read_only": false,
+          "artifact_policy": "allow_required",
+          "non_goals": ["Do not touch live sessions."]
+        },
+        "evidence": {
+          "tests": "pending"
+        }
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": ["regression-prevention", "scripted-command-execution"],
+        "artifact_allowed": true,
+        "max_selected_skills": 2
+      }
+    },
+    {
+      "id": "auth-live-operation",
+      "description": "A live auth deployment activates governance, recovery, and rollback controls.",
+      "descriptor": {
+        "task_id": "auth-live-operation",
+        "deliverables": [
+          {
+            "id": "auth-operation",
+            "kind": "operation",
+            "summary": "Apply an authorized auth runtime operation.",
+            "acceptance_criteria": ["Rollback evidence is current before deployment."]
+          }
+        ],
+        "action": {
+          "primary": "operate",
+          "operations": ["read", "run_commands", "deploy"],
+          "execution_mode": "deterministic_workflow",
+          "command_effect": "external",
+          "test_intent": "run_existing"
+        },
+        "mutation": {
+          "level": "external",
+          "targets": ["auth runtime"]
+        },
+        "effects": ["runtime_environment"],
+        "surfaces": ["cli", "runtime", "external_service"],
+        "domains": ["auth", "operations"],
+        "authority": {
+          "run_commands": "granted",
+          "deploy": "granted"
+        },
+        "constraints": {
+          "read_only": false
+        },
+        "evidence": {
+          "tests": "passed",
+          "rollback": "passed",
+          "backup": "passed",
+          "restore": "passed"
+        },
+        "checkpoint": "pre_external_action"
+      },
+      "expected": {
+        "decision": "allow",
+        "artifact_allowed": false,
+        "max_selected_skills": 8
+      }
+    },
+    {
+      "id": "migration-source-only",
+      "description": "Source-only migration preparation excludes operational recovery gates.",
+      "descriptor": {
+        "task_id": "migration-source-only",
+        "deliverables": [
+          {
+            "id": "migration-source",
+            "kind": "file_change",
+            "summary": "Prepare migration source and tests without applying it.",
+            "acceptance_criteria": ["No live data changes."]
+          }
+        ],
+        "action": {
+          "primary": "implement",
+          "operations": ["read", "run_commands", "write_files"],
+          "execution_mode": "deterministic_workflow",
+          "command_effect": "workspace",
+          "test_intent": "design_or_change",
+          "behavior_change": true,
+          "test_change": true,
+          "coupled_change": true
+        },
+        "mutation": {
+          "level": "workspace",
+          "targets": ["migration source", "migration tests"]
+        },
+        "effects": ["workspace_files", "test_suite"],
+        "surfaces": ["source", "backend", "tests"],
+        "domains": ["code", "migration", "data", "testing"],
+        "authority": {
+          "run_commands": "granted",
+          "write_files": "granted"
+        },
+        "constraints": {
+          "read_only": false,
+          "artifact_policy": "allow_required"
+        },
+        "evidence": {
+          "tests": "pending"
+        }
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": [
+          "interdependent-change-planning",
+          "regression-prevention",
+          "effective-testing-methods",
+          "scripted-command-execution"
+        ],
+        "artifact_allowed": true,
+        "max_selected_skills": 4
+      }
+    },
+    {
+      "id": "migration-apply",
+      "description": "Applying a live migration requires authority, pre-action reroute, backup, restore, and rollback evidence.",
+      "descriptor": {
+        "task_id": "migration-apply",
+        "deliverables": [
+          {
+            "id": "migration-operation",
+            "kind": "operation",
+            "summary": "Apply the approved live-data migration.",
+            "acceptance_criteria": ["Backup, restore, and rollback gates pass first."]
+          }
+        ],
+        "action": {
+          "primary": "operate",
+          "operations": ["read", "run_commands", "migrate"],
+          "execution_mode": "deterministic_workflow",
+          "command_effect": "external"
+        },
+        "mutation": {
+          "level": "irreversible",
+          "targets": ["production data"] ,
+          "destructive": true,
+          "data_loss_risk": "credible",
+          "recovery_requirement": "required"
+        },
+        "effects": ["live_data"],
+        "surfaces": ["cli", "live_data", "external_service"],
+        "domains": ["migration", "data", "operations"],
+        "authority": {
+          "run_commands": "granted",
+          "migrate": "granted"
+        },
+        "constraints": {
+          "read_only": false
+        },
+        "evidence": {
+          "rollback": "passed",
+          "backup": "passed",
+          "restore": "passed"
+        },
+        "checkpoint": "pre_external_action"
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": [
+          "skill-governance",
+          "regression-prevention",
+          "project-backup",
+          "restore-drill",
+          "scripted-command-execution"
+        ],
+        "artifact_allowed": false,
+        "max_selected_skills": 5
+      }
+    },
+    {
+      "id": "strict-read-only-policy-audit",
+      "description": "A strict policy audit can run read-only commands but cannot create artifacts.",
+      "descriptor": {
+        "task_id": "strict-read-only-policy-audit",
+        "deliverables": [
+          {
+            "id": "audit",
+            "kind": "review",
+            "summary": "Audit semantic policy behavior without mutation.",
+            "acceptance_criteria": ["No files, trackers, or governance artifacts are written."]
+          }
+        ],
+        "action": {
+          "primary": "inspect",
+          "operations": ["read", "run_commands"],
+          "execution_mode": "incidental_validation",
+          "command_effect": "read_only"
+        },
+        "surfaces": ["response", "governance"],
+        "domains": ["policy"],
+        "authority": {
+          "run_commands": "granted"
+        },
+        "constraints": {
+          "explicit": ["Remain strictly read-only."],
+          "non_goals": ["Do not generate governance artifacts."]
+        }
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": ["semantic-policy-audit"],
+        "artifact_allowed": false,
+        "max_selected_skills": 2
+      }
+    },
+    {
+      "id": "ambiguous-login-request",
+      "description": "Unknown mutation intent and critical ambiguity fail closed before auth work.",
+      "descriptor": {
+        "task_id": "ambiguous-login-request",
+        "deliverables": [
+          {
+            "id": "login-request",
+            "kind": "operation",
+            "summary": "Handle a login-related request whose intended state effect is unknown.",
+            "acceptance_criteria": ["Clarify whether source code or live state is in scope."]
+          }
+        ],
+        "action": {
+          "primary": "operate"
+        },
+        "mutation": {
+          "level": "unknown"
+        },
+        "surfaces": ["response", "external_service"],
+        "domains": ["auth"],
+        "constraints": {
+          "read_only": false
+        },
+        "material_uncertainties": [
+          {
+            "id": "login-scope",
+            "description": "It is unclear whether the request changes source code or live account state.",
+            "severity": "critical",
+            "status": "unresolved"
+          }
+        ]
+      },
+      "expected": {
+        "decision": "needs_clarification",
+        "selected_skills": ["requirement-clarifier"],
+        "artifact_allowed": false,
+        "max_selected_skills": 1
+      }
+    },
+    {
+      "id": "multi-deliverable-commit-no-push",
+      "description": "Files, tests, and a local commit are authorized while push remains excluded.",
+      "descriptor": {
+        "task_id": "multi-deliverable-commit-no-push",
+        "deliverables": [
+          {
+            "id": "code",
+            "kind": "file_change",
+            "summary": "Implement the coupled code change.",
+            "acceptance_criteria": ["Implementation is complete."]
+          },
+          {
+            "id": "tests",
+            "kind": "test_change",
+            "summary": "Add proportional regression tests.",
+            "acceptance_criteria": ["Tests pass."]
+          },
+          {
+            "id": "commit",
+            "kind": "operation",
+            "summary": "Create a local commit only.",
+            "acceptance_criteria": ["No push occurs."]
+          }
+        ],
+        "action": {
+          "primary": "implement",
+          "operations": ["read", "run_commands", "write_files", "commit"],
+          "execution_mode": "deterministic_workflow",
+          "command_effect": "repository",
+          "test_intent": "design_or_change",
+          "behavior_change": true,
+          "test_change": true,
+          "coupled_change": true
+        },
+        "mutation": {
+          "level": "repository",
+          "targets": ["source", "tests", "local repository history"]
+        },
+        "effects": [
+          "workspace_files",
+          "repository_history",
+          "user_visible_behavior",
+          "test_suite"
+        ],
+        "surfaces": ["source", "tests", "repository"],
+        "domains": ["code", "testing", "repository"],
+        "authority": {
+          "run_commands": "granted",
+          "write_files": "granted",
+          "commit": "granted",
+          "push": "denied"
+        },
+        "constraints": {
+          "read_only": false,
+          "artifact_policy": "allow_required",
+          "explicit": ["Commit locally after validation."],
+          "non_goals": ["Do not push."]
+        },
+        "evidence": {
+          "tests": "passed"
+        },
+        "checkpoint": "post_diff"
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": [
+          "interdependent-change-planning",
+          "regression-prevention",
+          "effective-testing-methods",
+          "scripted-command-execution"
+        ],
+        "artifact_allowed": true,
+        "max_selected_skills": 4
+      }
+    },
+    {
+      "id": "release-ready",
+      "description": "A release is allowed only with exact-commit and test evidence at the pre-external checkpoint.",
+      "descriptor": {
+        "task_id": "release-ready",
+        "deliverables": [
+          {
+            "id": "release",
+            "kind": "release",
+            "summary": "Publish the verified release.",
+            "acceptance_criteria": ["The exact published commit has green evidence."]
+          }
+        ],
+        "action": {
+          "primary": "release",
+          "operations": ["read", "run_commands", "write_files", "publish"],
+          "execution_mode": "deterministic_workflow",
+          "command_effect": "external",
+          "test_intent": "run_existing",
+          "release_enforcement": true
+        },
+        "mutation": {
+          "level": "external",
+          "targets": ["release registry", "release attestation"]
+        },
+        "effects": ["workspace_files", "published_artifact"],
+        "surfaces": ["cli", "repository", "release"],
+        "domains": ["release", "repository"],
+        "authority": {
+          "run_commands": "granted",
+          "write_files": "granted",
+          "publish": "granted"
+        },
+        "constraints": {
+          "read_only": false,
+          "artifact_policy": "allow_required"
+        },
+        "evidence": {
+          "tests": "passed",
+          "exact_commit": "passed"
+        },
+        "checkpoint": "pre_external_action"
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": [
+          "skill-governance",
+          "governance-enforcement",
+          "regression-prevention",
+          "scripted-command-execution"
+        ],
+        "artifact_allowed": true,
+        "max_selected_skills": 4
+      }
+    },
+    {
+      "id": "release-missing-exact-commit",
+      "description": "Publication is blocked when exact-commit evidence is missing.",
+      "descriptor": {
+        "task_id": "release-missing-exact-commit",
+        "deliverables": [
+          {
+            "id": "release",
+            "kind": "release",
+            "summary": "Publish a release lacking exact-commit evidence.",
+            "acceptance_criteria": ["Publication must not proceed without evidence."]
+          }
+        ],
+        "action": {
+          "primary": "release",
+          "operations": ["read", "run_commands", "publish"],
+          "execution_mode": "deterministic_workflow",
+          "command_effect": "external",
+          "test_intent": "run_existing",
+          "release_enforcement": true
+        },
+        "mutation": {
+          "level": "external",
+          "targets": ["release registry"]
+        },
+        "effects": ["published_artifact"],
+        "surfaces": ["cli", "release"],
+        "domains": ["release"],
+        "authority": {
+          "run_commands": "granted",
+          "publish": "granted"
+        },
+        "constraints": {
+          "read_only": false
+        },
+        "evidence": {
+          "tests": "passed",
+          "exact_commit": "unknown"
+        },
+        "checkpoint": "pre_external_action"
+      },
+      "expected": {
+        "decision": "blocked",
+        "artifact_allowed": false,
+        "max_selected_skills": 4
+      }
+    },
+    {
+      "id": "read-only-conflict",
+      "description": "Granted write authority cannot override an explicit read-only constraint.",
+      "descriptor": {
+        "task_id": "read-only-conflict",
+        "action": {
+          "primary": "inspect",
+          "operations": ["read", "write_files"]
+        },
+        "mutation": {
+          "level": "workspace",
+          "targets": ["audit notes"]
+        },
+        "effects": ["workspace_files"],
+        "surfaces": ["source"],
+        "domains": ["code"],
+        "authority": {
+          "write_files": "granted"
+        }
+      },
+      "expected": {
+        "decision": "blocked",
+        "selected_skills": [],
+        "artifact_allowed": false,
+        "max_selected_skills": 0
+      }
+    },
+    {
+      "id": "quick-answer-paraphrase",
+      "description": "The word quick does not alter a typed direct-answer route.",
+      "descriptor": {
+        "task_id": "quick-answer-paraphrase",
+        "constraints": {
+          "explicit": ["Keep the answer quick."]
+        }
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": [],
+        "artifact_allowed": false,
+        "max_selected_skills": 0,
+        "same_route_as": "simple-answer"
+      }
+    },
+    {
+      "id": "just-answer-paraphrase",
+      "description": "The word just does not alter a typed direct-answer route.",
+      "descriptor": {
+        "task_id": "just-answer-paraphrase",
+        "constraints": {
+          "explicit": ["Just answer the question."]
+        }
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": [],
+        "artifact_allowed": false,
+        "max_selected_skills": 0,
+        "same_route_as": "simple-answer"
+      }
+    },
+    {
+      "id": "simple-answer-paraphrase",
+      "description": "The word simple does not alter a typed direct-answer route.",
+      "descriptor": {
+        "task_id": "simple-answer-paraphrase",
+        "constraints": {
+          "explicit": ["This should be simple."]
+        }
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": [],
+        "artifact_allowed": false,
+        "max_selected_skills": 0,
+        "same_route_as": "simple-answer"
+      }
+    },
+    {
+      "id": "migration-zero-optional-budget",
+      "description": "A zero optional-skill budget cannot suppress mandatory migration safety.",
+      "descriptor": {
+        "task_id": "migration-zero-optional-budget",
+        "deliverables": [
+          {
+            "id": "migration-operation",
+            "kind": "operation",
+            "summary": "Apply a migration with no optional-skill budget.",
+            "acceptance_criteria": ["All mandatory safety remains active."]
+          }
+        ],
+        "action": {
+          "primary": "operate",
+          "operations": ["read", "run_commands", "migrate"],
+          "execution_mode": "deterministic_workflow",
+          "command_effect": "external"
+        },
+        "mutation": {
+          "level": "irreversible",
+          "targets": ["production data"],
+          "destructive": true,
+          "data_loss_risk": "credible",
+          "recovery_requirement": "required"
+        },
+        "effects": ["live_data"],
+        "surfaces": ["cli", "live_data"],
+        "domains": ["migration", "data", "operations"],
+        "authority": {
+          "run_commands": "granted",
+          "migrate": "granted"
+        },
+        "constraints": {
+          "read_only": false,
+          "max_optional_skills": 0
+        },
+        "evidence": {
+          "rollback": "passed",
+          "backup": "passed",
+          "restore": "passed"
+        },
+        "checkpoint": "pre_external_action"
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": [
+          "skill-governance",
+          "regression-prevention",
+          "project-backup",
+          "restore-drill",
+          "scripted-command-execution"
+        ],
+        "artifact_allowed": false,
+        "max_selected_skills": 5
+      }
+    },
+    {
+      "id": "external-message-authorized",
+      "description": "External communication requires explicit authority and a pre-action reroute.",
+      "descriptor": {
+        "task_id": "external-message-authorized",
+        "deliverables": [
+          {
+            "id": "message",
+            "kind": "operation",
+            "summary": "Send one explicitly authorized external message.",
+            "acceptance_criteria": ["Only the approved message is sent."]
+          }
+        ],
+        "action": {
+          "primary": "operate",
+          "operations": ["read", "message"]
+        },
+        "mutation": {
+          "level": "external",
+          "targets": ["approved recipient"]
+        },
+        "effects": ["external_message"],
+        "surfaces": ["external_service"],
+        "domains": ["operations"],
+        "authority": {
+          "message": "granted"
+        },
+        "constraints": {
+          "read_only": false,
+          "explicit": ["Send only the approved content."]
+        },
+        "checkpoint": "pre_external_action"
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": [],
+        "artifact_allowed": false,
+        "max_selected_skills": 0
+      }
+    },
+    {
+      "id": "external-message-authority-unknown",
+      "description": "Unknown message authority fails closed even when the requested content is harmless.",
+      "descriptor": {
+        "task_id": "external-message-authority-unknown",
+        "deliverables": [
+          {
+            "id": "message",
+            "kind": "operation",
+            "summary": "Send an external message without known authority.",
+            "acceptance_criteria": ["Do not send without explicit authority."]
+          }
+        ],
+        "action": {
+          "primary": "operate",
+          "operations": ["read", "message"]
+        },
+        "mutation": {
+          "level": "external",
+          "targets": ["recipient"]
+        },
+        "effects": ["external_message"],
+        "surfaces": ["external_service"],
+        "domains": ["operations"],
+        "authority": {
+          "message": "unknown"
+        },
+        "constraints": {
+          "read_only": false
+        },
+        "checkpoint": "pre_external_action"
+      },
+      "expected": {
+        "decision": "needs_clarification",
+        "selected_skills": [],
+        "artifact_allowed": false,
+        "max_selected_skills": 0
+      }
+    }
+  ]
+}

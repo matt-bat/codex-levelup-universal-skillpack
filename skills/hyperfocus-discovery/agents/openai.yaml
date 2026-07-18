@@ -1,0 +1,4 @@
+interface:
+  display_name: "Hyperfocus Discovery"
+  short_description: "Optional bounded branch management."
+  default_prompt: "Use $hyperfocus-discovery for this explicitly exploratory or multi-branch task while preserving the primary goal and scope."

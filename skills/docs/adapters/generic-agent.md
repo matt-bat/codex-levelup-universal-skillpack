@@ -17,8 +17,8 @@ Do not copy the whole pack into a tool that cannot honor most of it. Start with 
 ## Required Behaviors
 The agent should:
 
-1. state selected skills or operating modes before substantial work
-2. choose the smallest process budget that fits the task
+1. allow zero selected skills and state selected modes only for governed/audited work or when explicitly requested
+2. use the router's smallest-sufficient process budget
 3. execute locally by default
 4. maintain docs when behavior or workflow changes
 5. record validation evidence for governed changes
@@ -32,11 +32,11 @@ If a feature cannot be ported cleanly, document the gap instead of pretending th
 For `--quizme`, replace the source agent's interactive clarification console with the target agent's equivalent prompt UI. Preserve supported options when possible: `--mc`, `--one-at-a-time`, `--confirm`, and `--record`.
 
 ## Minimum Profile
-For generic agents, start with:
+For generic agents, make these packages available first:
 
-1. `token-reduction`
-2. `order-of-operations`
-3. `process-budget-controller`
-4. `scripted-command-execution`
+1. `requirement-clarifier`
+2. `regression-prevention`
+3. `scripted-command-execution`
+4. `doc-maintenance`
 
-That profile carries the core workflow without requiring the heavier governance machinery.
+Availability does not imply activation. The core policy and task router handle routine work without a skill, and each package activates only when its catalog trigger matches.

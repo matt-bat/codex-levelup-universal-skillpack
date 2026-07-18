@@ -22,8 +22,9 @@ Do not put secrets in:
 2. `docs/governance/*.governance.md`
 3. `docs/chat-history-index.md`
 4. `docs/chat-history-summary.md`
-5. `skills/user-instructions.md`
-6. field notes, task logs, or handoff docs
+5. root `user-instructions.md`
+6. bounded routing observations
+7. field notes, task logs, or handoff docs
 
 Good artifacts say what was checked, what passed, what failed, what risk remains, and who owns the next step. They should not contain credentials, API keys, tokens, production secrets, private customer data, private prompts, or anything that would become sensitive if this repo were shared.
 
@@ -33,6 +34,7 @@ Before publishing policy, workflow, or validator changes, run the standard check
 ```sh
 python3 skills/skill-governance/scripts/validate_skill_policy.py --agents-path AGENTS.md --skills-root skills --repo-root .
 python3 skills/skill-governance/scripts/validate_skill_order_sync.py --skills-root skills
+python3 skills/skill-governance/scripts/generate_routing_views.py --repo-root . --check
 python3 -m unittest discover -s skills/skill-governance/tests -p 'test_*.py'
 ```
 

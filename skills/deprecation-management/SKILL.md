@@ -1,6 +1,6 @@
 ---
 name: deprecation-management
-description: Use for managing the lifecycle of obsolete, superseded, merged, or renamed skills and docs with clear replacement paths, migration notes, validator warnings, and removal criteria.
+description: Manage an explicitly approved rename, merge, supersession, discouragement, deprecation, or removal with compatibility routing and evidence-based exit criteria. Do not activate for ordinary edits, speculative consolidation, or a direct correction with no lifecycle impact.
 ---
 
 # Deprecation Management
@@ -36,6 +36,25 @@ Every deprecated item must record:
 5. first deprecated date
 6. removal criteria
 7. migration notes
+8. compatibility alias or wrapper behavior
+9. observation evidence and rollback trigger
+
+## Compatibility Rules
+1. use one-way aliases or wrappers; do not create alias chains
+2. preserve explicit user commands and public names through the announced window
+3. exclude compatibility wrappers from active skill-count budgets
+4. emit canonical names in new artifacts while accepting supported legacy names
+5. preserve historical artifacts under the schema and names that created them
+
+## Evidence Window
+Before hard removal, require:
+1. shadow-routing parity for all mandatory safety scenarios
+2. at least 30 representative tasks or two releases of observation
+3. zero unexplained alias failures
+4. no material increase in corrections, backtracking, validation failures, or latency
+5. exact-commit green release evidence
+
+If evidence is unavailable, prefer `discouraged` or `deprecated` over removal.
 
 ## Anti-Overuse Rules
 Use when:
@@ -52,6 +71,8 @@ Stop after:
 1. state and replacement are documented
 2. references are updated or intentionally preserved
 3. validators or docs warn only where useful
+
+Rollback when the replacement changes explicit command behavior, omits a safety gate, breaks artifact compatibility, or worsens measured outcomes beyond the accepted threshold.
 
 ## Output Contract
 When applying this skill, provide:

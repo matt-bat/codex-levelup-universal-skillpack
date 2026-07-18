@@ -25,9 +25,10 @@ Use [Thoroughly Rate Review](../thoroughly-rate-review/SKILL.md) for scoring qua
 Prefer existing artifacts:
 1. `docs/governance/*.governance.json`
 2. `docs/governance/*.governance.md`
-3. `skills/user-instructions.md`
+3. root `user-instructions.md` when the repository has opted into durable tracking
 4. `docs/handoffs/*.md` when present
 5. recent commit messages or release notes
+6. bounded routing-observation summaries when present; never prompts, source content, or hidden reasoning
 
 ## Review Checks
 1. most frequently selected skills

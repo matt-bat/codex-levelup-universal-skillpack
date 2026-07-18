@@ -10,8 +10,9 @@ If you are new to the pack, use these in order:
 1. [../START_HERE.md](../START_HERE.md) for the fastest orientation
 2. [USAGE.md](./USAGE.md) for setup and day-to-day use
 3. [docs/install-profiles.md](./docs/install-profiles.md) to choose how much process to install
-4. [docs/skill-decision-tree.md](./docs/skill-decision-tree.md) to pick skills without overloading a task
-5. [docs/known-limitations.md](./docs/known-limitations.md) for the tradeoffs
+4. [docs/routing-architecture-v2.md](./docs/routing-architecture-v2.md) for the canonical routing contract
+5. [docs/skill-decision-tree.md](./docs/skill-decision-tree.md) to pick skills without overloading a task
+6. [docs/known-limitations.md](./docs/known-limitations.md) for the tradeoffs
 
 ## What A Skill Is
 Each skill is a folder with a `SKILL.md` file. That file tells the agent:
@@ -24,57 +25,61 @@ Each skill is a folder with a `SKILL.md` file. That file tells the agent:
 Some skills are lightweight routing helpers. Others are stricter governance or validation workflows. They are meant to work together, but they should not all run on every task.
 
 ## Included Skills
-This pack currently includes 29 skills:
+The catalog currently includes 31 entries, including the deprecated `process-budget-controller` compatibility wrapper:
 
-1. `skill-governance`
-2. `process-budget-controller`
-3. `governance-enforcement`
-4. `requirement-clarifier`
-5. `quizme-mode`
-6. `diagnose-before-fix`
-7. `semantic-policy-audit`
-8. `interdependent-change-planning`
-9. `thoughtful-approach`
-10. `thoroughly-rate-review`
-11. `user-instructions-tracker`
-12. `history-indexing`
-13. `conversation-retention-summary`
-14. `ui-spatial-canvas`
-15. `ui-design-skills`
-16. `effective-testing-methods`
-17. `scripted-command-execution`
-18. `pseudo-agentic-automation`
-19. `token-reduction`
-20. `artifact-budget-enforcement`
-21. `order-of-operations`
-22. `regression-prevention`
-23. `file-structure-optimization`
-24. `doc-maintenance`
-25. `file-maintenance`
-26. `skill-usage-review`
-27. `deprecation-management`
-28. `project-backup`
-29. `restore-drill`
+1. `internal-lang`
+2. `hyperfocus-discovery`
+3. `skill-governance`
+4. `process-budget-controller`
+5. `governance-enforcement`
+6. `requirement-clarifier`
+7. `quizme-mode`
+8. `diagnose-before-fix`
+9. `semantic-policy-audit`
+10. `interdependent-change-planning`
+11. `thoughtful-approach`
+12. `thoroughly-rate-review`
+13. `user-instructions-tracker`
+14. `history-indexing`
+15. `conversation-retention-summary`
+16. `ui-spatial-canvas`
+17. `ui-design-skills`
+18. `effective-testing-methods`
+19. `scripted-command-execution`
+20. `pseudo-agentic-automation`
+21. `token-reduction`
+22. `artifact-budget-enforcement`
+23. `order-of-operations`
+24. `regression-prevention`
+25. `file-structure-optimization`
+26. `doc-maintenance`
+27. `file-maintenance`
+28. `skill-usage-review`
+29. `deprecation-management`
+30. `project-backup`
+31. `restore-drill`
 
 ## How The Pack Is Organized
-The main routing docs are:
+The main routing source is [skill-catalog.json](./skill-catalog.json). Schema version 2 is canonical and generates three operator views:
 
 1. [SKILL-MAP.md](./SKILL-MAP.md) for the high-level ownership model
 2. [docs/skill-index.md](./docs/skill-index.md) for detailed triggers and cross-skill relationships
-3. [skill-catalog.json](./skill-catalog.json) for machine-readable inventory data
-4. [docs/conflict-resolution-matrix.md](./docs/conflict-resolution-matrix.md) for overlap decisions
-5. [docs/validation-profiles.md](./docs/validation-profiles.md) for choosing the right check depth
+3. [docs/skill-decision-tree.md](./docs/skill-decision-tree.md) for minimum viable selection
 
-When a skill changes, these files usually need to stay in sync. If they drift, the pack becomes harder for an agent to use reliably.
+Do not edit those views independently. Use [docs/conflict-resolution-matrix.md](./docs/conflict-resolution-matrix.md) for overlap decisions and [docs/validation-profiles.md](./docs/validation-profiles.md) for check depth.
 
 ## How To Use It Day To Day
-For most tasks, start small:
+For most tasks, route from zero and add only skills with active triggers:
 
-1. use `token-reduction` to keep output focused
-2. use `order-of-operations` when the task has more than one meaningful step
-3. add `scripted-command-execution` when local commands are part of the work
-4. add `doc-maintenance` when behavior, workflow, or policy docs change
-5. add governance only when risk, ambiguity, or release impact justifies it
+1. zero selected skills is valid when core policy covers the task
+2. use `token-reduction` when a real context or output budget applies
+3. use `order-of-operations` when dependencies or sequencing risk matter
+4. add `scripted-command-execution` for repeatable local command workflows
+5. add governance only when risk, ambiguity, audit, or release impact justifies it
+
+Routine selection targets a median of no more than two skills and a normal cap of five. Mandatory safety skills and gates are never capped. Startup declarations are required only when explicitly requested or for governed or audited work.
+
+`process-budget-controller` remains only as a deprecated compatibility wrapper; the router owns process budgeting.
 
 The decision tree and install profiles exist because too much process can be just as harmful as too little process.
 
@@ -95,12 +100,13 @@ For governed changes, also validate the generated governance artifact and run th
 When adding or changing a skill:
 
 1. update the skill folder
-2. update `SKILL-MAP.md`
-3. update `docs/skill-index.md`
-4. update `skill-catalog.json`
-5. update examples or install profiles when routing changed
-6. update `CHANGELOG.md`
-7. update `user-instructions.md` when a user directive or fulfillment state changed
-8. run the relevant validation profile
+2. update schema-v2 `skill-catalog.json`
+3. regenerate `SKILL-MAP.md`, `docs/skill-index.md`, and `docs/skill-decision-tree.md`
+4. update examples or install profiles when routing changed
+5. update `CHANGELOG.md`
+6. update `user-instructions.md` only when durable directive tracking was explicitly enabled
+7. run the relevant validation profile
 
 Keep the pack useful, not just larger. If a new idea is only a checklist, example, or rubric, it may not need to become a new skill.
+
+Public documentation changes do not perform a release. Before the next release, bind version, notes, changelog, validations, and governance evidence to one exact candidate commit. Remote branch-protection configuration remains an external repository-administration action; see [docs/release-provenance.md](./docs/release-provenance.md).

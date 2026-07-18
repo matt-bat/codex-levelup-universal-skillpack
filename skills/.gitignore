@@ -23,6 +23,7 @@ htmlcov/
 tmp/
 temp/
 *.log
+.routing-observations.jsonl
 
 # Build and package artifacts
 dist/

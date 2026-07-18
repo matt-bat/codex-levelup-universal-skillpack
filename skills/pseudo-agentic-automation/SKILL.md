@@ -1,6 +1,6 @@
 ---
 name: pseudo-agentic-automation
-description: Use for browser or GUI automation tasks that require iterative scripts, runtime adaptation, and debugging loops (for example dynamic scraping, authenticated web flows, CAPTCHA handoffs, and headed/headless browser control).
+description: Run an authorized browser or native-GUI workflow that requires runtime observation and adaptive interaction rather than a deterministic API, shell command, or existing test runner. Use for dynamic authenticated flows, browser extraction, or native GUI control; exclude ordinary Playwright test execution and deterministic file/API work.
 ---
 
 # Pseudo-Agentic Automation
@@ -32,27 +32,28 @@ If the request can be solved with deterministic shell commands alone, switch to 
 ## Preconditions
 Before execution:
 1. confirm automation target and success criteria
-2. confirm required credentials/access are available
+2. confirm target-specific authority and required credentials/access are available
 3. confirm whether headless or headed mode is appropriate
 4. confirm any legal/terms constraints for scraping/automation
-5. for new projects (model has not worked on before), ask whether model should run tests/build by default or user will run them to save tokens
-6. operate locally by default; do not deploy unless explicitly requested
+5. confirm whether the workflow writes, messages, purchases, submits, deletes, or changes external state
+6. operate locally by default; require explicit authority for every external effect
 
 ## Use This Skill When
 - The target is a dynamic/authenticated website.
 - No stable API exists.
-- Browser rendering and interaction is required for E2E behavior checks.
+- Browser rendering and interaction requires adaptive observation beyond an existing deterministic test runner.
 - Native GUI control is required and direct shell actions are insufficient.
 
 ## Do Not Use This Skill When
 - A static file can be fetched directly.
 - A straightforward REST API call solves the request.
 - The task is simple local shell/file work.
+- An existing deterministic browser test already covers the requested behavior.
 
 ## Execution Loop
-1. Clarify goal and constraints.
+1. Derive the goal, constraints, and effect boundary from the active task contract.
 2. Prepare minimal runtime dependencies.
-3. Write scripts that output machine-readable success data and rich failure diagnostics.
+3. When file writes are authorized, write minimal scripts that output machine-readable success data and rich failure diagnostics.
 4. Execute scripts.
 5. Inspect logs/artifacts and iterate.
 6. Stop after bounded retries and escalate with concrete failure evidence.
@@ -72,7 +73,7 @@ Retry budget:
 ## Robust Patterns
 - Log precise failure context to `stderr` (URL, selector, compact DOM snapshot).
 - Always close browser/resources in `finally`.
-- Write large outputs to files (JSON preferred), then read those artifacts.
+- Keep large outputs in an authorized project artifact or temporary file (JSON preferred), then read and remove or retain them according to the task contract.
 - On CAPTCHA/challenges, switch to headed mode and perform explicit human handoff.
 
 ## Pitfalls
@@ -85,12 +86,15 @@ Retry budget:
 1. Run scripts in project-local or temporary directories.
 2. Keep credentials in environment variables.
 3. Minimize dependency-install side effects.
+4. Never print or persist credentials, session tokens, or sensitive page content unnecessarily.
+5. Stop before an unapproved external write, purchase, message, submission, deletion, or permission change.
+6. Treat CAPTCHA and anti-bot controls as a human-handoff boundary, not a bypass target.
 
 ## Deliverable Format
 When applying this skill, provide:
 1. target and completion criteria
 2. script/run summary
-3. artifact locations (logs/screenshots/outputs)
+3. authorized artifact locations when any logs, screenshots, or outputs were retained
 4. pass/fail outcome
 5. blockers and next action
 

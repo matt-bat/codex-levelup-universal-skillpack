@@ -7,22 +7,22 @@ That is the most direct setup path. Keep the repository policy close to the code
 ## Recommended Setup
 1. keep `AGENTS.md` at the repository root
 2. keep skills under `skills/` for this public repo or install them into the assistant's configured skills directory
-3. keep startup declarations enabled
+3. use `skills/skill-catalog.json` as the routing source and treat its Markdown views as generated
 4. run validators from the repository root before pushing governed changes
 
 ## Agent-Specific Behavior
 The agent should:
 
-1. declare selected skills at task start
+1. allow zero selected skills for routine work and declare selections only for governed/audited work or when explicitly requested
 2. use local-first execution
 3. request approval before deployment or destructive operations
-4. update `skills/user-instructions.md` when directives change
-5. use `process-budget-controller` to avoid over-selecting skills
+4. update the root `user-instructions.md` only for opted-in durable instruction tracking
+5. let the task router enforce the optional-skill budget; keep `process-budget-controller` only as an explicit legacy alias
 6. toggle persistent conversation-local clarification with `--quizme`
 7. prefer the interactive clarification console while quizme mode is active
 8. support intuitive quizme options: `--mc`, `--one-at-a-time`, `--confirm`, and `--record`
 
-The startup declaration matters because it shows whether the agent understood the task shape before it starts editing.
+For governed work, the declaration is routing evidence. Omitting it on routine work avoids making ceremony look like a safety guarantee.
 
 ## Validation
 Use:

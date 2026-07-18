@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate strict skill ordering consistency between SKILL-MAP and skill-index."""
+"""Compatibility check for skill ordering in the two generated catalog views."""
 
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ def parse_skill_map_order(path: Path) -> list[str]:
     order: list[str] = []
     for raw_line in lines:
         line = raw_line.strip()
-        if line == "## Skill Index":
+        if line in {"## Skill Index", "## Decision Ownership"}:
             in_section = True
             continue
         if in_section and line.startswith("## "):
@@ -65,7 +65,8 @@ def parse_skill_index_order(path: Path) -> list[str]:
         cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
         if len(cells) < 1:
             continue
-        skill_name = cells[0].strip().strip("`")
+        match = re.search(r"`([a-z0-9-]+)`", cells[0])
+        skill_name = match.group(1) if match else ""
         if skill_name:
             order.append(skill_name)
     if not order:

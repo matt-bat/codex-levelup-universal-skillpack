@@ -4,7 +4,7 @@ Use this matrix when two skills appear to own the same decision. The goal is to 
 
 | Decision Type | Owning Skill | Supporting Skills |
 |---|---|---|
-| Process budget and skill-count cap | `process-budget-controller` | `token-reduction`, `skill-governance` |
+| Process budget and skill-count cap | task router | `token-reduction` only when output/context compression is independently triggered |
 | Persistent pre-execution clarification gate | `quizme-mode` | `requirement-clarifier`, `skill-governance` |
 | Governance mode and required gates | `skill-governance` | `governance-enforcement`, `regression-prevention` |
 | Governance script execution | `governance-enforcement` | `scripted-command-execution` |
@@ -26,10 +26,10 @@ Use this matrix when two skills appear to own the same decision. The goal is to 
 
 ## Tie-Breaking Rules
 1. active `quizme-mode` clarification completes before substantive execution
-2. safety and data integrity override process budget
-2. owner skill decides; supporting skills provide evidence
-3. if two owners still conflict, choose the narrower owner
-4. if uncertainty remains, record the assumption and proceed with the safer path
-5. do not keep both skills active when one owner fully covers the decision
+2. safety and data integrity override the optional-skill budget
+3. the owner skill decides; `supports` relationships provide evidence without activating another skill
+4. if two owners still conflict, choose the narrower decision domain
+5. material uncertainty that affects authority, compatibility, security, data, or acceptance criteria requires clarification; harmless implementation uncertainty may use a surfaced assumption
+6. do not keep both skills active when one owner fully covers the decision
 
 If you are unsure, ask what artifact or decision the task really needs. That usually reveals the right owner.

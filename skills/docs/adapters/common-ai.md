@@ -6,16 +6,17 @@ Use this repository with ChatGPT, Claude, Gemini, Cursor, GitHub Copilot, or any
 
 1. put the repository in the assistant's workspace
 2. load the root `AGENTS.md`
-3. load the task-specific skill files
-4. ask the assistant to declare the active skills and execution order at task start
-5. keep the repo's instruction files visible in the workspace for the whole task
+3. load `skills/skill-catalog.json` or its generated decision-tree view
+4. load only the skill files selected for the task
+5. request a skill declaration only for governed/audited work or when you need one explicitly
+6. keep the repo's instruction files visible in the workspace for the whole task
 
 ## Project Instructions
 
 If the assistant supports project instructions or custom workspace rules, paste a short summary there:
 
 ```md
-Use the repository instructions and the active skill docs in this repo. Start each task by declaring the skills in use, the execution order, and the task-specific constraints.
+Use the repository instructions and the active skill docs in this repo. Route by requested action and planned effect, allow a zero-skill route for routine work, and declare selected skills only for governed/audited work or when explicitly requested.
 ```
 
 ## Common Tooling Patterns

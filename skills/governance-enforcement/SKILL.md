@@ -1,44 +1,27 @@
 ---
 name: governance-enforcement
-description: Use for executing and enforcing governance tooling (artifact generation/validation/CI policy checks), including startup declaration checks, project-index sync checks, and repository skill-policy validation.
+description: Generate, validate, and enforce content-bound governance plans and exact-head release attestations for governed work. Use when governance tooling or CI enforcement is being run or debugged; do not activate for policy-only decisions, ordinary project tests, or routine validation.
 ---
 
 # Governance Enforcement
 
-## Quick Index (Action-Routed)
-### Read First (All Actions)
-1. `Mission`
-2. `Scope Boundary`
-3. `Trigger Rule`
-
-### Action Modules (Read As Needed)
-1. Running enforcement commands:
-   - `Primary Tooling`
-   - `Enforcement Workflow`
-2. Diagnosing failures:
-   - `Required Validation Targets`
-   - `Failure Handling`
-
-### Output
-1. `Output Contract`
-
 ## Mission
-Turn governance policy into deterministic machine-enforced checks.
+Turn an independently selected governance policy into deterministic, fail-closed evidence checks.
 
 ## Scope Boundary
-This skill is tooling/enforcement only.
+This skill owns tooling and CI enforcement only. It does not decide task meaning, authorize mutation, select governance mode, waive a gate, or make a release decision.
 
-Use [Skill Governance](../skill-governance/SKILL.md) for:
-1. risk scoring
-2. mode selection
-3. gate policy decisions
+Use [Skill Governance](../skill-governance/SKILL.md) for risk classification, gate selection, and the final go/no-go decision. Use [Semantic Policy Audit](../semantic-policy-audit/SKILL.md) for intent-level conformance review.
 
 ## Trigger Rule
 Use this skill when:
-1. generating governance artifacts
-2. validating artifact readiness
-3. enforcing governance/skill policy in CI
-4. debugging governance check failures
+1. generating or upgrading a governance plan
+2. validating content binding, gate evidence, or waivers
+3. producing or checking an exact-head release attestation
+4. enforcing governed-change scope in CI
+5. debugging those checks
+
+Do not use it merely because ordinary unit tests, linters, or project checks will run.
 
 ## Primary Tooling
 1. `skills/skill-governance/scripts/generate_governance_artifact.py`
@@ -46,28 +29,34 @@ Use this skill when:
 3. `skills/skill-governance/scripts/enforce_governance_ci.py`
 4. `skills/skill-governance/scripts/validate_skill_policy.py`
 5. `skills/skill-governance/scripts/validate_skill_order_sync.py`
-6. `.github/workflows/skills-governance-ci.yml` (active repository workflow)
-7. `skills/docs/ci/skills-governance-ci.yml` (copyable workflow template)
+6. `skills/skill-governance/scripts/generate_routing_views.py`
+7. `skills/skill-governance/scripts/resolve_task_route.py`
+8. `skills/skill-governance/schemas/*.json`
+9. `.github/workflows/skills-governance-ci.yml` (active repository workflow)
+10. `skills/docs/ci/skills-governance-ci.yml` (copyable workflow template)
 
 ## Enforcement Workflow
-1. generate artifact at task start with required intake/startup fields
-2. update gate statuses during execution
-3. validate artifact before release recommendation
-4. validate skill ordering sync (`SKILL-MAP.md` vs `docs/skill-index.md`)
-5. run CI enforcement for changed governance scope
-6. resolve failures with precise remediation
-7. run validator regression tests for script changes
+1. Resolve an immutable base commit and generate a schema-version-2 plan bound to the governed working-tree manifest.
+2. Keep the recommendation `no-go` while any mandatory gate is pending, blocked, missing evidence, or supported only by an invalid waiver.
+3. Record evidence-bearing gate objects; a status word alone is not evidence.
+4. Rebind after the final governed diff. The governance artifact cannot satisfy a different change set merely by existing in the tree.
+5. Validate the catalog and generated views, repository policy, artifact pair, governed scope, and regression tests.
+6. For release readiness, use a clean checkout of the exact candidate commit and create an exact-head attestation. Verify any release tag resolves to that same commit.
+7. Report failures precisely and rerun the narrow failing check before the full enforcement profile.
+
+Schema-version-1 artifacts remain immutable historical evidence. They may still be validated under their legacy contract, but do not rewrite them or use them as schema-version-2 release attestations.
 
 ## Required Validation Targets
-1. `AGENTS.md` policy snippets
-2. required skill snippet presence
-3. `user-instructions.md` schema/status/timestamp/evidence rules
-4. governance JSON/MD pairing
-5. startup declaration completeness
-6. project-index consistency checks
-7. skill-catalog consistency checks (`*/SKILL.md` vs `SKILL-MAP.md` vs `docs/skill-index.md`)
-8. governed-path scope checks (`skills/**`, `.codex/skills/**`, `docs/governance/**`, `docs/project-index.md`, `AGENTS.md`, `.github/workflows/**`)
-9. governed artifact quizme state checks (`quizme_mode`, option booleans, implied confirmation for recording, and required `quizme-mode` startup declaration when active)
+1. catalog schema, executable routing clauses, package membership, frontmatter descriptions, typed relations, alias direction, and hard-graph acyclicity
+2. exact generated-view equality with the catalog
+3. root instruction-ledger schema and active/superseded lifecycle
+4. governance JSON/Markdown pairing and immutable legacy compatibility
+5. schema-version-2 base SHA, governed manifest, manifest digest, task identity, and final content binding
+6. evidence or an explicitly allowed, justified waiver for every mandatory gate
+7. governed-path scope, including additions, modifications, deletions, and untracked files
+8. candidate/head SHA and attestation equality for release checks
+9. clean-checkout and release/tag verification at the external boundary
+10. semantic route fixtures and adversarial catalog mutation tests
 
 ## Regression Test Command
 Run after governance-script changes:
@@ -77,17 +66,17 @@ python3 -m unittest discover -s skills/skill-governance/tests -p 'test_*.py' -v
 
 ## Failure Handling
 If enforcement fails:
-1. report exact failing condition and file
-2. classify failure type (`schema`, `policy`, `artifact`, `staleness`, `gate-state`)
-3. propose minimal corrective patch
-4. rerun targeted validator first, then full enforcement
+1. report the exact condition, path, and expected binding
+2. classify it as `schema`, `policy`, `scope`, `binding`, `evidence`, `attestation`, or `external-control`
+3. preserve the failure as `no-go`; never weaken the check to make an artifact pass
+4. correct the source contract or evidence, then rerun the targeted validator and full enforcement
 
 ## Output Contract
 When applying this skill, provide:
 1. commands run
 2. pass/fail summary per validator
 3. failing checks and remediations
-4. final enforcement state
+4. final local enforcement state and any separately unverified external control
 
 ## Related Skills
 - [Skill Governance](../skill-governance/SKILL.md): governance policy and risk logic.

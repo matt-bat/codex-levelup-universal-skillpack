@@ -1,0 +1,304 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-command-center.local/schemas/routing-result.schema.json",
+  "title": "Task Router v2 Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "checkpoint",
+    "decision",
+    "selected_skills",
+    "decision_domain_owners",
+    "typed_gates",
+    "permissions",
+    "artifact_allowance",
+    "must_surface",
+    "vetoes",
+    "excluded_routes",
+    "route_trace",
+    "skill_budget"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "checkpoint": {
+      "enum": [
+        "initial",
+        "post_inspection",
+        "post_plan",
+        "post_diff",
+        "pre_external_action"
+      ]
+    },
+    "decision": {
+      "enum": ["allow", "needs_clarification", "blocked"]
+    },
+    "selected_skills": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+      }
+    },
+    "decision_domain_owners": {
+      "type": "object",
+      "minProperties": 2,
+      "required": ["routing", "safety"],
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]{0,63}$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 100
+      }
+    },
+    "typed_gates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+                "required": [
+                    "id",
+                    "policy_gate_id",
+                    "type",
+          "operation",
+          "status",
+          "mandatory",
+          "owner",
+          "reason"
+        ],
+        "properties": {
+                    "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$"
+                    },
+                    "policy_gate_id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]{0,63}$"
+                    },
+          "type": {
+            "enum": [
+              "safety_boundary",
+              "authorization",
+              "descriptor_consistency",
+              "uncertainty",
+              "checkpoint",
+              "evidence",
+              "quality"
+            ]
+          },
+          "operation": {
+            "type": ["string", "null"]
+          },
+          "status": {
+            "enum": ["passed", "required", "needs_resolution", "blocked"]
+          },
+          "mandatory": {
+            "type": "boolean"
+          },
+          "owner": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "read",
+        "run_commands",
+        "write_files",
+        "commit",
+        "push",
+        "publish",
+        "deploy",
+        "delete",
+        "migrate",
+        "message"
+      ],
+      "properties": {
+        "read": {"type": "boolean"},
+        "run_commands": {"type": "boolean"},
+        "write_files": {"type": "boolean"},
+        "commit": {"type": "boolean"},
+        "push": {"type": "boolean"},
+        "publish": {"type": "boolean"},
+        "deploy": {"type": "boolean"},
+        "delete": {"type": "boolean"},
+        "migrate": {"type": "boolean"},
+        "message": {"type": "boolean"}
+      }
+    },
+    "artifact_allowance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowed", "kinds", "reason"],
+      "properties": {
+        "allowed": {"type": "boolean"},
+        "kinds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{0,63}$"
+          }
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "must_surface": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "source", "text"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$"
+          },
+          "source": {
+            "enum": [
+              "explicit_constraint",
+              "non_goal",
+              "inferred_requirement",
+              "material_uncertainty",
+              "safety_kernel"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "vetoes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "operation", "disposition", "reason"],
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{0,127}$"
+          },
+          "operation": {
+            "type": ["string", "null"]
+          },
+          "disposition": {
+            "enum": ["block", "clarify"]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "excluded_routes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["route", "reason"],
+        "properties": {
+          "route": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "route_trace": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["stage", "outcome", "evidence"],
+        "properties": {
+          "stage": {
+            "enum": [
+              "descriptor",
+              "intent_routing",
+              "safety_kernel",
+                            "skill_budget",
+              "result"
+            ]
+          },
+          "outcome": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "skill_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_optional_skills",
+        "optional_before_budget",
+        "optional_after_budget",
+        "mandatory_skills",
+        "mandatory_safety_exempt"
+      ],
+      "properties": {
+        "max_optional_skills": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "optional_before_budget": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "optional_after_budget": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "mandatory_skills": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+          }
+        },
+        "mandatory_safety_exempt": {
+          "const": true
+        }
+      }
+    }
+  }
+}

@@ -28,12 +28,11 @@ When adding a skill, update the whole routing surface so the pack does not drift
 
 Required updates:
 1. create `skills/<skill-name>/SKILL.md`
-2. add it to `skills/SKILL-MAP.md`
-3. add it to `skills/docs/skill-index.md`
-4. add it to `skills/skill-catalog.json`
-5. update README and usage docs if users need to know about it
-6. update `skills/user-instructions.md` with evidence
-7. add or update validator tests if policy behavior changes
+2. add its typed trigger, exclusions, role, relations, artifact policy, and lifecycle status to `skills/skill-catalog.json`
+3. regenerate `skills/SKILL-MAP.md`, `skills/docs/skill-index.md`, and `skills/docs/skill-decision-tree.md`
+4. update README and usage docs if users need to know about it
+5. update the root `user-instructions.md` only when durable instruction tracking is explicitly in scope
+6. add or update validator tests for policy behavior
 
 Before adding a skill, check `skills/docs/pruning-policy.md`. A new skill should replace repeated manual behavior, reduce complexity somewhere else, or add enforceable safety or quality value.
 
@@ -41,10 +40,11 @@ Before adding a skill, check `skills/docs/pruning-policy.md`. A new skill should
 When changing an existing skill:
 
 1. update the skill file first
-2. update routing docs only if triggers, ownership, artifacts, or ordering changed
-3. avoid duplicating ownership already covered by another skill
-4. record important tradeoffs in docs or governance artifacts
-5. use `skills/docs/conflict-resolution-matrix.md` if ownership is unclear
+2. update `skills/skill-catalog.json` when triggers, ownership, artifacts, relations, or lifecycle changed
+3. regenerate all three routing views from the catalog; never edit a generated view independently
+4. avoid duplicating ownership already covered by another skill
+5. record important tradeoffs in docs or governance artifacts
+6. use `skills/docs/conflict-resolution-matrix.md` if ownership is unclear
 
 ## Governance Expectations
 These paths are governed because changes there can affect future agent behavior:
@@ -65,15 +65,17 @@ For most governed changes, run:
 ```sh
 python3 skills/skill-governance/scripts/validate_skill_policy.py --agents-path AGENTS.md --skills-root skills --repo-root .
 python3 skills/skill-governance/scripts/validate_skill_order_sync.py --skills-root skills
+python3 skills/skill-governance/scripts/generate_routing_views.py --repo-root . --check
 python3 -m unittest discover -s skills/skill-governance/tests -p 'test_*.py'
 ```
 
 If a governance artifact changed, also run:
 
 ```sh
+TASK_ID=YOUR_CURRENT_TASK_ID
+
 python3 skills/skill-governance/scripts/validate_governance_artifact.py \
-  --artifact docs/governance/<TASK>.governance.json \
-  --project-index-path docs/project-index.md \
+  --artifact "docs/governance/${TASK_ID}.governance.json" \
   --strict \
   --require-recommendation go
 ```
@@ -84,7 +86,7 @@ Before pushing:
 1. no `__pycache__` or `*.pyc` files are tracked
 2. `git diff --check` passes
 3. validator and test commands pass
-4. README, usage docs, skill map, skill index, and catalog agree
+4. generated routing views match the canonical catalog
 5. governance artifact status matches actual validation evidence
 
 If a check cannot run in your environment, record the exact blocker instead of calling the change fully validated.

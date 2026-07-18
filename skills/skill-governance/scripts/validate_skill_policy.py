@@ -13,191 +13,85 @@ from pathlib import Path
 
 
 SCRIPT_PATH = Path(__file__).resolve()
+SCRIPT_DIR = SCRIPT_PATH.parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
+from governance_common import (  # noqa: E402
+    diff_name_status,
+    discover_repo_root as discover_repo_root_common,
+)
+from generate_routing_views import (  # noqa: E402
+    CatalogError,
+    expected_outputs as expected_routing_outputs,
+    validate_catalog as validate_catalog_v2,
+)
+
 DEFAULT_SKILLS_ROOT = SCRIPT_PATH.parents[2]
 UTC_REGEX = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 
 REQUIRED_AGENTS_SNIPPETS = [
-    "## Agent Default Skill Policy",
-    "### Baseline Skills (Default)",
-    "### Conditional Skill Triggers",
-    "### Startup Declaration (Required)",
-    "Skills in use",
-    "execution order",
-    "reason each skill",
-    "local-first execution; no deployment unless explicitly requested",
-    "`token-reduction`",
-    "`order-of-operations`",
-    "`thoughtful-approach`",
-    "`thoroughly-rate-review`",
-    "`user-instructions-tracker`",
-    "`governance-enforcement`",
-    "`requirement-clarifier`",
-    "`quizme-mode`",
+    "## Core Execution Policy",
+    "Treat zero selected skills as valid.",
+    "A skill supplies a workflow, not authority.",
+    "Read-only work performs zero writes",
+    "Preserve user work and unrelated dirty-tree changes.",
+    "Reclassify the task after material inspection",
+    "## Skill Routing",
+    "`skills/skill-catalog.json` is the canonical routing source.",
+    "Typed relations have distinct meanings",
+    "## Declarations and Durable Artifacts",
+    "Routine work does not require a startup declaration.",
+    "## Conversation Modes",
     "`--quizme`",
-    "`--mc`",
-    "`--one-at-a-time`",
-    "`--confirm`",
-    "`--record`",
-    "`semantic-policy-audit`",
-    "`history-indexing`",
-    "user-instructions.md",
+    "`/internal-lang on|off`",
 ]
 
 REQUIRED_FILE_SNIPPETS = {
-    "skill-catalog.json": [
-        "\"schema_version\"",
-        "\"skills\"",
-        "\"skill-governance\"",
-    ],
-    "docs/skill-decision-tree.md": [
-        "# Skill Decision Tree",
-        "Use the smallest skill set that covers the task.",
-        "## Stop Rules",
-    ],
-    "docs/known-limitations.md": [
-        "# Known Limitations",
-        "Model Compliance",
-        "Semantic Quality",
-    ],
-    "docs/install-profiles.md": [
-        "# Install Profiles",
-        "## Minimal",
-        "## Governed",
-    ],
-    "docs/conflict-resolution-matrix.md": [
-        "# Conflict Resolution Matrix",
-        "process-budget-controller",
-        "deprecation-management",
-    ],
-    "docs/validator-severity-levels.md": [
-        "# Validator Severity Levels",
-        "`error`",
-        "`warning`",
-    ],
-    "docs/rubrics/skillpack-quality-rubric.md": [
-        "# Skillpack Quality Rubric",
-        "Restraint",
-        "Enforceability",
-    ],
-    "thoroughly-rate-review/SKILL.md": [
-        "Integration and Cohesiveness",
-        "for multi-skill systems/frameworks, `Integration and Cohesiveness` is required and cannot be omitted",
-    ],
-    "pseudo-agentic-automation/SKILL.md": [
-        "for new projects (model has not worked on before), ask whether model should run tests/build by default or user will run them to save tokens",
-        "operate locally by default; do not deploy unless explicitly requested",
-    ],
+    "skill-catalog.json": ["\"schema_version\"", "\"skills\"", "\"skill-governance\""],
     "skill-governance/SKILL.md": [
-        "### Conditional Gate Additions (All Modes)",
-        "`requirement-clarifier`",
-        "`thoughtful-approach`",
-        "`thoroughly-rate-review`",
-        "`semantic-policy-audit`",
-        "`user-instructions-tracker`",
-        "`effective-testing-methods`",
-        "`file-structure-optimization`",
-        "`file-maintenance`",
-        "`quizme-mode`",
-        "`--quizme-mode on`",
-        "`--quizme-mc`",
-        "`--quizme-one-at-a-time`",
-        "`--quizme-confirm`",
-        "`--quizme-record`",
-        "Use [Governance Enforcement](../governance-enforcement/SKILL.md) for:",
-        "consult `docs/skill-index.md`",
-    ],
-    "effective-testing-methods/SKILL.md": [
-        "# Effective Testing Methods",
-        "Unit Test Patterns",
-        "Playwright Patterns",
-        "Use [Regression Prevention](../regression-prevention/SKILL.md) for:",
-    ],
-    "file-structure-optimization/SKILL.md": [
-        "# File Structure Optimization",
-        "Structure Audit",
-        "Normalization Rules",
-        "Use [Doc Maintenance](../doc-maintenance/SKILL.md) and [File Maintenance](../file-maintenance/SKILL.md) for:",
-    ],
-    "file-maintenance/SKILL.md": [
-        "# File Maintenance",
-        "Factuality and Freshness Checks",
-        "Duplicate and Staleness Control",
-        "Use [Doc Maintenance](../doc-maintenance/SKILL.md) for:",
-    ],
-    "order-of-operations/SKILL.md": [
-        "consult `docs/skill-index.md`",
-    ],
-    "doc-maintenance/SKILL.md": [
-        "`docs/skill-index.md` (cross-skill trigger routing)",
-    ],
-    "user-instructions-tracker/SKILL.md": [
-        "Required file:",
-        "`user-instructions.md` at repository root",
-        "Allowed status values:",
-        "`pending`",
-        "`in_progress`",
-        "`blocked`",
-        "`done`",
-        "`won_t_do`",
-        "`docs/skill-index.md`",
-    ],
-    "token-reduction/SKILL.md": [
-        "Use [History Indexing](../history-indexing/SKILL.md) for:",
-    ],
-    "history-indexing/SKILL.md": [
-        "Canonical Artifact",
-        "`docs/chat-history-index.md`",
-        "Skill Index",
+        "## Independent Safety Kernel",
+        "Pending or failed required gates force `no-go`.",
+        "Historical evidence is immutable",
+        "## Release Integrity",
+        "a CI attestation bound to that commit",
     ],
     "governance-enforcement/SKILL.md": [
-        "Scope Boundary",
-        "Use [Skill Governance](../skill-governance/SKILL.md) for:",
+        "# Governance Enforcement",
+        "skills/skill-governance/scripts/enforce_governance_ci.py",
     ],
-    "requirement-clarifier/SKILL.md": [
-        "Clarification Contract",
-        "Acceptance Criteria",
-        "Quizme Mode",
+    "skill-governance/schemas/governance-artifact.schema.json": [
+        "\"oneOf\"",
+        "\"v1\"",
+        "\"v2\"",
+        "\"change_binding\"",
+    ],
+    "internal-lang/SKILL.md": [
+        "Remain inactive unless the user invokes a supported command",
+        "On the first explicit activation in a conversation",
+        "No file was created or changed solely because this skill activated.",
+    ],
+    "hyperfocus-discovery/SKILL.md": [
+        "optional branch-control workflow",
+        "## Branch Budget",
+        "Do not create files, trackers, or artifacts solely because this skill activated.",
+    ],
+    "user-instructions-tracker/SKILL.md": [
+        "`user-instructions.md` at repository root",
+        "superseded",
+        "retired",
     ],
     "quizme-mode/SKILL.md": [
         "# Quizme Mode",
-        "`--quizme` toggles quizme mode on when off",
-        "supported arguments are `--mc`, `--one-at-a-time`, `--confirm`, and `--record`",
-        "prefer the interactive clarification console for quizme questions",
-        "do not start implementation, mutation, or governed execution until the clarification gate passes",
-    ],
-    "semantic-policy-audit/SKILL.md": [
-        "Audit Dimensions",
-        "expected-vs-observed",
-    ],
-    "regression-prevention/SKILL.md": [
-        "Use [Effective Testing Methods](../effective-testing-methods/SKILL.md) for detailed patterns when amending or adding unit and Playwright tests.",
-    ],
-    "SKILL-MAP.md": [
-        "Cross-skill trigger routing",
-        "docs/skill-index.md",
-        "Canonical Routing Artifact",
-    ],
-    "docs/skill-index.md": [
-        "# Skill Index",
-        "## Cross-Skill Trigger Rule (Required)",
-        "`quizme-mode`",
+        "`--quizme`",
+        "`--mc`",
+        "`--one-at-a-time`",
+        "`--confirm`",
+        "`--record`",
     ],
     "skill-governance/scripts/validate_skill_order_sync.py": [
         "Skill ordering sync validation passed.",
     ],
-}
-
-REQUIRED_ANTI_OVERUSE_SKILLS = {
-    "artifact-budget-enforcement",
-    "conversation-retention-summary",
-    "deprecation-management",
-    "doc-maintenance",
-    "file-maintenance",
-    "history-indexing",
-    "process-budget-controller",
-    "quizme-mode",
-    "skill-governance",
-    "skill-usage-review",
 }
 
 REQUIRED_USER_INSTRUCTIONS_COLUMNS = [
@@ -211,6 +105,19 @@ REQUIRED_USER_INSTRUCTIONS_COLUMNS = [
     "Evidence",
     "Notes",
 ]
+
+REQUIRED_CURRENT_DIRECTIVE_COLUMNS = [
+    "Instruction ID",
+    "Current Directive",
+    "Source",
+    "Lifecycle",
+    "Priority",
+    "Owner",
+    "Last Confirmed UTC",
+    "Successor or Notes",
+]
+
+ALLOWED_DIRECTIVE_LIFECYCLES = {"active", "superseded", "stale", "retired"}
 
 REQUIRED_SKILL_INDEX_COLUMNS = [
     "Skill",
@@ -231,22 +138,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--repo-root", default="")
     parser.add_argument("--base-sha", default="")
     parser.add_argument("--head-sha", default="")
+    parser.add_argument(
+        "--minimum-governance-artifacts",
+        type=int,
+        default=1,
+        help="Minimum committed artifact pairs required during a full-tree policy check.",
+    )
     return parser.parse_args()
 
 
 def discover_repo_root(repo_root_arg: str, skills_root: Path) -> Path:
-    if repo_root_arg.strip():
-        return Path(repo_root_arg).resolve()
-    try:
-        result = subprocess.run(
-            ["git", "-C", str(skills_root), "rev-parse", "--show-toplevel"],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-        return Path(result.stdout.strip()).resolve()
-    except subprocess.CalledProcessError:
-        return skills_root.parents[1]
+    return discover_repo_root_common(repo_root_arg, skills_root)
 
 
 def resolve_agents_path(raw_path: str, skills_root: Path, repo_root: Path) -> Path:
@@ -255,15 +157,7 @@ def resolve_agents_path(raw_path: str, skills_root: Path, repo_root: Path) -> Pa
     if candidate.is_absolute():
         candidates.append(candidate)
     else:
-        candidates.extend(
-            [
-                Path.cwd() / candidate,
-                skills_root / candidate,
-                repo_root / candidate,
-            ]
-        )
-    for parent in [repo_root, *repo_root.parents]:
-        candidates.append(parent / "AGENTS.md")
+        candidates.extend([repo_root / candidate, skills_root / candidate, Path.cwd() / candidate])
 
     seen = set()
     for item in candidates:
@@ -273,27 +167,16 @@ def resolve_agents_path(raw_path: str, skills_root: Path, repo_root: Path) -> Pa
         seen.add(resolved)
         if resolved.exists():
             return resolved
-    return Path(raw_path)
+    return repo_root / raw_path
 
 
 def changed_files(base_sha: str, head_sha: str, repo_root: Path) -> list[str]:
-    if not base_sha or not head_sha:
+    if not base_sha and not head_sha:
         return []
-    commands = [
-        ["git", "-C", str(repo_root), "diff", "--name-only", "--diff-filter=ACMRTUXB", f"{base_sha}...{head_sha}"],
-        ["git", "-C", str(repo_root), "diff", "--name-only", "--diff-filter=ACMRTUXB", f"{base_sha}..{head_sha}"],
-        ["git", "-C", str(repo_root), "diff", "--name-only", "--diff-filter=ACMRTUXB", head_sha],
-    ]
-    for cmd in commands:
-        try:
-            result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-            output = result.stdout.strip()
-            if not output:
-                return []
-            return [line.strip() for line in output.splitlines() if line.strip()]
-        except subprocess.CalledProcessError:
-            continue
-    return []
+    if not base_sha or not head_sha:
+        raise SystemExit("--base-sha and --head-sha must be provided together")
+    _, _, changes = diff_name_status(repo_root, base_sha, head_sha)
+    return [path for _, path in changes]
 
 
 def parse_markdown_table_line(line: str) -> list[str]:
@@ -456,6 +339,33 @@ def validate_skill_catalog_sync(skills_root: Path) -> list[str]:
     actual_skills, catalog_errors = load_skill_catalog(skills_root)
     errors.extend(catalog_errors)
 
+    catalog_path = skills_root / "skill-catalog.json"
+    try:
+        catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return [*errors, f"Unable to load skill catalog for sync validation: {exc}"]
+    if catalog.get("schema_version") == 2:
+        try:
+            catalog_skills = validate_catalog_v2(catalog, skills_root.parent)
+        except CatalogError as exc:
+            return [*errors, f"{catalog_path}: {exc}"]
+        catalog_names = {item["name"] for item in catalog_skills}
+        if actual_skills and actual_skills != catalog_names:
+            errors.append(
+                "Skill mismatch between actual skill files and skill-catalog.json "
+                f"(actual={sorted(actual_skills)}, catalog={sorted(catalog_names)})"
+            )
+        for relative_path, expected in expected_routing_outputs(catalog, catalog_skills).items():
+            output_path = skills_root.parent / relative_path
+            if not output_path.is_file():
+                errors.append(f"Missing generated routing view: {output_path}")
+            elif output_path.read_text(encoding="utf-8") != expected:
+                errors.append(
+                    f"Generated routing view is stale: {output_path}; "
+                    "run generate_routing_views.py"
+                )
+        return errors
+
     skill_map_skills, skill_map_errors = parse_skill_map_skills(skills_root / "SKILL-MAP.md")
     errors.extend(skill_map_errors)
 
@@ -505,8 +415,26 @@ def validate_machine_readable_catalog(skills_root: Path) -> list[str]:
     except json.JSONDecodeError as exc:
         return [f"{path}: invalid JSON: {exc}"]
 
-    if data.get("schema_version") != 1:
-        errors.append(f"{path}: schema_version must be 1")
+    schema_version = data.get("schema_version")
+    if schema_version not in {1, 2}:
+        return [f"{path}: schema_version must be 1 or 2"]
+    if schema_version == 2:
+        schema_path = skills_root / "skill-catalog.schema.json"
+        if not schema_path.is_file():
+            return [f"Missing required catalog schema: {schema_path}"]
+        try:
+            schema_payload = json.loads(schema_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            return [f"{schema_path}: invalid JSON: {exc}"]
+        if schema_payload.get("$schema") != "https://json-schema.org/draft/2020-12/schema":
+            errors.append(f"{schema_path}: expected JSON Schema draft 2020-12")
+        if data.get("$schema") != "./skill-catalog.schema.json":
+            errors.append(f"{path}: schema v2 must reference ./skill-catalog.schema.json")
+        try:
+            validate_catalog_v2(data, skills_root.parent)
+        except CatalogError as exc:
+            errors.append(f"{path}: {exc}")
+        return errors
     skills = data.get("skills")
     if not isinstance(skills, list) or not skills:
         errors.append(f"{path}: skills must be a non-empty list")
@@ -516,6 +444,7 @@ def validate_machine_readable_catalog(skills_root: Path) -> list[str]:
     errors.extend(catalog_errors)
     seen: set[str] = set()
     allowed_risk = {"low", "medium", "high"}
+
     for item in skills:
         if not isinstance(item, dict):
             errors.append(f"{path}: each skill entry must be an object")
@@ -534,7 +463,9 @@ def validate_machine_readable_catalog(skills_root: Path) -> list[str]:
             errors.append(f"{path}: `{name}` has invalid risk_level `{item.get('risk_level')}`")
         if not isinstance(item.get("dependencies"), list):
             errors.append(f"{path}: `{name}` dependencies must be a list")
-        if not isinstance(item.get("canonical_artifacts"), list) or not item.get("canonical_artifacts"):
+        if (
+            not isinstance(item.get("canonical_artifacts"), list) or not item.get("canonical_artifacts")
+        ):
             errors.append(f"{path}: `{name}` canonical_artifacts must be a non-empty list")
 
     if actual_skills and seen != actual_skills:
@@ -542,20 +473,6 @@ def validate_machine_readable_catalog(skills_root: Path) -> list[str]:
             "Skill mismatch between actual skill files and skill-catalog.json "
             f"(actual={sorted(actual_skills)}, catalog={sorted(seen)})"
         )
-    return errors
-
-
-def validate_anti_overuse_sections(skills_root: Path) -> list[str]:
-    errors: list[str] = []
-    for skill_name in sorted(REQUIRED_ANTI_OVERUSE_SKILLS):
-        path = skills_root / skill_name / "SKILL.md"
-        if not path.exists():
-            errors.append(f"Missing required skill file: {path}")
-            continue
-        content = path.read_text(encoding="utf-8")
-        for snippet in ("## Anti-Overuse Rules", "Use when:", "Do not use when:", "Stop after:"):
-            if snippet not in content:
-                errors.append(f"{path} missing anti-overuse snippet: {snippet}")
     return errors
 
 
@@ -577,71 +494,96 @@ def validate_skill_order_sync(skills_root: Path) -> list[str]:
     return []
 
 
-def validate_user_instructions(path: Path) -> list[str]:
+def _table_rows(lines: list[str], required_columns: list[str]) -> tuple[list[list[str]], list[str]]:
+    errors: list[str] = []
+    header_index = -1
+    for index, line in enumerate(lines):
+        if line.strip().startswith("|") and all(column in line for column in required_columns):
+            header_index = index
+            break
+    if header_index < 0:
+        return [], ["missing table header with columns: " + ", ".join(required_columns)]
+    header = parse_markdown_table_line(lines[header_index])
+    if header != required_columns:
+        errors.append(
+            "table columns are out of order or contain unexpected fields: "
+            f"expected={required_columns}, actual={header}"
+        )
+    rows: list[list[str]] = []
+    for line in lines[header_index + 2 :]:
+        stripped = line.strip()
+        if not stripped.startswith("|"):
+            break
+        cells = parse_markdown_table_line(stripped)
+        if len(cells) != len(required_columns):
+            errors.append("table row has incorrect column count")
+            continue
+        rows.append(cells)
+    if not rows:
+        errors.append("table has no data rows")
+    return rows, errors
+
+
+def validate_user_instructions(path: Path, compatibility_path: Path | None = None) -> list[str]:
     errors: list[str] = []
     if not path.exists():
-        return [f"Missing required tracker file: {path}"]
+        return [f"Missing required instruction ledger: {path}"]
 
     content = path.read_text(encoding="utf-8")
-    if "# User Instructions Tracker" not in content:
-        errors.append("user-instructions.md missing title '# User Instructions Tracker'")
-    if "## Status Model" not in content:
-        errors.append("user-instructions.md missing '## Status Model' section")
-    if "## Tracker" not in content:
-        errors.append("user-instructions.md missing '## Tracker' section")
-
+    if "# User Instructions Ledger" not in content:
+        errors.append("user-instructions.md missing title '# User Instructions Ledger'")
+    if "## Current Directives" not in content:
+        errors.append("user-instructions.md missing '## Current Directives' section")
+    if "## Fulfillment Status Model" not in content:
+        errors.append("user-instructions.md missing '## Fulfillment Status Model' section")
+    if "## Fulfillment History" not in content:
+        errors.append("user-instructions.md missing '## Fulfillment History' section")
     lines = content.splitlines()
-    header_line = ""
-    for line in lines:
-        if line.strip().startswith("|") and "Instruction ID" in line and "Last Updated UTC" in line:
-            header_line = line
-            break
-    if not header_line:
-        errors.append("user-instructions.md missing tracker table header")
-        return errors
+    current_rows, current_errors = _table_rows(lines, REQUIRED_CURRENT_DIRECTIVE_COLUMNS)
+    errors.extend(f"current directives: {error}" for error in current_errors)
+    seen_current: set[str] = set()
+    for cells in current_rows:
+        instruction_id, _, _, lifecycle, _, _, confirmed, notes = cells
+        if not re.fullmatch(r"INST-\d{3}", instruction_id):
+            errors.append(f"current directives invalid instruction id: {instruction_id}")
+        if instruction_id in seen_current:
+            errors.append(f"current directives duplicate instruction id: {instruction_id}")
+        seen_current.add(instruction_id)
+        if lifecycle not in ALLOWED_DIRECTIVE_LIFECYCLES:
+            errors.append(f"current directives invalid lifecycle: {lifecycle}")
+        if not UTC_REGEX.match(confirmed):
+            errors.append("current directives Last Confirmed UTC must be ISO-8601 UTC")
+        if lifecycle != "active" and not notes:
+            errors.append(f"current directives {lifecycle} row requires successor or notes")
 
-    for col in REQUIRED_USER_INSTRUCTIONS_COLUMNS:
-        if col not in header_line:
-            errors.append(f"user-instructions.md tracker header missing column: {col}")
+    history_rows, history_errors = _table_rows(lines, REQUIRED_USER_INSTRUCTIONS_COLUMNS)
+    errors.extend(f"fulfillment history: {error}" for error in history_errors)
+    seen_history: set[str] = set()
+    for cells in history_rows:
+        instruction_id, _, _, status, _, _, updated, evidence, notes = cells
+        if not re.fullmatch(r"INST-\d{3}", instruction_id):
+            errors.append(f"fulfillment history invalid instruction id: {instruction_id}")
+        if instruction_id in seen_history:
+            errors.append(f"fulfillment history duplicate instruction id: {instruction_id}")
+        seen_history.add(instruction_id)
+        if status not in ALLOWED_STATUSES:
+            errors.append(f"fulfillment history invalid status: {status}")
+        if not UTC_REGEX.match(updated):
+            errors.append("fulfillment history Last Updated UTC must be ISO-8601 UTC")
+        if status == "done" and not evidence:
+            errors.append("fulfillment history done row missing evidence")
+        if status in {"blocked", "won_t_do"} and not notes:
+            errors.append(f"fulfillment history {status} row missing notes")
 
-    in_table = False
-    seen_instruction_ids: set[str] = set()
-    for line in lines:
-        stripped = line.strip()
-        if stripped.startswith("|") and "Instruction ID" in stripped:
-            in_table = True
-            continue
-        if in_table and stripped.startswith("|---"):
-            continue
-        if in_table and stripped.startswith("|"):
-            cells = [cell.strip() for cell in stripped.strip("|").split("|")]
-            if len(cells) != len(REQUIRED_USER_INSTRUCTIONS_COLUMNS):
-                errors.append("user-instructions.md tracker row has incorrect column count")
-                continue
-            instruction_id = cells[0]
-            status = cells[3]
-            last_updated_utc = cells[6]
-            evidence = cells[7]
-            notes = cells[8]
-
-            if not re.fullmatch(r"INST-\d{3}", instruction_id):
-                errors.append(f"user-instructions.md invalid instruction id format: {instruction_id}")
-            if instruction_id in seen_instruction_ids:
-                errors.append(f"user-instructions.md duplicate instruction id: {instruction_id}")
-            seen_instruction_ids.add(instruction_id)
-            if status not in ALLOWED_STATUSES:
-                errors.append(f"user-instructions.md invalid status value: {status}")
-            if not UTC_REGEX.match(last_updated_utc):
-                errors.append("user-instructions.md Last Updated UTC must be ISO-8601 UTC like 2026-05-13T06:10:00Z")
-            if status == "done" and not evidence:
-                errors.append("user-instructions.md done row missing evidence")
-            if status in {"blocked", "won_t_do"} and not notes:
-                errors.append(f"user-instructions.md {status} row missing notes")
-        elif in_table and stripped and not stripped.startswith("|"):
-            break
-
-    if in_table and not seen_instruction_ids:
-        errors.append("user-instructions.md tracker table has no data rows")
+    if compatibility_path is not None:
+        if not compatibility_path.is_file():
+            errors.append(f"Missing instruction ledger compatibility pointer: {compatibility_path}")
+        else:
+            compatibility = compatibility_path.read_text(encoding="utf-8")
+            if "../user-instructions.md" not in compatibility or "compatibility" not in compatibility.lower():
+                errors.append(
+                    f"Instruction ledger compatibility pointer is invalid: {compatibility_path}"
+                )
     return errors
 
 
@@ -651,7 +593,12 @@ def validate_artifact_pair(json_path: Path) -> list[str]:
     if not md_path.exists():
         errors.append(f"Missing markdown pair for governance artifact: {md_path}")
         return errors
-    data = json.loads(json_path.read_text(encoding="utf-8"))
+    try:
+        data = json.loads(json_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return [f"Invalid governance artifact JSON {json_path}: {exc}"]
+    if not isinstance(data, dict):
+        return [f"Governance artifact root must be an object: {json_path}"]
     startup = data.get("startup_declaration", {})
     for field in (
         "quizme_mode",
@@ -678,6 +625,13 @@ def validate_artifact_pair(json_path: Path) -> list[str]:
     ):
         if marker not in md_content:
             errors.append(f"{md_path}: missing quizme state marker {marker}")
+    schema_version = data.get("schema_version", 1)
+    if schema_version == 2:
+        if "change_binding" not in data:
+            errors.append(f"{json_path}: schema v2 artifact missing change_binding")
+        for marker in ("`schema_version`: 2", "## Change Binding", "`manifest_sha256`"):
+            if marker not in md_content:
+                errors.append(f"{md_path}: schema v2 pair missing marker {marker}")
     return errors
 
 
@@ -686,15 +640,34 @@ def collect_target_artifacts(governance_dir: Path, changed: list[str], repo_root
         selected: list[Path] = []
         for file_path in changed:
             if fnmatch.fnmatch(file_path, "docs/governance/*.governance.json"):
-                selected.append(repo_root / file_path)
+                candidate = repo_root / file_path
+                if candidate.is_file():
+                    selected.append(candidate)
         return sorted(set(selected))
     if not governance_dir.exists():
         return []
     return sorted(governance_dir.glob("*.governance.json"))
 
 
+def validate_artifact_inventory(
+    artifacts: list[Path],
+    *,
+    minimum: int,
+    governance_dir: Path,
+    filtered_diff: bool,
+) -> list[str]:
+    if filtered_diff or len(artifacts) >= minimum:
+        return []
+    return [
+        "governance artifact inventory is unexpectedly empty or incomplete: "
+        f"found {len(artifacts)}, require at least {minimum} in {governance_dir}"
+    ]
+
+
 def main() -> None:
     args = parse_args()
+    if args.minimum_governance_artifacts < 0:
+        raise SystemExit("--minimum-governance-artifacts must be zero or greater")
     skills_root = Path(args.skills_root).resolve()
     repo_root = discover_repo_root(args.repo_root, skills_root)
     agents_path = resolve_agents_path(args.agents_path, skills_root, repo_root)
@@ -707,12 +680,24 @@ def main() -> None:
     errors.extend(validate_required_file_snippets(skills_root))
     errors.extend(validate_skill_catalog_sync(skills_root))
     errors.extend(validate_machine_readable_catalog(skills_root))
-    errors.extend(validate_anti_overuse_sections(skills_root))
     errors.extend(validate_skill_order_sync(skills_root))
-    errors.extend(validate_user_instructions(skills_root / "user-instructions.md"))
+    errors.extend(
+        validate_user_instructions(
+            repo_root / "user-instructions.md",
+            compatibility_path=skills_root / "user-instructions.md",
+        )
+    )
 
     changed = changed_files(args.base_sha, args.head_sha, repo_root)
     artifacts = collect_target_artifacts(governance_dir, changed, repo_root)
+    errors.extend(
+        validate_artifact_inventory(
+            artifacts,
+            minimum=args.minimum_governance_artifacts,
+            governance_dir=governance_dir,
+            filtered_diff=bool(changed),
+        )
+    )
     for artifact in artifacts:
         errors.extend(validate_artifact_pair(artifact))
 

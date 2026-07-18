@@ -1,6 +1,6 @@
 ---
 name: thoughtful-approach
-description: Use for planning and implementing features with strong end-user orientation by identifying expected core capabilities, practical nice-to-haves, and scope-safe enhancements that improve usefulness without drifting from explicit requirements.
+description: Model end-user goals, expected baseline behavior, and product tradeoffs when a feature request requires product judgment. Use for feature planning or authorized implementation with meaningful user-experience choices; do not use for fixed mechanical work, and never treat a plausible enhancement as authorized scope.
 ---
 
 # Thoughtful Approach
@@ -35,10 +35,10 @@ Deliver outputs that feel intentionally useful to real end users, not merely tec
 1. translating user requests into product behavior or UI flows
 2. designing or refining apps, dashboards, forms, or data workflows
 3. deciding what to include now vs later for best user value
-4. proposing enhancements while preserving requested scope
+4. evaluating optional enhancements while preserving requested scope
 
 ## Core Principle
-Honor explicit requirements first, then improve utility with low-risk enhancements that align with user intent.
+Honor explicit requirements first. Separate expected baseline behavior, necessary implications, and optional enhancements; product value does not grant implementation authority.
 
 ## Scope Boundary
 This skill is product/feature expectation modeling and scope-safe enhancement logic.
@@ -90,6 +90,7 @@ Enhancements are allowed only when they satisfy all conditions:
 3. low implementation risk/cost relative to value
 4. do not block delivery of must-haves
 5. can be disabled or deferred cleanly if needed
+6. are explicitly authorized or inseparable from a stated acceptance criterion
 
 If any condition fails, move enhancement to deferred list.
 
@@ -120,12 +121,13 @@ For each candidate enhancement, score quickly:
 4. testability (`low/medium/high`)
 
 Default implementation rule:
-1. implement if impact is high and complexity/drift risk are low-medium
-2. defer if drift risk is high or testability is poor
+1. implement only when authorized and impact is high while complexity/drift risk are low-medium
+2. propose or defer when useful but not authorized
+3. defer if drift risk is high or testability is poor
 
 ## Delivery Pattern
 1. implement must-haves first
-2. add highest-value scope-safe enhancements second
+2. add only authorized scope-safe enhancements second
 3. document deferred improvements as optional next steps
 4. validate primary end-user flows before finalizing
 

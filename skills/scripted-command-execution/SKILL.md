@@ -40,7 +40,7 @@ Before execution:
 2. verify working directory and permissions
 3. identify potential side effects
 4. identify rollback/recovery approach for risky operations
-5. for new projects (model has not worked on before), ask whether model should run tests/build by default or user will run them to save tokens
+5. derive proportional validation from the requested outcome and repository evidence; ask only when a material missing choice changes the result
 6. operate locally by default; do not deploy unless explicitly requested
 7. for expensive verification commands, probe runtime dependencies first (for example browsers, shared libraries, required binaries)
 
@@ -56,7 +56,7 @@ Before execution:
 - Native GUI automation is required.
 
 ## Workflow
-1. Clarify desired end state.
+1. Derive and confirm the desired end state from the active task contract.
 2. Check current state first (`pwd`, `ls`, status commands).
 3. Execute minimal command sequence.
 4. Validate results explicitly.
@@ -77,7 +77,7 @@ Retry policy:
 
 ## Script Guidance
 1. Use short scripts only when command chains become complex.
-2. Emit machine-readable result artifacts when needed (JSON/text files).
+2. Emit machine-readable result artifacts only when the task authorizes them and they are required for a consumer or evidence contract.
 3. Print diagnostics to stderr.
 4. Exit non-zero on failure paths.
 

@@ -7,10 +7,12 @@ The user wants exhaustive clarification before any substantive work and writes:
 --quizme --mc --one-at-a-time --confirm
 ```
 
-## Skills In Use
+## Route
 1. `quizme-mode`
-2. `requirement-clarifier`
+2. `requirement-clarifier` as its hard prerequisite
 3. task-specific skills only after clarification completes
+
+The command activates clarification mode; it does not by itself request a startup declaration. Declare the route only if the user separately requests it or the clarified work is governed or audited.
 
 ## Behavior
 1. quizme mode persists for the active conversation until the user writes `--quizme` again

@@ -8,8 +8,8 @@ If you are looking for `agent skills`, an `ai agent skillpack`, or an `agent wor
 
 ## Quick Implementation Guide
 1. Put this repository in the assistant's workspace.
-2. Load `AGENTS.md` and the relevant skill files for the task.
-3. Ask the assistant to declare the active skills and execution order before it edits anything.
+2. Load `AGENTS.md`, catalog schema version 2, and only the skill files selected for the task.
+3. Let the router select zero or more skills; request a startup declaration only for explicit, governed, or audited work.
 
 ## Detailed Overview
 This repository is the workflow layer that makes AI assistants more consistent, more careful, and easier to audit.
@@ -33,8 +33,8 @@ Use [Common AI Instructions](./skills/docs/adapters/common-ai.md) as the shared 
 
 1. keep the repository in the assistant's workspace
 2. load the root `AGENTS.md`
-3. load the relevant skill files for the task
-4. ask the assistant to declare active skills and execution order at task start
+3. use catalog schema version 2 and its generated views to select relevant skills
+4. ask for a startup declaration only when you explicitly want one or the task is governed/audited
 5. use the assistant's project instructions or custom prompt area for the repo policy summary
 6. when a task needs exhaustive clarification, use `--quizme` or the assistant's equivalent clarification flow if it has one
 
@@ -50,6 +50,8 @@ This pack is designed to improve:
 
 ## Release Metadata
 - Version: `1.0.0` ([VERSION](./skills/VERSION))
+- Current architecture version 2 work remains **Unreleased**. Pushing its source commit to a branch does not create a tag, publish release notes, or change the released version.
+- The next release must derive its version, notes, counts, governance evidence, and attestation from the exact candidate commit. Remote branch protection remains an external repository-administration step.
 - Start here: [START_HERE.md](./START_HERE.md)
 - Usage guide: [USAGE.md](./skills/USAGE.md)
 - Changelog: [CHANGELOG.md](./skills/CHANGELOG.md)
@@ -62,37 +64,39 @@ This pack is designed to improve:
 - Security policy: [SECURITY.md](./SECURITY.md)
 
 ## Included Skills
-The pack currently includes 29 interoperable skills:
+The catalog currently includes 31 entries, including the deprecated `process-budget-controller` compatibility wrapper:
 
-1. `skill-governance`
-2. `process-budget-controller`
-3. `governance-enforcement`
-4. `requirement-clarifier`
-5. `quizme-mode`
-6. `diagnose-before-fix`
-7. `semantic-policy-audit`
-8. `interdependent-change-planning`
-9. `thoughtful-approach`
-10. `thoroughly-rate-review`
-11. `user-instructions-tracker`
-12. `history-indexing`
-13. `conversation-retention-summary`
-14. `ui-spatial-canvas`
-15. `ui-design-skills`
-16. `effective-testing-methods`
-17. `scripted-command-execution`
-18. `pseudo-agentic-automation`
-19. `token-reduction`
-20. `artifact-budget-enforcement`
-21. `order-of-operations`
-22. `regression-prevention`
-23. `file-structure-optimization`
-24. `doc-maintenance`
-25. `file-maintenance`
-26. `skill-usage-review`
-27. `deprecation-management`
-28. `project-backup`
-29. `restore-drill`
+1. `internal-lang`
+2. `hyperfocus-discovery`
+3. `skill-governance`
+4. `process-budget-controller`
+5. `governance-enforcement`
+6. `requirement-clarifier`
+7. `quizme-mode`
+8. `diagnose-before-fix`
+9. `semantic-policy-audit`
+10. `interdependent-change-planning`
+11. `thoughtful-approach`
+12. `thoroughly-rate-review`
+13. `user-instructions-tracker`
+14. `history-indexing`
+15. `conversation-retention-summary`
+16. `ui-spatial-canvas`
+17. `ui-design-skills`
+18. `effective-testing-methods`
+19. `scripted-command-execution`
+20. `pseudo-agentic-automation`
+21. `token-reduction`
+22. `artifact-budget-enforcement`
+23. `order-of-operations`
+24. `regression-prevention`
+25. `file-structure-optimization`
+26. `doc-maintenance`
+27. `file-maintenance`
+28. `skill-usage-review`
+29. `deprecation-management`
+30. `project-backup`
+31. `restore-drill`
 
 ## How The Pack Is Organized
 The skills are grouped by the kind of decision they own. This matters because the pack is intentionally broad, and broad systems need clear ownership.
@@ -102,9 +106,11 @@ The skills are grouped by the kind of decision they own. This matters because th
    - `governance-enforcement`
    - `semantic-policy-audit`
 2. Process restraint:
-   - `process-budget-controller`
+   - `internal-lang`
    - `token-reduction`
+   - `process-budget-controller` (deprecated compatibility wrapper only)
 3. Diagnosis, planning, and sequencing:
+   - `hyperfocus-discovery`
    - `quizme-mode`
    - `requirement-clarifier`
    - `diagnose-before-fix`
@@ -134,16 +140,28 @@ The skills are grouped by the kind of decision they own. This matters because th
 ## Key Routing Docs
 These are the docs I use when I need to understand or maintain the pack:
 
-- [SKILL-MAP.md](./skills/SKILL-MAP.md): quick routing and ownership overview
-- [skill-index.md](./skills/docs/skill-index.md): canonical trigger index
-- [skill-catalog.json](./skills/skill-catalog.json): machine-readable skill inventory
-- [skill-decision-tree.md](./skills/docs/skill-decision-tree.md): how to choose the smallest useful skill set
+- [skill-catalog.json](./skills/skill-catalog.json): canonical schema version 2 routing source
+- [SKILL-MAP.md](./skills/SKILL-MAP.md): generated routing and ownership overview
+- [skill-index.md](./skills/docs/skill-index.md): generated trigger index
+- [skill-decision-tree.md](./skills/docs/skill-decision-tree.md): generated minimum-selection view
 - [install-profiles.md](./skills/docs/install-profiles.md): minimal, developer, governed, frontend, and full adoption paths
 - [conflict-resolution-matrix.md](./skills/docs/conflict-resolution-matrix.md): who owns a decision when skills overlap
 - [validation-profiles.md](./skills/docs/validation-profiles.md): quick, standard, and release validation depth
 - [maturity-model.md](./skills/docs/maturity-model.md): how to grow into the pack over time
 - [pruning-policy.md](./skills/docs/pruning-policy.md): how to avoid uncontrolled growth
 - [field-notes.md](./skills/docs/field-notes.md): where real usage evidence should be recorded
+
+Do not edit the three generated routing views independently. Catalog generation produces `skills/SKILL-MAP.md`, `skills/docs/skill-index.md`, and `skills/docs/skill-decision-tree.md`; validation should fail if they drift from catalog schema version 2.
+
+## Routing Architecture Version 2
+Version 2 moves universal behavior into core policy and treats skills as conditional capabilities:
+
+1. selecting zero skills is valid for routine work already covered by core policy
+2. routine tasks target a median of at most two skills and normally no more than five
+3. mandatory safety skills and gates are never capped by that routine budget
+4. startup declarations are required only when explicitly requested or for governed/audited work
+5. skill activation never grants file-write, external-action, release, or deployment authority
+6. `process-budget-controller` remains only as a deprecated compatibility wrapper; the router owns process restraint
 
 ## Who This Is For
 This pack is best for people who want:
@@ -160,11 +178,11 @@ It is probably too much if you only want a few lightweight prompt snippets. In t
 The pack is governance-first, but not governance-only. The goal is to use serious process only when the task actually needs it.
 
 Core controls:
-1. the assistant declares selected skills, rationale, and execution order at task start
+1. the assistant declares selected skills, rationale, and execution order only for explicit, governed, or audited work
 2. governance artifacts record mode, risk, gates, and recommendation
-3. validators check policy, skill order, catalog sync, and governance artifacts
+3. validators check catalog schema version 2, generated views, skill metadata, typed relations, and governance artifacts
 4. CI can enforce governed-change rules before merge or release
-5. process-budget rules keep small tasks from becoming paperwork
+5. the router keeps routine selections within the normal budget while mandatory safety remains uncapped
 
 Key tooling:
 - `skills/skill-governance/scripts/generate_governance_artifact.py`
@@ -176,14 +194,23 @@ Key tooling:
 - `docs/governance/*.governance.json`
 
 ## Practical Default
-For normal use, do not start with every skill.
+For normal use, start with core policy and add a skill only when it changes execution, evidence, or safety. Zero selected skills is a valid route.
 
 Use this shortcut:
-1. answer-only request: `token-reduction`
-2. one deterministic command: `token-reduction`, `scripted-command-execution`
-3. small local edit: `token-reduction`, `order-of-operations`, targeted validation
-4. normal code change: add `regression-prevention`
-5. governed or release-affecting work: use the governance path
+1. answer or routine local action: zero skills is often enough
+2. concise/context-heavy request: add `token-reduction`
+3. real multi-step dependency problem: add `order-of-operations`
+4. repeatable command orchestration: add `scripted-command-execution`
+5. implementation or risky code change: add the applicable implementation and regression owners
+6. governed or release-affecting work: use the governance path and uncapped mandatory safety gates
+
+For routine work, target a median of at most two selected skills and normally no more than five. Compatibility wrappers do not count as active selections.
+
+Optional internal language control:
+1. `/internal-lang on` enables compact private scratch notation
+2. `/internal-lang off` disables it
+3. `/internal-lang --response on` allows compact notation in user-facing responses
+4. `/internal-lang --response off` keeps responses in normal language
 
 Optional clarification control:
 1. write `--quizme` to toggle persistent conversation-local exhaustive clarification on or off
@@ -222,9 +249,9 @@ Use these tags for discoverability:
 ## Maintenance Checklist
 When updating the pack:
 
-1. update `SKILL-MAP.md` and `docs/skill-index.md` together
-2. update `skill-catalog.json` when skill membership, triggers, dependencies, or artifacts change
+1. update catalog schema version 2 when skill membership, triggers, typed relations, ownership, or artifacts change
+2. regenerate `SKILL-MAP.md`, `docs/skill-index.md`, and `docs/skill-decision-tree.md` from the catalog; do not hand-edit generated views
 3. update README, usage docs, and examples when public behavior changes
-4. update `skills/user-instructions.md` for directive evidence
+4. update an instruction ledger only when durable tracking is explicitly in scope
 5. include or update a governance artifact for governed changes
 6. run the validators and tests listed in [validation-profiles.md](./skills/docs/validation-profiles.md)

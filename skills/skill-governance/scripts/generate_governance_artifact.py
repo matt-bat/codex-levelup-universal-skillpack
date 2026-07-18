@@ -6,10 +6,31 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+
+
+SCRIPT_PATH = Path(__file__).resolve()
+SCRIPT_DIR = SCRIPT_PATH.parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
+from governance_common import (  # noqa: E402
+    SCHEMA_V2,
+    build_manifest,
+    contained_artifact_paths,
+    discover_repo_root,
+    is_governed_change,
+    manifest_sha256,
+    validate_task_id,
+    working_tree_name_status,
+)
+
+
+DEFAULT_SKILLS_ROOT = SCRIPT_PATH.parents[2]
 
 
 SCORE_KEYS = (
@@ -31,22 +52,17 @@ CRITICAL_OVERRIDES = (
 
 GATE_MATRIX = {
     "quick": [
-        "order-of-operations",
         "execution-skill",
     ],
     "standard": [
-        "order-of-operations",
         "execution-skill",
         "regression-prevention",
-        "token-reduction",
     ],
     "critical": [
-        "order-of-operations",
-        "project-backup",
-        "restore-drill",
         "execution-skill",
         "regression-prevention",
-        "token-reduction",
+        "semantic-policy-audit",
+        "governance-enforcement",
     ],
 }
 
@@ -67,8 +83,6 @@ EVIDENCE_REQUIREMENTS = {
         "impact map",
         "validation scope by layer",
         "residual risks",
-        "backup artifact + integrity evidence",
-        "restore freshness/pass status",
         "rollback plan",
         "release decision",
     ],
@@ -79,6 +93,7 @@ SKILL_NAME_REGEX = re.compile(r"^[a-z0-9-]+$")
 
 @dataclass
 class GovernanceArtifact:
+    schema_version: int
     task_id: str
     project_id: str
     created_at_utc: str
@@ -102,17 +117,33 @@ class GovernanceArtifact:
     selected_mode: str
     critical_overrides: list[str]
     required_gates: list[str]
-    gate_status: dict[str, str]
+    gate_status: dict[str, dict[str, Any]]
     startup_declaration: dict[str, Any]
     evidence_requirements: list[str]
     break_glass: dict[str, Any]
     recommendation: str
+    change_binding: dict[str, Any]
     notes: str
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--task-id", required=True, help="Unique task ID for this governance artifact.")
+    parser.add_argument(
+        "--base-sha",
+        required=True,
+        help="Exact Git base commit used to bind the governed working-tree manifest.",
+    )
+    parser.add_argument(
+        "--repo-root",
+        default="",
+        help="Repository root. Auto-discovered only when Git or a verified skills/ layout proves it.",
+    )
+    parser.add_argument(
+        "--skills-root",
+        default=str(DEFAULT_SKILLS_ROOT),
+        help="Skills root used to verify repository-root discovery.",
+    )
     parser.add_argument(
         "--project-id",
         required=True,
@@ -151,6 +182,27 @@ def parse_args() -> argparse.Namespace:
         "--behavior-or-workflow-changed",
         action="store_true",
         help="Include doc-maintenance gate.",
+    )
+    parser.add_argument(
+        "--requires-backup",
+        "--external-state-data-loss-risk",
+        dest="requires_backup",
+        action="store_true",
+        help=(
+            "Include project-backup for an authorized external, production, or "
+            "non-reconstructable-state operation with credible data-loss exposure. "
+            "The longer option is a compatibility alias."
+        ),
+    )
+    parser.add_argument(
+        "--requires-restore",
+        "--recovery-sensitive-external-operation",
+        dest="requires_restore",
+        action="store_true",
+        help=(
+            "Include restore-drill for an authorized recovery-sensitive external operation; "
+            "this also includes project-backup. The longer option is a compatibility alias."
+        ),
     )
     parser.add_argument(
         "--quizme-mode",
@@ -244,20 +296,41 @@ def apply_profile_modifier(mode: str, profile: str, total_score: int, uncertaint
     return mode
 
 
-def build_required_gates(mode: str, execution_skill: str, behavior_or_workflow_changed: bool) -> list[str]:
+def build_required_gates(
+    mode: str,
+    execution_skill: str,
+    behavior_or_workflow_changed: bool,
+    requires_backup: bool = False,
+    requires_restore: bool = False,
+) -> list[str]:
     gates = list(GATE_MATRIX[mode])
     gates = [execution_skill if gate == "execution-skill" else gate for gate in gates]
+    if requires_backup or requires_restore:
+        gates.append("project-backup")
+    if requires_restore:
+        gates.append("restore-drill")
     if behavior_or_workflow_changed and "doc-maintenance" not in gates:
         gates.append("doc-maintenance")
     return gates
 
 
+def build_evidence_requirements(
+    mode: str,
+    requires_backup: bool = False,
+    requires_restore: bool = False,
+) -> list[str]:
+    requirements = list(EVIDENCE_REQUIREMENTS[mode])
+    if requires_backup or requires_restore:
+        requirements.append("backup artifact + integrity evidence")
+    if requires_restore:
+        requirements.append("restore freshness/pass status")
+    return requirements
+
+
 def determine_recommendation(critical_overrides: list[str], break_glass: bool) -> str:
-    if "missing_rollback_path" in critical_overrides:
-        return "no-go"
-    if break_glass:
-        return "go-with-risk"
-    return "go"
+    # Newly generated v2 artifacts contain pending gates. A positive release
+    # recommendation is valid only after evidence is added and gates are closed.
+    return "no-go"
 
 
 def validate_break_glass_fields(args: argparse.Namespace) -> None:
@@ -278,6 +351,7 @@ def validate_break_glass_fields(args: argparse.Namespace) -> None:
 
 
 def validate_intake_fields(args: argparse.Namespace) -> None:
+    validate_task_id(args.task_id)
     if not re.fullmatch(r"[a-z0-9][a-z0-9-]{1,63}", args.project_id.strip()):
         raise SystemExit(
             "--project-id must match [a-z0-9][a-z0-9-]{1,63} (2-64 chars, lowercase letters/digits/hyphens)"
@@ -293,6 +367,13 @@ def validate_intake_fields(args: argparse.Namespace) -> None:
         raise SystemExit("execution-scope=deployment requires --deployment-requested")
     if args.execution_scope == "local_only" and args.deployment_requested:
         raise SystemExit("--deployment-requested conflicts with execution-scope=local_only")
+    if (
+        args.requires_backup or args.requires_restore
+    ) and args.execution_scope != "deployment":
+        raise SystemExit(
+            "external recovery-impact flags require execution-scope=deployment "
+            "and --deployment-requested"
+        )
     if not args.skills_selection_rationale.strip():
         raise SystemExit("--skills-selection-rationale is required")
     validate_quizme_fields(
@@ -335,18 +416,30 @@ def validate_startup_declaration_skills(
 ) -> None:
     if set(skills_in_use) != set(skills_execution_order):
         raise SystemExit("--skills-in-use and --skills-execution-order must contain the same skill set")
-    required_baseline = {"skill-governance", "order-of-operations", execution_skill}
-    missing = sorted(required_baseline - set(skills_in_use))
+    required_governed_skills = {"skill-governance", execution_skill}
+    missing = sorted(required_governed_skills - set(skills_in_use))
     if missing:
         raise SystemExit(f"Startup declaration missing required skills: {', '.join(missing)}")
     if quizme_mode == "on" and "quizme-mode" not in skills_in_use:
         raise SystemExit("Startup declaration missing required skill: quizme-mode")
 
 
+def validate_required_gate_skills(
+    required_gates: list[str],
+    skills_in_use: list[str],
+) -> None:
+    missing = sorted(set(required_gates) - set(skills_in_use))
+    if missing:
+        raise SystemExit(
+            "Startup declaration missing required gate skills: " + ", ".join(missing)
+        )
+
+
 def render_markdown(artifact: GovernanceArtifact) -> str:
     lines = []
     lines.append(f"# Governance Artifact: {artifact.task_id}")
     lines.append("")
+    lines.append(f"- `schema_version`: {artifact.schema_version}")
     lines.append(f"- `created_at_utc`: {artifact.created_at_utc}")
     lines.append(f"- `project_id`: {artifact.project_id}")
     lines.append(f"- `profile`: {artifact.profile}")
@@ -378,7 +471,13 @@ def render_markdown(artifact: GovernanceArtifact) -> str:
     lines.append("")
     lines.append("## Required Gates")
     for gate in artifact.required_gates:
-        lines.append(f"- [ ] `{gate}` (status: {artifact.gate_status.get(gate, 'pending')})")
+        gate_record = artifact.gate_status.get(gate, {})
+        lines.append(f"- [ ] `{gate}` (status: {gate_record.get('status', 'pending')})")
+        lines.append(f"  - evidence: {gate_record.get('evidence', [])}")
+        waiver_reason = gate_record.get("waiver_reason", "")
+        lines.append(
+            f"  - waiver_reason: {waiver_reason}" if waiver_reason else "  - waiver_reason:"
+        )
     lines.append("")
     lines.append("## Startup Declaration")
     lines.append("### Skills In Use")
@@ -408,6 +507,19 @@ def render_markdown(artifact: GovernanceArtifact) -> str:
         lines.append("## Notes")
         lines.append(artifact.notes)
         lines.append("")
+    lines.append("## Change Binding")
+    lines.append(f"- `base_sha`: {artifact.change_binding['base_sha']}")
+    lines.append(f"- `manifest_sha256`: {artifact.change_binding['manifest_sha256']}")
+    lines.append("- `manifest`:")
+    if artifact.change_binding["manifest"]:
+        for item in artifact.change_binding["manifest"]:
+            lines.append(
+                f"  - `{item['status']}` `{item['path']}` "
+                f"(`sha256`: {item['sha256'] if item['sha256'] is not None else 'null'})"
+            )
+    else:
+        lines.append("  - none")
+    lines.append("")
     return "\n".join(lines)
 
 
@@ -486,8 +598,17 @@ def main() -> None:
         mode_after_profile = apply_profile_modifier(base_mode, args.profile, total, args.uncertainty_high)
     selected_mode = "critical" if forced_critical else mode_after_profile
 
-    required_gates = build_required_gates(selected_mode, args.execution_skill, args.behavior_or_workflow_changed)
-    gate_status = {gate: "pending" for gate in required_gates}
+    required_gates = build_required_gates(
+        selected_mode,
+        args.execution_skill,
+        args.behavior_or_workflow_changed,
+        args.requires_backup,
+        args.requires_restore,
+    )
+    gate_status = {
+        gate: {"status": "pending", "evidence": [], "waiver_reason": ""}
+        for gate in required_gates
+    }
     skills_in_use = parse_csv_list(args.skills_in_use, "--skills-in-use")
     skills_execution_order = parse_csv_list(args.skills_execution_order, "--skills-execution-order")
     validate_startup_declaration_skills(
@@ -496,12 +617,15 @@ def main() -> None:
         args.execution_skill,
         args.quizme_mode,
     )
+    validate_required_gate_skills(required_gates, skills_in_use)
 
     recommendation = determine_recommendation(overrides, args.break_glass)
+    created_at_utc = datetime.now(UTC).isoformat()
     artifact = GovernanceArtifact(
+        schema_version=SCHEMA_V2,
         task_id=args.task_id,
         project_id=args.project_id.strip(),
-        created_at_utc=datetime.now(UTC).isoformat(),
+        created_at_utc=created_at_utc,
         profile=args.profile,
         project_language=args.project_language.strip(),
         project_description_max4=args.project_description_max4.strip(),
@@ -528,7 +652,11 @@ def main() -> None:
             "skills_selection_rationale": args.skills_selection_rationale.strip(),
             "skills_execution_order": skills_execution_order,
         },
-        evidence_requirements=EVIDENCE_REQUIREMENTS[selected_mode],
+        evidence_requirements=build_evidence_requirements(
+            selected_mode,
+            args.requires_backup,
+            args.requires_restore,
+        ),
         break_glass={
             "enabled": bool(args.break_glass),
             "reason": args.break_glass_reason.strip(),
@@ -537,18 +665,36 @@ def main() -> None:
             "expiry_hours": args.expiry_hours if args.break_glass else None,
         },
         recommendation=recommendation,
+        change_binding={},
         notes=args.notes.strip(),
     )
 
+    repo_root = discover_repo_root(args.repo_root, Path(args.skills_root))
     outdir = Path(args.outdir)
+    if not outdir.is_absolute():
+        outdir = repo_root / outdir
     outdir.mkdir(parents=True, exist_ok=True)
-    json_path = outdir / f"{args.task_id}.governance.json"
-    md_path = outdir / f"{args.task_id}.governance.md"
+    json_path, md_path = contained_artifact_paths(outdir, args.task_id)
+
+    project_index_path = Path(args.project_index_path)
+    if not project_index_path.is_absolute():
+        project_index_path = repo_root / project_index_path
+    sync_project_index(project_index_path, artifact)
+
+    resolved_base, changes = working_tree_name_status(repo_root, args.base_sha)
+    manifest = build_manifest(
+        repo_root,
+        changes,
+        governed_predicate=is_governed_change,
+    )
+    artifact.change_binding = {
+        "base_sha": resolved_base,
+        "manifest": manifest,
+        "manifest_sha256": manifest_sha256(manifest),
+    }
 
     json_path.write_text(json.dumps(asdict(artifact), indent=2) + "\n", encoding="utf-8")
     md_path.write_text(render_markdown(artifact) + "\n", encoding="utf-8")
-    project_index_path = Path(args.project_index_path)
-    sync_project_index(project_index_path, artifact)
 
     print(f"Wrote: {json_path}")
     print(f"Wrote: {md_path}")

@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-command-center.local/schemas/skill-catalog.schema.json",
+  "title": "Agent Command Center skill catalog version 2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "catalog_version",
+    "router_contract",
+    "components",
+    "generated_views",
+    "router_policy",
+    "routing_vocabulary",
+    "relation_types",
+    "gate_ids",
+    "artifact_types",
+    "decision_domains",
+    "skills"
+  ],
+  "properties": {
+    "$schema": {"const": "./skill-catalog.schema.json"},
+    "schema_version": {"const": 2},
+    "catalog_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "router_contract": {"const": "2.0"},
+    "components": {"$ref": "#/$defs/uniqueNames"},
+    "generated_views": {"$ref": "#/$defs/uniqueStrings"},
+    "router_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "instruction_precedence",
+        "route_by",
+        "selection_order",
+        "zero_skill_valid",
+        "skill_budget",
+        "startup_declaration",
+        "read_only",
+        "artifact_authority",
+        "external_action",
+        "reclassification_checkpoints"
+      ],
+      "properties": {
+        "instruction_precedence": {"type": "string", "minLength": 1},
+        "route_by": {"$ref": "#/$defs/uniqueNames"},
+        "selection_order": {"$ref": "#/$defs/uniqueNames"},
+        "zero_skill_valid": {"const": true},
+        "skill_budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["routine_target_median", "routine_maximum", "mandatory_safety_exempt", "compatibility_wrappers_count"],
+          "properties": {
+            "routine_target_median": {"const": 2},
+            "routine_maximum": {"const": 5},
+            "mandatory_safety_exempt": {"const": true},
+            "compatibility_wrappers_count": {"const": false}
+          }
+        },
+        "startup_declaration": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["required_when", "otherwise"],
+          "properties": {
+            "required_when": {"$ref": "#/$defs/uniqueNames"},
+            "otherwise": {"const": "omit"}
+          }
+        },
+        "read_only": {"type": "string", "minLength": 1},
+        "artifact_authority": {"type": "string", "minLength": 1},
+        "external_action": {"type": "string", "minLength": 1},
+        "reclassification_checkpoints": {"$ref": "#/$defs/uniqueNames"}
+      }
+    },
+    "routing_vocabulary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actions", "operations", "effects", "surfaces", "domains", "flags"],
+      "properties": {
+        "actions": {"$ref": "#/$defs/uniqueNames"},
+        "operations": {"$ref": "#/$defs/uniqueNames"},
+        "effects": {"$ref": "#/$defs/uniqueNames"},
+        "surfaces": {"$ref": "#/$defs/uniqueNames"},
+        "domains": {"$ref": "#/$defs/uniqueNames"},
+        "flags": {"$ref": "#/$defs/uniqueNames"}
+      }
+    },
+    "relation_types": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requires", "gates", "runs_after", "supports", "conflicts_with", "consumes", "superseded_by"],
+      "properties": {
+        "requires": {"type": "string", "minLength": 1},
+        "gates": {"type": "string", "minLength": 1},
+        "runs_after": {"type": "string", "minLength": 1},
+        "supports": {"type": "string", "minLength": 1},
+        "conflicts_with": {"type": "string", "minLength": 1},
+        "consumes": {"type": "string", "minLength": 1},
+        "superseded_by": {"type": "string", "minLength": 1}
+      }
+    },
+    "gate_ids": {"$ref": "#/$defs/uniqueNames"},
+    "artifact_types": {"$ref": "#/$defs/uniqueNames"},
+    "decision_domains": {"$ref": "#/$defs/uniqueNames"},
+    "skills": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/skill"}
+    }
+  },
+  "$defs": {
+    "uniqueStrings": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "uniqueNames": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z][a-z0-9_-]*$"}
+    },
+    "nonEmptyUniqueNames": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z][a-z0-9_-]*$"}
+    },
+    "routingClause": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "actions_any": {"$ref": "#/$defs/nonEmptyUniqueNames"},
+        "operations_any": {"$ref": "#/$defs/nonEmptyUniqueNames"},
+        "operations_all": {"$ref": "#/$defs/nonEmptyUniqueNames"},
+        "effects_any": {"$ref": "#/$defs/nonEmptyUniqueNames"},
+        "effects_all": {"$ref": "#/$defs/nonEmptyUniqueNames"},
+        "surfaces_any": {"$ref": "#/$defs/nonEmptyUniqueNames"},
+        "surfaces_all": {"$ref": "#/$defs/nonEmptyUniqueNames"},
+        "domains_any": {"$ref": "#/$defs/nonEmptyUniqueNames"},
+        "domains_all": {"$ref": "#/$defs/nonEmptyUniqueNames"},
+        "flags_any": {"$ref": "#/$defs/nonEmptyUniqueNames"},
+        "flags_all": {"$ref": "#/$defs/nonEmptyUniqueNames"},
+        "flags_none": {"$ref": "#/$defs/nonEmptyUniqueNames"}
+      }
+    },
+    "routing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selection_strength", "triggers", "exclusions"],
+      "properties": {
+        "selection_strength": {"enum": ["required", "optional"]},
+        "triggers": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/routingClause"}
+        },
+        "exclusions": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/routingClause"}
+        }
+      }
+    },
+    "relations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requires", "gates", "runs_after", "supports", "conflicts_with", "consumes", "superseded_by"],
+      "properties": {
+        "requires": {"$ref": "#/$defs/uniqueNames"},
+        "gates": {"$ref": "#/$defs/uniqueNames"},
+        "runs_after": {"$ref": "#/$defs/uniqueNames"},
+        "supports": {"$ref": "#/$defs/uniqueNames"},
+        "conflicts_with": {"$ref": "#/$defs/uniqueNames"},
+        "consumes": {"$ref": "#/$defs/uniqueNames"},
+        "superseded_by": {"$ref": "#/$defs/uniqueNames"}
+      }
+    },
+    "skill": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "status",
+        "role",
+        "routing_mode",
+        "description",
+        "triggers",
+        "exclusions",
+        "routing",
+        "decision_domains",
+        "artifact_policy",
+        "risk_level",
+        "relations"
+      ],
+      "properties": {
+        "name": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+        "status": {"enum": ["active", "deprecated", "compatibility_alias", "removed"]},
+        "role": {"enum": ["owner", "safety", "execution", "support", "mode", "compatibility"]},
+        "routing_mode": {"enum": ["automatic", "explicit_only", "safety_only", "nonselectable"]},
+        "description": {"type": "string", "minLength": 1},
+        "triggers": {"$ref": "#/$defs/uniqueStrings"},
+        "exclusions": {"$ref": "#/$defs/uniqueStrings"},
+        "routing": {"$ref": "#/$defs/routing"},
+        "decision_domains": {"$ref": "#/$defs/uniqueNames"},
+        "artifact_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["durability", "artifacts"],
+          "properties": {
+            "durability": {"enum": ["none", "conversation_local", "conversation_local_unless_record", "authorized_only", "required_when_governed"]},
+            "artifacts": {"$ref": "#/$defs/uniqueNames"}
+          }
+        },
+        "risk_level": {"enum": ["low", "medium", "high", "critical"]},
+        "relations": {"$ref": "#/$defs/relations"}
+      }
+    }
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-command-center.local/schemas/governance-artifact.schema.json",
+  "title": "Governance Artifact",
+  "description": "Backward-compatible governance evidence contract. A missing schema_version is legacy v1; new artifacts use v2.",
+  "oneOf": [
+    {"$ref": "#/$defs/v1"},
+    {"$ref": "#/$defs/v2"}
+  ],
+  "$defs": {
+    "common": {
+      "type": "object",
+      "required": [
+        "task_id",
+        "created_at_utc",
+        "project_id",
+        "project_language",
+        "project_description_max4",
+        "model_runs_test_build_default",
+        "execution_scope",
+        "deployment_requested",
+        "quizme_mode",
+        "quizme_multiple_choice",
+        "quizme_one_at_a_time",
+        "quizme_confirm",
+        "quizme_record",
+        "selected_mode",
+        "required_gates",
+        "gate_status",
+        "startup_declaration",
+        "recommendation",
+        "break_glass"
+      ],
+      "properties": {
+        "task_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+        "created_at_utc": {"type": "string", "format": "date-time"},
+        "project_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"},
+        "project_language": {"type": "string", "minLength": 1},
+        "project_description_max4": {"type": "string", "minLength": 1},
+        "model_runs_test_build_default": {"enum": ["yes", "no"]},
+        "execution_scope": {"enum": ["local_only", "deployment"]},
+        "deployment_requested": {"type": "boolean"},
+        "quizme_mode": {"enum": ["off", "on"]},
+        "quizme_multiple_choice": {"type": "boolean"},
+        "quizme_one_at_a_time": {"type": "boolean"},
+        "quizme_confirm": {"type": "boolean"},
+        "quizme_record": {"type": "boolean"},
+        "selected_mode": {"enum": ["quick", "standard", "critical"]},
+        "required_gates": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "startup_declaration": {"$ref": "#/$defs/startupDeclaration"},
+        "recommendation": {"enum": ["no-go", "go-with-risk", "go"]},
+        "break_glass": {"type": "object"}
+      }
+    },
+    "startupDeclaration": {
+      "type": "object",
+      "required": ["skills_in_use", "skills_selection_rationale", "skills_execution_order"],
+      "properties": {
+        "skills_in_use": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[a-z0-9-]+$"}
+        },
+        "skills_selection_rationale": {"type": "string", "minLength": 1},
+        "skills_execution_order": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[a-z0-9-]+$"}
+        }
+      }
+    },
+    "manifestEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "status", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "status": {"enum": ["A", "M", "D", "T", "U", "X", "B"]},
+        "sha256": {
+          "oneOf": [
+            {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "gateRecord": {
+      "type": "object",
+      "required": ["status", "evidence", "waiver_reason"],
+      "properties": {
+        "status": {"enum": ["pending", "pass", "fail", "waived"]},
+        "evidence": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        },
+        "waiver_reason": {"type": "string"}
+      }
+    },
+    "v1": {
+      "allOf": [
+        {"$ref": "#/$defs/common"},
+        {
+          "properties": {
+            "schema_version": {"enum": [1, null]},
+            "gate_status": {
+              "type": "object",
+              "additionalProperties": {"enum": ["pending", "pass", "fail", "waived"]}
+            }
+          },
+          "not": {"required": ["change_binding"]}
+        }
+      ]
+    },
+    "v2": {
+      "allOf": [
+        {"$ref": "#/$defs/common"},
+        {
+          "required": ["schema_version", "change_binding"],
+          "properties": {
+            "schema_version": {"const": 2},
+            "gate_status": {
+              "type": "object",
+              "additionalProperties": {"$ref": "#/$defs/gateRecord"}
+            },
+            "change_binding": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["base_sha", "manifest", "manifest_sha256"],
+              "properties": {
+                "base_sha": {"type": "string", "pattern": "^[0-9a-f]{40}([0-9a-f]{24})?$"},
+                "manifest": {
+                  "type": "array",
+                  "items": {"$ref": "#/$defs/manifestEntry"}
+                },
+                "manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

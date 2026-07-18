@@ -1,6 +1,6 @@
 ---
 name: interdependent-change-planning
-description: Use for changes that touch multiple related files, flows, or data paths and must be planned as one connected system.
+description: Coordinate an authorized change whose coupled files, contracts, flows, or data paths must move together to remain valid. Use when a local edit would leave a known dependent surface inconsistent; do not use merely because several files are touched independently.
 ---
 
 # Interdependent Change Planning
@@ -32,7 +32,7 @@ Use this skill when:
 1. a change affects multiple related components, files, routes, or data paths
 2. a local edit would leave adjacent behavior inconsistent
 3. one update implies companion changes elsewhere
-4. the user asks for a thoughtful or system-aware change
+4. a shared invariant requires an atomic or explicitly staged migration
 
 ## Connected-Change Standard
 Treat the touched area as a connected system, not isolated edits.
@@ -44,7 +44,7 @@ Before editing:
 4. decide whether companion updates are required
 
 ## Impact Map
-Record:
+Extend the canonical task impact map rather than creating a duplicate. Record:
 1. primary file or module being changed
 2. directly affected neighbors
 3. dependent surfaces that must stay aligned
@@ -81,6 +81,8 @@ When using this skill, provide:
 3. coordinated updates made
 4. deferred companion work, if any
 5. validation summary
+
+Activating this skill grants no authority to mutate companion surfaces outside the user's task. If a required companion change would expand scope materially, stop and request direction.
 
 ## Related Skills
 - [Thoughtful Approach](../thoughtful-approach/SKILL.md): decide what should move together from a user-value perspective.

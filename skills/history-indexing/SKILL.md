@@ -89,7 +89,8 @@ When applying this skill, provide:
 3. unresolved ambiguity/conflict notes
 
 ## Related Skills
-- [Skill Index](../docs/skill-index.md): canonical cross-skill routing index for trigger decisions.
+- [Skill Catalog](../skill-catalog.json): canonical routing source for trigger and relationship decisions.
+- [Skill Index](../docs/skill-index.md): generated operator view of the catalog; do not edit it independently.
 - [Token Reduction](../token-reduction/SKILL.md): response and execution efficiency discipline.
 - [Doc Maintenance](../doc-maintenance/SKILL.md): keep index artifact synchronized when decision context changes.
 - [Conversation Retention Summary](../conversation-retention-summary/SKILL.md): maintain the rolling last-10 summary alongside the detailed index.

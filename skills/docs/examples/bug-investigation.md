@@ -5,19 +5,21 @@ The user reports a failure or suggests a possible cause, but the root cause is n
 
 In this path, the agent should avoid patching based only on the first plausible explanation. Reproduce or inspect enough to separate symptoms from cause.
 
-## Skills In Use
-1. `token-reduction`
-2. `order-of-operations`
-3. `diagnose-before-fix`
-4. `scripted-command-execution`
-5. `regression-prevention`
+## Minimal Route
+Select `diagnose-before-fix` because the cause is unverified.
+
+Add another skill only if its independent trigger appears:
+
+1. `regression-prevention` when an authorized fix will change non-trivial behavior
+2. `scripted-command-execution` when the deliverable is a repeatable diagnostic command workflow, not merely because an incidental command runs
+
+This routine route does not need a startup declaration unless the user explicitly asks for one or the work becomes governed or audited.
 
 ## Why
-1. keep investigation focused
-2. reproduce before patching when practical
-3. separate symptoms from verified cause
-4. run deterministic diagnostics
-5. choose validation based on affected behavior
+1. reproduce before patching when practical
+2. separate symptoms from verified cause
+3. add implementation or command owners only after their effects are known
+4. choose validation based on affected behavior
 
 ## Enough Validation
 1. reproduction command or documented blocked reproduction

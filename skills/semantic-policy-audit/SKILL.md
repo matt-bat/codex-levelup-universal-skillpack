@@ -1,6 +1,6 @@
 ---
 name: semantic-policy-audit
-description: Use for intent-level policy compliance checks beyond snippet presence, including whether selected skills, declared gates, and execution behavior semantically match task intent and risk.
+description: Audit whether a task descriptor, selected skills, authority, gates, artifacts, execution, and completion claims semantically match user intent and actual effects. Use for policy-system audits or high-confidence governed review; do not use for ordinary implementation or mechanical schema checks.
 ---
 
 # Semantic Policy Audit
@@ -37,18 +37,24 @@ Use [Governance Enforcement](../governance-enforcement/SKILL.md) for:
 ## Audit Dimensions
 1. intent-to-skill alignment:
    - requested task intent matches selected skills
+   - action and operational effect are classified separately from topic words
 2. gate applicability alignment:
    - required/conditional gates are actually appropriate
+   - mandatory safety gates are not suppressed by budgets
 3. declaration-to-execution alignment:
    - startup declaration reflects true execution path
 4. status-to-evidence alignment:
    - artifacts claim only what evidence supports
 5. policy conflict detection:
    - identify contradictory instructions across policy docs/skills
+6. authority and mutation alignment:
+   - every write, external action, or irreversible effect has matching authority
+7. response-composition alignment:
+   - deliverables, prohibitions, must-surface evidence, and vetoes survive final composition
 
 ## Audit Workflow
-1. ingest task intent, selected skills, governance artifacts, and key docs
-2. derive expected skills/gates from intent heuristics
+1. ingest the task descriptor, selected skills, governance artifacts, execution evidence, and key docs
+2. derive expected skills/gates from action, effects, authority, and material uncertainty
 3. compare expected vs declared/applied
 4. classify gaps:
    - `missing_skill`
@@ -58,6 +64,8 @@ Use [Governance Enforcement](../governance-enforcement/SKILL.md) for:
    - `evidence_mismatch`
    - `policy_conflict`
 5. provide corrective actions with minimal disruption
+
+Read-only audits must not update policy, trackers, indexes, or governance artifacts unless the user separately authorizes remediation.
 
 ## Output Contract
 When applying this skill, provide:

@@ -3,6 +3,7 @@ name: Skills Governance CI
 on:
   pull_request:
     paths:
+      - '.codex/skills/**'
       - 'skills/**'
       - 'docs/governance/**'
       - 'docs/project-index.md'
@@ -11,21 +12,24 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'skills/**'
-      - 'docs/governance/**'
-      - 'docs/project-index.md'
-      - 'AGENTS.md'
-      - '.github/workflows/**'
+    tags:
+      - 'v*'
+  release:
+    types:
+      - published
+
+permissions:
+  contents: read
 
 jobs:
   governance:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout exact event head
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event_name == 'release' && github.event.release.tag_name || github.sha }}
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -35,6 +39,11 @@ jobs:
       - name: Compile governance scripts
         run: |
           python3 -m py_compile \
+            skills/skill-governance/scripts/governance_common.py \
+            skills/skill-governance/scripts/generate_governance_artifact.py \
+            skills/skill-governance/scripts/generate_routing_views.py \
+            skills/skill-governance/scripts/record_routing_observation.py \
+            skills/skill-governance/scripts/resolve_task_route.py \
             skills/skill-governance/scripts/validate_skill_policy.py \
             skills/skill-governance/scripts/validate_skill_order_sync.py \
             skills/skill-governance/scripts/validate_governance_artifact.py \
@@ -55,10 +64,11 @@ jobs:
             --skills-root skills \
             --repo-root . \
             --strict \
-            --require-recommendation go
+            --require-recommendation go \
+            --attestation-out "${RUNNER_TEMP}/governance-attestation.json"
 
-      - name: Enforce governance and skill policy (push)
-        if: github.event_name == 'push'
+      - name: Enforce governance and skill policy (main push)
+        if: github.event_name == 'push' && github.ref_type == 'branch'
         run: |
           python3 skills/skill-governance/scripts/enforce_governance_ci.py \
             --base-sha "${{ github.event.before }}" \
@@ -66,7 +76,29 @@ jobs:
             --skills-root skills \
             --repo-root . \
             --strict \
-            --require-recommendation go
+            --require-recommendation go \
+            --attestation-out "${RUNNER_TEMP}/governance-attestation.json"
+
+      - name: Verify exact release or tag head
+        if: github.event_name == 'release' || (github.event_name == 'push' && github.ref_type == 'tag')
+        run: |
+          python3 skills/skill-governance/scripts/enforce_governance_ci.py \
+            --head-sha "${{ github.event_name == 'release' && github.event.release.tag_name || github.sha }}" \
+            --skills-root skills \
+            --repo-root . \
+            --release-check \
+            --strict \
+            --require-recommendation go \
+            --attestation-out "${RUNNER_TEMP}/governance-attestation.json"
+
+      - name: Upload exact-head governance attestation
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: governance-attestation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/governance-attestation.json
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Direct skill ordering sync check
         run: |

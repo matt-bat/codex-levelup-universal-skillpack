@@ -1,177 +1,97 @@
 ---
 name: effective-testing-methods
-description: Use for implementing or amending unit tests and Playwright tests when features or behavior change, ensuring updates are validated with robust, maintainable test coverage.
+description: Design, add, or amend tests for changed behavior with surface-appropriate coverage. Use when test design or test-file changes are part of the task; do not activate merely to run an existing test command, and use Playwright only when a browser-visible flow changed.
 ---
 
 # Effective Testing Methods
 
-## Quick Index (Action-Routed)
-### Read First (All Actions)
-1. `Mission`
-2. `Use This Skill When`
-3. `Scope Boundary`
-4. `Core Principles`
-
-### Action Modules (Read As Needed)
-1. Test planning and selection:
-   - `Test Impact Mapping`
-   - `Layer Selection Rules`
-2. Unit test implementation:
-   - `Unit Test Patterns`
-   - `Unit Test Quality Gates`
-3. Playwright implementation:
-   - `Playwright Patterns`
-   - `Playwright Stability Gates`
-4. Validation and evidence:
-   - `Execution Order`
-   - `Constrained Environment Verification Path`
-   - `Coverage-to-Change Map`
-   - `Acceptance Checklist`
-
-### Output
-1. `Deliverable Format`
-2. `Anti-Patterns`
-
 ## Mission
-Ensure every feature addition or behavior change is accompanied by targeted, reliable unit and browser-level Playwright coverage.
 
-## Use This Skill When
-1. implementing new features or modifying existing behavior
-2. fixing regressions that need durable test coverage
-3. changing UI flows for web applications that require user-path verification
-4. changing business logic requiring deterministic unit test updates
+Create the smallest reliable test set that proves changed behavior and meaningful failure paths.
 
 ## Scope Boundary
-This skill governs test implementation quality and test-change completeness.
 
-Use [Regression Prevention](../regression-prevention/SKILL.md) for:
-1. risk-tier policy and release gates
-2. rollback and risk acceptance decisions
+This skill owns test selection and test implementation quality. It does not own overall change risk, command orchestration, or release decisions.
 
-Use [Scripted Command Execution](../scripted-command-execution/SKILL.md) for:
-1. deterministic test command orchestration
+Use:
 
-## Core Principles
-1. test behavior, not implementation trivia
-2. keep unit tests fast and deterministic
-3. keep Playwright tests user-centric and resilient
-4. map each meaningful code change to at least one validating test
-5. prefer small focused tests over brittle mega-tests
+1. [Regression Prevention](../regression-prevention/SKILL.md) for implementation and change-safety evidence.
+2. [Scripted Command Execution](../scripted-command-execution/SKILL.md) for repeatable test command workflows.
 
-## Test Impact Mapping
-Before writing tests, map:
-1. changed module/route
-2. user-visible behavior affected
-3. logic branches introduced or modified
-4. contracts/states that can fail
-5. existing tests to reuse or amend
+Running existing tests does not automatically activate this skill.
 
-## Layer Selection Rules
-1. always update/add unit tests for changed business logic
-2. add or amend Playwright for changed user flows in web apps
-3. include integration/contract checks when boundaries changed
-4. avoid using Playwright as a substitute for branch-level unit coverage
+## Test Impact Map
 
-Recommended default split:
-1. broad unit coverage for logic edges
-2. targeted Playwright coverage for critical user flows
+Before editing tests, identify:
 
-## Unit Test Patterns
-1. arrange-act-assert structure with explicit fixtures
-2. one behavioral intent per test case
-3. table-driven tests for branch-heavy logic
-4. explicit edge-case and error-path tests
-5. no hidden dependencies on global state or test order
+1. changed behavior or contract
+2. relevant existing tests
+3. important success, failure, and edge paths
+4. the cheapest layer that observes the behavior
+5. residual behavior that cannot be exercised locally
 
-## Unit Test Quality Gates
-1. deterministic outcomes across repeated runs
-2. no network/time randomness without explicit control
-3. meaningful names that describe behavior
-4. assertions reflect observable outcomes
-5. tests fail for the right reason (avoid broad catch-all assertions)
+## Surface-Driven Layer Selection
 
-## Playwright Patterns
-1. prefer role/text/test-id locators over brittle CSS/XPath selectors
-2. validate user-visible states and critical transitions
-3. isolate tests with clean state per test/spec where possible
-4. use web-first assertions and built-in auto-waiting behavior
-5. keep page object abstractions small and intent-focused
+Select only applicable layers:
 
-## Playwright Stability Gates
-1. no fixed sleeps when reliable waits/assertions are possible
-2. avoid third-party dependency assertions outside your control
-3. capture trace/artifacts on failure for triage
-4. verify at least one failure-path scenario for critical flows
-5. keep authentication/session setup explicit and reusable
+1. `static`: types, schemas, lint, or compile-time contracts
+2. `unit`: deterministic logic and boundary cases
+3. `integration`: database, service, file, process, or API boundaries
+4. `contract`: request/response, event, serialization, and compatibility
+5. `browser`: user-visible rendering and interaction in a web application
+6. `runtime_smoke`: executable startup or critical operational path
+
+Playwright is allowed only when a browser-visible flow changed or explicit browser verification was requested. Command-line, library, backend-only, documentation, and policy work must not acquire a browser requirement.
+
+## Test Construction Rules
+
+1. Test observable behavior rather than incidental implementation details.
+2. Prefer focused deterministic cases over broad brittle scenarios.
+3. Include negative and failure cases proportional to risk.
+4. Control time, randomness, network, and global state.
+5. Reuse existing fixtures and repository conventions.
+6. Ensure each test fails for the intended reason before trusting it.
+
+Read [test-patterns.md](references/test-patterns.md) for unit, integration, contract, and browser patterns.
 
 ## Execution Order
-1. run static checks and unit tests first
-2. run integration/contract tests next
-3. run targeted Playwright tests next
-4. run expanded Playwright matrix for high-risk changes
 
-## Constrained Environment Verification Path
-Use this path when required test layers are blocked by environment constraints (for example missing browser/system libraries).
+Run the cheapest relevant checks first:
 
-Required actions:
-1. record blocker evidence:
-   - command attempted
-   - exact error line
-   - blocked layer
-2. keep moving with non-blocked layers:
-   - static checks
-   - unit/integration checks (if available)
-   - Playwright test discovery/listing
-3. still update impacted tests/specs:
-   - ensure changed behavior is reflected in test files even if execution is blocked
-4. publish residual-risk classification:
-   - `medium` when non-critical browser checks are blocked
-   - `high` when critical user-flow browser checks are blocked
-5. provide explicit rerun command for full verification when environment is fixed
+1. static or compile checks
+2. unit tests
+3. integration and contract tests
+4. targeted browser or runtime checks
+5. broader suites only when impact or release policy requires them
 
-Reference runbook:
-- `skills/docs/verification/constrained-environment-verification.md`
+If a prerequisite is unavailable, record the exact blocker, run non-blocked relevant layers, and provide the precise rerun command. Never substitute an unrelated passing layer for a blocked critical layer.
 
-## Coverage-to-Change Map
-For medium/high-risk changes, provide:
-1. changed component/logic
-2. unit tests added or amended
-3. Playwright specs added or amended
-4. uncovered residual risks
+## Authority and Evidence
 
-## Acceptance Checklist
-1. changed logic has updated unit coverage
-2. changed web user flow has updated Playwright coverage
-3. critical paths pass in CI/local validation
-4. flaky behavior is identified and mitigated
-5. evidence links exist for new/updated tests
-6. when layers are blocked, blocker evidence + rerun plan is included
+1. Respect explicit instructions not to run or modify tests.
+2. Test-authoring permission does not imply permission to install dependencies or mutate external state.
+3. Report executed, skipped, blocked, and newly authored coverage separately.
+4. Do not claim full coverage from test discovery or static inspection alone.
 
-## Deliverable Format
-When applying this skill, provide:
-1. change-to-test impact map
-2. tests added/updated by layer
-3. execution results summary
-4. residual testing risks and follow-up actions
+## Output Contract
 
-## Source Reference
-Primary references:
-1. Playwright best practices:
-   - https://playwright.dev/docs/best-practices
-2. Google testing strategy guidance:
-   - https://testing.googleblog.com/2015/04/just-say-no-to-more-end-to-end-tests.html
-3. MIT software construction testing principles:
-   - https://ocw.mit.edu/courses/6-005-software-construction-spring-2016/
+Provide:
 
-## Anti-Patterns
-1. shipping behavior changes without test updates
-2. relying only on manual QA for changed critical paths
-3. brittle Playwright selectors tied to incidental DOM details
-4. over-mocking away the behavior under test
-5. asserting internals instead of outcomes
+1. behavior-to-test map
+2. tests added or amended by applicable layer
+3. execution results
+4. blocked or residual coverage
+
+## Quality Gates
+
+1. Every test maps to changed or explicitly protected behavior.
+2. No irrelevant layer was required.
+3. Browser tests exist only for browser behavior.
+4. Failure paths and compatibility boundaries receive proportional coverage.
+5. Evidence distinguishes authored, executed, and blocked validation.
 
 ## Related Skills
-- [Regression Prevention](../regression-prevention/SKILL.md): risk-tier regression policy and release gating.
-- [Scripted Command Execution](../scripted-command-execution/SKILL.md): deterministic test run orchestration.
-- [Doc Maintenance](../doc-maintenance/SKILL.md): synchronize test docs and run commands.
-- [File Maintenance](../file-maintenance/SKILL.md): keep testing docs and evidence accurate over time.
+
+- [Regression Prevention](../regression-prevention/SKILL.md): implementation and final-diff safety.
+- [Scripted Command Execution](../scripted-command-execution/SKILL.md): deterministic test execution.
+- [Pseudo-Agentic Automation](../pseudo-agentic-automation/SKILL.md): adaptive browser or graphical runtime work.

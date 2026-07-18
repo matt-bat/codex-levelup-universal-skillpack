@@ -10,19 +10,20 @@ Validators should be strict about things that can break routing, safety, governa
 3. `advisory`: improvement suggestion for maintenance review
 
 ## Error Examples
-1. missing required skill in `SKILL-MAP.md`
-2. `SKILL-MAP.md` and `docs/skill-index.md` order mismatch
-3. invalid governance artifact schema
-4. strict gate not `pass` or `waived`
-5. missing required `SKILL.md` frontmatter name
+1. invalid catalog schema, unknown typed relation target, or a cycle in the hard `requires` graph
+2. `SKILL-MAP.md`, `docs/skill-index.md`, or `docs/skill-decision-tree.md` differs from catalog-generated output
+3. a `SKILL.md` frontmatter name or description diverges from its catalog entry
+4. invalid governance artifact schema or change binding
+5. a `go` artifact has a pending, failed, waived, or unsupported required gate
+6. an exact-head release check or attestation does not match the candidate commit
 
 Errors should represent real breakage or a release-readiness claim that cannot be trusted.
 
 ## Warning Examples
-1. stale `Last Updated UTC` on unchanged docs
-2. deprecated skill reference with a valid replacement
-3. install profile not mentioning a newly added optional skill
-4. examples missing for a non-critical skill
+1. a new integration uses a deprecated compatibility name with a valid replacement
+2. an install profile does not mention a newly added optional skill
+3. examples are missing for a non-critical skill
+4. operator guidance is accurate but could link the canonical catalog more directly
 
 Warnings should be visible enough to fix, but not so heavy that they block unrelated work.
 

@@ -1,112 +1,74 @@
 # Maturity Model
 
-Use this model to adopt the skillpack gradually. You do not need every skill on day one, and a small team should not have to carry release-governance weight for tiny local edits.
+Adopt capabilities gradually. An installed or available skill is not an active skill: the task router may select zero skills, and each package activates only when its catalog trigger matches.
 
-Optional at every level:
-1. install `quizme-mode` when you want persistent `--quizme` exhaustive clarification with optional `--mc`, `--one-at-a-time`, `--confirm`, and `--record` behavior
+## Level 1: Core Policy and Routing
 
-## Level 1: Baseline Assistance
-Goal: make simple work clearer, cheaper, and easier to follow.
+Goal: preserve authority, user work, instruction precedence, and proportional validation without routine ceremony.
 
-Required:
+Capabilities:
 
-1. `token-reduction`
-2. `order-of-operations`
-3. `process-budget-controller`
-
-Evidence:
-
-1. startup declarations use a small skill set
-2. small tasks avoid governance artifacts
-3. final answers stay concise
-
-This level is enough when the main problem is scattered process, not release risk.
-
-## Level 2: Developer Workflow
-Goal: make normal coding work safer.
-
-Required:
-
-1. Level 1 skills
-2. `scripted-command-execution`
-3. `diagnose-before-fix`
-4. `regression-prevention`
-5. `effective-testing-methods`
-6. `doc-maintenance`
+1. root `AGENTS.md` core policy
+2. canonical `skill-catalog.json`
+3. generated routing views
+4. zero-skill route and a routine target median of two or fewer selected skills
 
 Evidence:
 
-1. bugs are reproduced before fixes when practical
-2. behavior changes get targeted validation
-3. docs update when workflows change
+1. routine tasks do not create governance or tracking artifacts
+2. read-only tasks perform zero writes
+3. startup declarations appear only when explicitly requested or required as governed evidence
 
-This is the everyday level for most active repositories.
+## Level 2: Development Workflows
+
+Goal: make implementation, diagnosis, testing, documentation, and command execution safer when their precise triggers apply.
+
+Available packages include `diagnose-before-fix`, `regression-prevention`, `effective-testing-methods`, `scripted-command-execution`, `interdependent-change-planning`, and `doc-maintenance`.
+
+Evidence:
+
+1. unverified causes are diagnosed before patching
+2. behavior changes get surface-appropriate validation
+3. test-design and implementation ownership remain separate
+4. canonical documentation changes only when it would otherwise be inaccurate
 
 ## Level 3: Governed Validation
-Goal: make risky or release-affecting changes auditable.
 
-Required:
+Goal: make release-affecting, policy-changing, externally mutating, destructive, or otherwise high-risk work auditable.
 
-1. Level 2 skills
-2. `skill-governance`
-3. `governance-enforcement`
-4. `semantic-policy-audit`
-5. `interdependent-change-planning`
-6. `user-instructions-tracker`
+Available packages include `skill-governance`, `governance-enforcement`, and `semantic-policy-audit`.
 
 Evidence:
 
-1. governance artifacts exist for governed changes
-2. strict artifact validation passes
-3. CI checks enforce governed-change rules
-4. user directives have evidence rows
-
-Use this level when a future reader needs to understand why a change was safe to push.
+1. governed changes bind evidence to the exact base and candidate content
+2. mandatory gates fail closed on missing, stale, or pending evidence
+3. release attestations identify the exact commit
+4. external release controls are verified independently
 
 ## Level 4: Lifecycle Management
-Goal: keep the skillpack maintainable as it grows.
 
-Required:
+Goal: keep the pack coherent as routing evidence accumulates.
 
-1. Level 3 skills
-2. `skill-usage-review`
-3. `deprecation-management`
-4. `file-maintenance`
-5. `artifact-budget-enforcement`
+Available packages include `skill-usage-review`, `deprecation-management`, `file-maintenance`, and `artifact-budget-enforcement`.
 
 Evidence:
 
-1. overused and underused skills are reviewed
-2. deprecated paths have replacements
-3. cached artifacts stay bounded
-4. stale docs are pruned or refreshed
-
-This level protects the pack from becoming a pile of overlapping process rules.
+1. bounded observations reveal overuse, underuse, corrections, and retries without retaining prompts or source content
+2. compatibility aliases are one-way and time-bounded
+3. cached artifacts stay within declared limits
+4. generated views cannot drift from the catalog
 
 ## Level 5: Evidence-Driven Improvement
-Goal: improve from real task outcomes, not speculation.
 
-Required:
-
-1. field notes
-2. task logs
-3. scenario refreshes
-4. usage-review findings
-5. pruning decisions
+Goal: improve from representative task outcomes rather than speculative rules.
 
 Evidence:
 
-1. repeated friction creates concrete improvements
-2. rarely used skills are merged, deprecated, or justified
-3. examples reflect real tasks
-4. validation profiles match actual risk
+1. at least 30 representative routed tasks or two releases cover the migration observation window
+2. recurring friction becomes a tested catalog, router, or skill change
+3. rarely used skills are justified, merged, deprecated, or removed through an explicit lifecycle decision
+4. validation profiles reflect actual risk boundaries
 
-This is where the pack becomes more useful over time instead of merely larger.
+## Advancement and Regression
 
-## Advancement Rule
-Move up a level only when the previous level is being used consistently.
-
-## Regression Rule
-If users report process friction, drop one level for routine tasks and keep higher levels only for governed work.
-
-The healthiest version of the pack is not the strictest version. It is the version that matches the task.
+Advance only when the prior level produces reliable evidence. If process friction increases, reduce optional routing for routine tasks while preserving mandatory safety gates for governed work.

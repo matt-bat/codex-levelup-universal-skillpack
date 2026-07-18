@@ -1,0 +1,453 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-command-center.local/schemas/task-descriptor.schema.json",
+  "title": "Task Router v2 Descriptor",
+  "description": "Normalized task intent consumed by the deterministic v2 route resolver. Text is evidence only; routing decisions use typed action, effect, authority, and risk fields.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "task_id",
+    "deliverables",
+    "action",
+    "mutation",
+    "effects",
+    "surfaces",
+    "domains",
+    "authority",
+    "constraints",
+    "inferred_requirements",
+    "material_uncertainties",
+    "evidence",
+    "checkpoint"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}$"
+    },
+    "deliverables": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "summary", "acceptance_criteria"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$"
+          },
+          "kind": {
+            "enum": [
+              "response",
+              "file_change",
+              "diagnosis",
+              "review",
+              "score",
+              "test_change",
+              "operation",
+              "release"
+            ]
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "acceptance_criteria": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            }
+          }
+        }
+      }
+    },
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary",
+        "operations",
+        "execution_mode",
+        "command_effect",
+        "test_intent",
+        "behavior_change",
+        "test_change",
+        "coupled_change",
+        "product_judgment",
+        "ui_quality_judgment",
+        "release_enforcement",
+        "governance_tooling",
+        "documentation_sync",
+        "sequencing_required"
+      ],
+      "properties": {
+        "primary": {
+          "enum": [
+            "answer",
+            "inspect",
+            "diagnose",
+            "review",
+            "score",
+            "edit",
+            "implement",
+            "test",
+            "operate",
+            "release"
+          ]
+        },
+        "operations": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "read",
+              "run_commands",
+              "write_files",
+              "commit",
+              "push",
+              "publish",
+              "deploy",
+              "delete",
+              "migrate",
+              "message"
+            ]
+          }
+        },
+        "execution_mode": {
+          "description": "How requested command or runtime execution should be routed. Incidental validation does not activate a workflow skill.",
+          "enum": [
+            "none",
+            "incidental_validation",
+            "deterministic_workflow",
+            "adaptive_browser"
+          ]
+        },
+        "command_effect": {
+          "description": "Maximum state effect of requested command execution. Unknown fails closed.",
+          "enum": [
+            "not_applicable",
+            "read_only",
+            "workspace",
+            "repository",
+            "external",
+            "unknown"
+          ]
+        },
+        "test_intent": {
+          "description": "Distinguishes running existing tests from designing or changing tests.",
+          "enum": ["none", "run_existing", "design_or_change"]
+        },
+        "behavior_change": {
+          "type": "boolean"
+        },
+        "test_change": {
+          "type": "boolean"
+        },
+        "coupled_change": {
+          "type": "boolean"
+        },
+        "product_judgment": {
+          "type": "boolean"
+        },
+        "ui_quality_judgment": {
+          "type": "boolean"
+        },
+        "release_enforcement": {
+          "type": "boolean"
+        },
+        "governance_tooling": {
+          "type": "boolean"
+        },
+        "documentation_sync": {
+          "type": "boolean"
+        },
+        "sequencing_required": {
+          "type": "boolean"
+        }
+      }
+    },
+    "mutation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "level",
+        "targets",
+        "destructive",
+        "data_loss_risk",
+        "recovery_requirement"
+      ],
+      "properties": {
+        "level": {
+          "enum": [
+            "none",
+            "workspace",
+            "repository",
+            "external",
+            "irreversible",
+            "unknown"
+          ]
+        },
+        "targets": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          }
+        },
+        "destructive": {
+          "type": "boolean"
+        },
+        "data_loss_risk": {
+          "description": "Credible loss exposure for the requested operation, independent of domain keywords.",
+          "enum": ["none", "credible", "unknown"]
+        },
+        "recovery_requirement": {
+          "description": "Whether execution requires a proven backup-and-restore path.",
+          "enum": ["not_required", "required", "unknown"]
+        }
+      }
+    },
+    "effects": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "workspace_files",
+          "repository_history",
+          "remote_repository",
+          "published_artifact",
+          "runtime_environment",
+          "live_data",
+          "external_message",
+          "deletion",
+          "user_visible_behavior",
+          "test_suite",
+          "documentation",
+          "governance_policy",
+          "unknown"
+        ]
+      }
+    },
+    "surfaces": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "response",
+          "source",
+          "cli",
+          "documentation",
+          "tests",
+          "frontend",
+          "backend",
+          "browser",
+          "repository",
+          "governance",
+          "release",
+          "runtime",
+          "live_data",
+          "external_service"
+        ]
+      }
+    },
+    "domains": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "general",
+          "code",
+          "policy",
+          "documentation",
+          "testing",
+          "frontend",
+          "spatial_canvas",
+          "auth",
+          "migration",
+          "release",
+          "repository",
+          "data",
+          "operations"
+        ]
+      }
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["read"],
+      "properties": {
+        "read": {"$ref": "#/$defs/authorityStatus"},
+        "run_commands": {"$ref": "#/$defs/authorityStatus"},
+        "write_files": {"$ref": "#/$defs/authorityStatus"},
+        "commit": {"$ref": "#/$defs/authorityStatus"},
+        "push": {"$ref": "#/$defs/authorityStatus"},
+        "publish": {"$ref": "#/$defs/authorityStatus"},
+        "deploy": {"$ref": "#/$defs/authorityStatus"},
+        "delete": {"$ref": "#/$defs/authorityStatus"},
+        "migrate": {"$ref": "#/$defs/authorityStatus"},
+        "message": {"$ref": "#/$defs/authorityStatus"}
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "read_only",
+        "artifact_policy",
+        "max_optional_skills",
+        "explicit",
+        "non_goals"
+      ],
+      "properties": {
+        "read_only": {
+          "type": "boolean"
+        },
+        "artifact_policy": {
+          "enum": ["forbid", "allow_required", "allow"]
+        },
+        "max_optional_skills": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20
+        },
+        "explicit": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "non_goals": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        }
+      }
+    },
+    "inferred_requirements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "description",
+          "provenance",
+          "confidence",
+          "material"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "provenance": {
+            "enum": [
+              "repository_policy",
+              "repository_convention",
+              "task_context",
+              "safety_invariant"
+            ]
+          },
+          "confidence": {
+            "enum": ["low", "medium", "high"]
+          },
+          "material": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "material_uncertainties": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "description", "severity", "status"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "severity": {
+            "enum": ["noncritical", "material", "critical"]
+          },
+          "status": {
+            "enum": ["resolved", "unresolved", "conflicting"]
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "root_cause",
+        "tests",
+        "rollback",
+        "backup",
+        "restore",
+        "exact_commit"
+      ],
+      "properties": {
+        "root_cause": {"$ref": "#/$defs/evidenceStatus"},
+        "tests": {"$ref": "#/$defs/evidenceStatus"},
+        "rollback": {"$ref": "#/$defs/evidenceStatus"},
+        "backup": {"$ref": "#/$defs/evidenceStatus"},
+        "restore": {"$ref": "#/$defs/evidenceStatus"},
+        "exact_commit": {"$ref": "#/$defs/evidenceStatus"}
+      }
+    },
+    "checkpoint": {
+      "enum": [
+        "initial",
+        "post_inspection",
+        "post_plan",
+        "post_diff",
+        "pre_external_action"
+      ]
+    }
+  },
+  "$defs": {
+    "authorityStatus": {
+      "enum": ["granted", "denied", "unknown"]
+    },
+    "evidenceStatus": {
+      "enum": [
+        "not_applicable",
+        "pending",
+        "passed",
+        "failed",
+        "unknown"
+      ]
+    }
+  }
+}

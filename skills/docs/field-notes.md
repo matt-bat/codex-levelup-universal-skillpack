@@ -31,7 +31,18 @@ Keep entries short. The goal is a useful pattern over time, not a transcript.
 4. do not add a new skill from a single weak signal
 
 ## Current Notes
-No field notes have been recorded yet.
+
+## FIELD-20260717-01
+- Date: 2026-07-17
+- Task: Three-pass review followed by the local-only version 2 skillpack architecture implementation.
+- Install profile: Internal, governed, local-only.
+- Skills selected: `internal-lang`, `hyperfocus-discovery`, `token-reduction`, `skill-governance`, `project-backup`, `restore-drill`, `semantic-policy-audit`, `interdependent-change-planning`, `order-of-operations`, `scripted-command-execution`, `regression-prevention`, `governance-enforcement`, `deprecation-management`, `doc-maintenance`, and `user-instructions-tracker`.
+- Skills skipped: Deployment, browser automation, user-interface design, release publication, and remote repository administration skills were outside the authorized scope.
+- What helped: Typed task effects, catalog-owned routing clauses, adversarial route fixtures, working-tree binding, and separate semantic and mechanical validation exposed policy drift that prose-only checks had missed.
+- What slowed work: Universal defaults created unnecessary startup overhead; duplicated routing rules drifted; version 1 artifacts could not prove which working tree they described; and command, testing, recovery, and interface triggers were initially too broad.
+- User corrections: The user required three additional review passes, one final pass, maximum-effort implementation, and continued work through exhaustive validation.
+- Validation run: 31 skill quick-validations, 101 governance unit tests, 25 routing scenarios, policy and ordering checks, 4 schema checks, 6 YAML parses, 9 script compilations, workflow parity, and 207 relative Markdown links passed locally.
+- Follow-up candidate: Evaluate routing observations after at least 30 representative tasks and two governed release candidates; verify exact-head attestation and remote branch-protection behavior only in an explicitly authorized release workflow.
 
 ## Pruning Signal
 Consider pruning or merging when field notes show:

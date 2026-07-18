@@ -39,8 +39,9 @@ Remove deprecated items only when:
 1. replacement docs exist
 2. references are updated
 3. changelog records the removal
-4. `skill-catalog.json`, `SKILL-MAP.md`, and `docs/skill-index.md` agree
-5. validators pass
+4. canonical `skill-catalog.json` records the intended lifecycle and replacement state
+5. `SKILL-MAP.md`, `docs/skill-index.md`, and `docs/skill-decision-tree.md` are regenerated from the catalog
+6. validators pass
 
 Removal is safest when the replacement has already been used successfully.
 
