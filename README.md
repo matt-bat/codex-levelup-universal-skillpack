@@ -2,9 +2,20 @@
 
 Agent Command Center is the workflow layer I use to make AI assistants more consistent, more careful, and easier to audit.
 
+> Like this project? You can [support ongoing development on Ko-fi](https://ko-fi.com/matt0bat), helping me maintain existing tools and release more public projects.
+
 At a high level, it gives the assistant a set of reusable operating habits: plan in the right order, keep scope under control, validate risky work, update docs when behavior changes, and leave behind enough evidence that future work can pick up cleanly.
 
 If you are looking for `agent skills`, an `ai agent skillpack`, or an `agent workflow governance` setup, this repo is meant to be a practical starting point rather than a theoretical prompt collection.
+
+## How it works
+
+1. A host assistant reads `AGENTS.md` and the canonical skill catalog to classify the requested work.
+2. The router selects the smallest applicable set of Markdown skills and orders any required checks.
+3. Deterministic Python validators check catalog structure, generated views, governance evidence, and release constraints.
+4. The host assistant performs authorized work and reports validation results; the pack itself does not execute a hosted service.
+
+This repository contains no AI model, model inference backend, training pipeline, or embedded API service. It supplies instructions and deterministic validation tooling to an AI assistant provided by the user’s chosen host.
 
 ## Quick Implementation Guide
 
