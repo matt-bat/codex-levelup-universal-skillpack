@@ -1,0 +1,4 @@
+interface:
+  display_name: "Advanced SVG"
+  short_description: "Build robust, polished SVG systems"
+  default_prompt: "Use $advanced-svg to design and validate a polished reusable SVG illustration."

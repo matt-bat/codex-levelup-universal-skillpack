@@ -1,5 +1,7 @@
 # Example: Frontend Layout Task
 
+[Documentation home](../README.md) · [Bug investigation](./bug-investigation.md) · [Documentation update](./documentation-only-update.md)
+
 ## Scenario
 The user asks for UI layout, navigation, interaction, or visual-system work.
 

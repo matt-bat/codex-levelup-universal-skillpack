@@ -1,0 +1,4 @@
+interface:
+  display_name: "Advanced R&D"
+  short_description: "Research authoritative sources before complex work"
+  default_prompt: "Use $advanced-r-and-d to build a source-grounded technical research brief before implementation."

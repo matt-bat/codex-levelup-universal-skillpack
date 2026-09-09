@@ -1,5 +1,7 @@
 # Cache Budgets
 
+[Documentation home](./README.md) · [Start here](../../START_HERE.md) · [Usage](../USAGE.md)
+
 One-line overview: Default caps for cached summaries, indexes, and compact metadata files.
 
 | Artifact | Max Active Entries | Max Summary Length | Max Notes Length | Prune Rule |

@@ -1,6 +1,6 @@
 ---
 name: internal-lang
-description: Optional compact-notation controls for explicit `/internal-lang on|off` and `/internal-lang --response on|off` commands, or when the user directly requests shorthand scratch or response notation. Do not activate for routine tasks, generic planning, or general concision.
+description: Optional compact-notation controls for explicit `--internal-lang on|off` and `--internal-lang --response on|off` commands, or when the user directly requests shorthand scratch or response notation. Do not activate for routine tasks, generic planning, or general concision.
 ---
 
 # Internal Lang
@@ -18,10 +18,10 @@ On the first explicit activation in a conversation, initialize:
 2. `response=false`
 
 Then apply commands in message order:
-1. `/internal-lang on` sets `internal=true`.
-2. `/internal-lang off` sets `internal=false` and leaves `response` unchanged.
-3. `/internal-lang --response on` sets `response=true` and does not force `internal=true`.
-4. `/internal-lang --response off` sets `response=false`.
+1. `--internal-lang on` sets `internal=true`.
+2. `--internal-lang off` sets `internal=false` and leaves `response` unchanged.
+3. `--internal-lang --response on` sets `response=true` and does not force `internal=true`.
+4. `--internal-lang --response off` sets `response=false`.
 5. The newest explicit command wins for the state it changes.
 6. Ignore malformed or unsupported command tokens and briefly identify what was ignored.
 

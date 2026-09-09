@@ -18,10 +18,10 @@ class TestConditionalSkillQualityGates(unittest.TestCase):
         content = package_text("internal-lang")
         required = [
             "Remain inactive unless the user invokes a supported command",
-            "/internal-lang on",
-            "/internal-lang off",
-            "/internal-lang --response on",
-            "/internal-lang --response off",
+            "--internal-lang on",
+            "--internal-lang off",
+            "--internal-lang --response on",
+            "--internal-lang --response off",
             "The newest explicit command wins",
             "Do not assume state persists into a new conversation",
             "Do not expose hidden chain of thought",

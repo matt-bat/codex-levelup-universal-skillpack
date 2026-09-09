@@ -1,5 +1,7 @@
 # Example: Bug Investigation
 
+[Documentation home](../README.md) · [Simple code fix](./simple-code-fix.md) · [Frontend layout](./frontend-layout-task.md)
+
 ## Scenario
 The user reports a failure or suggests a possible cause, but the root cause is not proven.
 

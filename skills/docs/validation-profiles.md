@@ -1,5 +1,7 @@
 # Validation Profiles
 
+[Documentation home](./README.md) · [Governance walkthrough](./governance-walkthrough.md) · [Validator severity levels](./validator-severity-levels.md)
+
 Use validation profiles to match check depth to task risk. The point is not to run every command every time; the point is to make the validation claim honest.
 
 ## Quick
@@ -48,6 +50,8 @@ git diff --check
 Standard is the best default for most edits in this repo. For routing changes, the policy validator checks schema-v2 `skills/skill-catalog.json`, router contract 2.1, and exact generated content for `skills/SKILL-MAP.md`, `skills/docs/skill-index.md`, and `skills/docs/skill-decision-tree.md`.
 
 The same validator checks `.github/branch-protection-policy.json` against its closed schema and requires an explicit `Authority and Artifact Policy` section in every `authorized_only` skill. These are repository-structure checks; they do not observe GitHub or grant artifact-write authority.
+
+When runtime commands or lifecycle behavior change, also run `python3 -m unittest skills.skill-governance.tests.test_runtime_adapter -v`. When advanced SVG behavior or references change, run the bundled smoke asset through `advanced-svg/scripts/render_svg.py`; compatibility-sensitive claims require both librsvg and Chromium.
 
 ## Release
 
@@ -111,7 +115,7 @@ Running this profile does not push, create or move a tag, publish release notes,
 
 Use the single read-only operator workflow in [release-provenance.md](./release-provenance.md) for that live comparison. The verifier fails closed on unknown fields or desired-state drift and grants no `configure_remote` authority; a remote-setting change remains a separate operation requiring explicit authorization.
 
-The pull-request governance job always runs for pull requests targeting `main`. It requires a new v3 plan only when the diff contains governed paths; non-governed diffs still receive policy and regression checks.
+The governance job runs on every branch push and every pull request targeting `main`, so runtime and renderer conformance are exercised before merge. Strict main-push enforcement still applies only to `main`; pull requests require a new v3 plan only when the diff contains governed paths, while non-governed diffs still receive policy and regression checks.
 
 ## Profile Selection Rule
 

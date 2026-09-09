@@ -1,5 +1,7 @@
 # Example: Documentation-Only Update
 
+[Documentation home](../README.md) · [Quizme clarification](./quizme-clarification.md) · [Release readiness](./release-readiness-change.md)
+
 ## Scenario
 The user asks to update copy, usage docs, policy docs, or release notes without changing runtime behavior.
 

@@ -51,7 +51,7 @@ REQUIRED_AGENTS_SNIPPETS = [
     "Routine work does not require a startup declaration.",
     "## Conversation Modes",
     "`--quizme`",
-    "`/internal-lang on|off`",
+    "`--internal-lang on|off`",
 ]
 
 REQUIRED_FILE_SNIPPETS = {

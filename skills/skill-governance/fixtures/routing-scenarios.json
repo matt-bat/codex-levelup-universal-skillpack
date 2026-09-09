@@ -8,12 +8,16 @@
         "id": "result",
         "kind": "response",
         "summary": "Produce the requested scenario result.",
-        "acceptance_criteria": ["Honor the normalized task descriptor."]
+        "acceptance_criteria": [
+          "Honor the normalized task descriptor."
+        ]
       }
     ],
     "action": {
       "primary": "answer",
-      "operations": ["read"],
+      "operations": [
+        "read"
+      ],
       "execution_mode": "none",
       "command_effect": "not_applicable",
       "test_intent": "none",
@@ -25,7 +29,10 @@
       "release_enforcement": false,
       "governance_tooling": false,
       "documentation_sync": false,
-      "sequencing_required": false
+      "sequencing_required": false,
+      "research_intensity": "standard",
+      "help_requested": false,
+      "approach_state": "not_applicable"
     },
     "mutation": {
       "level": "none",
@@ -35,8 +42,12 @@
       "recovery_requirement": "not_required"
     },
     "effects": [],
-    "surfaces": ["response"],
-    "domains": ["general"],
+    "surfaces": [
+      "response"
+    ],
+    "domains": [
+      "general"
+    ],
     "authority": {
       "read": "granted"
     },
@@ -85,27 +96,45 @@
             "id": "typo",
             "kind": "file_change",
             "summary": "Correct one documentation typo.",
-            "acceptance_criteria": ["Only the typo changes."]
+            "acceptance_criteria": [
+              "Only the typo changes."
+            ]
           }
         ],
         "action": {
           "primary": "edit",
-          "operations": ["read", "write_files"]
+          "operations": [
+            "read",
+            "write_files"
+          ]
         },
         "mutation": {
           "level": "workspace",
-          "targets": ["documentation file"]
+          "targets": [
+            "documentation file"
+          ]
         },
-        "effects": ["workspace_files", "documentation"],
-        "surfaces": ["documentation"],
-        "domains": ["documentation"],
+        "effects": [
+          "workspace_files",
+          "documentation"
+        ],
+        "surfaces": [
+          "documentation"
+        ],
+        "domains": [
+          "documentation"
+        ],
         "authority": {
           "write_files": "granted"
         },
         "constraints": {
           "read_only": false,
-          "explicit": ["Change only the typo."],
-          "non_goals": ["Do not reformat the document."]
+          "explicit": [
+            "Change only the typo."
+          ],
+          "non_goals": [
+            "Do not reformat the document."
+          ]
         }
       },
       "expected": {
@@ -125,17 +154,27 @@
             "id": "diagnosis",
             "kind": "diagnosis",
             "summary": "Identify the verified failure cause.",
-            "acceptance_criteria": ["No corrective mutation occurs."]
+            "acceptance_criteria": [
+              "No corrective mutation occurs."
+            ]
           }
         ],
         "action": {
           "primary": "diagnose",
-          "operations": ["read", "run_commands"],
+          "operations": [
+            "read",
+            "run_commands"
+          ],
           "execution_mode": "deterministic_workflow",
           "command_effect": "read_only"
         },
-        "surfaces": ["cli", "source"],
-        "domains": ["code"],
+        "surfaces": [
+          "cli",
+          "source"
+        ],
+        "domains": [
+          "code"
+        ],
         "authority": {
           "run_commands": "granted"
         },
@@ -145,7 +184,67 @@
       },
       "expected": {
         "decision": "allow",
-        "selected_skills": ["diagnose-before-fix", "scripted-command-execution"],
+        "selected_skills": [
+          "diagnose-before-fix",
+          "scripted-command-execution"
+        ],
+        "artifact_allowed": false,
+        "max_selected_skills": 2
+      }
+    },
+    {
+      "id": "challenged-approach",
+      "description": "Disconfirming evidence challenges an otherwise read-only approach and activates a focused reassessment.",
+      "descriptor": {
+        "task_id": "challenged-approach",
+        "action": {
+          "approach_state": "challenged"
+        }
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": [
+          "agent-humility"
+        ],
+        "artifact_allowed": false,
+        "max_selected_skills": 1
+      }
+    },
+    {
+      "id": "failed-diagnostic-approach",
+      "description": "A verified diagnostic path has failed and must be reassessed without granting corrective mutation.",
+      "descriptor": {
+        "task_id": "failed-diagnostic-approach",
+        "deliverables": [
+          {
+            "id": "reassessment",
+            "kind": "diagnosis",
+            "summary": "Reassess the failed diagnostic approach.",
+            "acceptance_criteria": [
+              "Choose a discriminating next probe without mutating the target."
+            ]
+          }
+        ],
+        "action": {
+          "primary": "diagnose",
+          "approach_state": "failed"
+        },
+        "surfaces": [
+          "source"
+        ],
+        "domains": [
+          "code"
+        ],
+        "evidence": {
+          "root_cause": "pending"
+        }
+      },
+      "expected": {
+        "decision": "allow",
+        "selected_skills": [
+          "diagnose-before-fix",
+          "agent-humility"
+        ],
         "artifact_allowed": false,
         "max_selected_skills": 2
       }
@@ -160,12 +259,18 @@
             "id": "implementation",
             "kind": "file_change",
             "summary": "Implement a CLI behavior change.",
-            "acceptance_criteria": ["The changed CLI behavior is validated."]
+            "acceptance_criteria": [
+              "The changed CLI behavior is validated."
+            ]
           }
         ],
         "action": {
           "primary": "implement",
-          "operations": ["read", "run_commands", "write_files"],
+          "operations": [
+            "read",
+            "run_commands",
+            "write_files"
+          ],
           "execution_mode": "deterministic_workflow",
           "command_effect": "workspace",
           "test_intent": "run_existing",
@@ -173,11 +278,21 @@
         },
         "mutation": {
           "level": "workspace",
-          "targets": ["CLI source"]
+          "targets": [
+            "CLI source"
+          ]
         },
-        "effects": ["workspace_files", "user_visible_behavior"],
-        "surfaces": ["source", "cli"],
-        "domains": ["code"],
+        "effects": [
+          "workspace_files",
+          "user_visible_behavior"
+        ],
+        "surfaces": [
+          "source",
+          "cli"
+        ],
+        "domains": [
+          "code"
+        ],
         "authority": {
           "run_commands": "granted",
           "write_files": "granted"
@@ -192,7 +307,10 @@
       },
       "expected": {
         "decision": "allow",
-        "selected_skills": ["regression-prevention", "scripted-command-execution"],
+        "selected_skills": [
+          "regression-prevention",
+          "scripted-command-execution"
+        ],
         "artifact_allowed": true,
         "max_selected_skills": 2
       }
@@ -207,12 +325,18 @@
             "id": "implementation",
             "kind": "file_change",
             "summary": "Implement CLI behavior and tests.",
-            "acceptance_criteria": ["Code and targeted tests change together."]
+            "acceptance_criteria": [
+              "Code and targeted tests change together."
+            ]
           }
         ],
         "action": {
           "primary": "implement",
-          "operations": ["read", "run_commands", "write_files"],
+          "operations": [
+            "read",
+            "run_commands",
+            "write_files"
+          ],
           "execution_mode": "deterministic_workflow",
           "command_effect": "workspace",
           "test_intent": "design_or_change",
@@ -221,11 +345,25 @@
         },
         "mutation": {
           "level": "workspace",
-          "targets": ["CLI source", "CLI tests"]
+          "targets": [
+            "CLI source",
+            "CLI tests"
+          ]
         },
-        "effects": ["workspace_files", "user_visible_behavior", "test_suite"],
-        "surfaces": ["source", "cli", "tests"],
-        "domains": ["code", "testing"],
+        "effects": [
+          "workspace_files",
+          "user_visible_behavior",
+          "test_suite"
+        ],
+        "surfaces": [
+          "source",
+          "cli",
+          "tests"
+        ],
+        "domains": [
+          "code",
+          "testing"
+        ],
         "authority": {
           "run_commands": "granted",
           "write_files": "granted"
@@ -259,18 +397,26 @@
             "id": "review",
             "kind": "review",
             "summary": "Review code qualitatively.",
-            "acceptance_criteria": ["Report evidence-backed findings without a score."]
+            "acceptance_criteria": [
+              "Report evidence-backed findings without a score."
+            ]
           }
         ],
         "action": {
           "primary": "review"
         },
-        "surfaces": ["source"],
-        "domains": ["code"]
+        "surfaces": [
+          "source"
+        ],
+        "domains": [
+          "code"
+        ]
       },
       "expected": {
         "decision": "allow",
-        "selected_skills": ["regression-prevention"],
+        "selected_skills": [
+          "regression-prevention"
+        ],
         "artifact_allowed": false,
         "max_selected_skills": 1
       }
@@ -285,18 +431,26 @@
             "id": "score",
             "kind": "score",
             "summary": "Score code quality with a rubric.",
-            "acceptance_criteria": ["Provide a weighted numeric score."]
+            "acceptance_criteria": [
+              "Provide a weighted numeric score."
+            ]
           }
         ],
         "action": {
           "primary": "score"
         },
-        "surfaces": ["source"],
-        "domains": ["code"]
+        "surfaces": [
+          "source"
+        ],
+        "domains": [
+          "code"
+        ]
       },
       "expected": {
         "decision": "allow",
-        "selected_skills": ["thoroughly-rate-review"],
+        "selected_skills": [
+          "thoroughly-rate-review"
+        ],
         "artifact_allowed": false,
         "max_selected_skills": 1
       }
@@ -311,12 +465,18 @@
             "id": "ui",
             "kind": "file_change",
             "summary": "Implement a generic frontend interaction.",
-            "acceptance_criteria": ["Behavior and tests cover the user flow."]
+            "acceptance_criteria": [
+              "Behavior and tests cover the user flow."
+            ]
           }
         ],
         "action": {
           "primary": "implement",
-          "operations": ["read", "run_commands", "write_files"],
+          "operations": [
+            "read",
+            "run_commands",
+            "write_files"
+          ],
           "execution_mode": "deterministic_workflow",
           "command_effect": "workspace",
           "test_intent": "design_or_change",
@@ -326,11 +486,25 @@
         },
         "mutation": {
           "level": "workspace",
-          "targets": ["frontend source", "frontend tests"]
+          "targets": [
+            "frontend source",
+            "frontend tests"
+          ]
         },
-        "effects": ["workspace_files", "user_visible_behavior", "test_suite"],
-        "surfaces": ["source", "frontend", "tests"],
-        "domains": ["code", "frontend"],
+        "effects": [
+          "workspace_files",
+          "user_visible_behavior",
+          "test_suite"
+        ],
+        "surfaces": [
+          "source",
+          "frontend",
+          "tests"
+        ],
+        "domains": [
+          "code",
+          "frontend"
+        ],
         "authority": {
           "run_commands": "granted",
           "write_files": "granted"
@@ -349,7 +523,8 @@
           "ui-design-skills",
           "regression-prevention",
           "effective-testing-methods",
-          "scripted-command-execution"
+          "scripted-command-execution",
+          "ui-dynamic-resizing"
         ],
         "artifact_allowed": true,
         "max_selected_skills": 5
@@ -365,12 +540,18 @@
             "id": "spatial-ui",
             "kind": "file_change",
             "summary": "Implement an established Spatial Canvas flow.",
-            "acceptance_criteria": ["Preserve the Spatial Canvas interaction model."]
+            "acceptance_criteria": [
+              "Preserve the Spatial Canvas interaction model."
+            ]
           }
         ],
         "action": {
           "primary": "implement",
-          "operations": ["read", "run_commands", "write_files"],
+          "operations": [
+            "read",
+            "run_commands",
+            "write_files"
+          ],
           "execution_mode": "deterministic_workflow",
           "command_effect": "workspace",
           "test_intent": "design_or_change",
@@ -380,11 +561,26 @@
         },
         "mutation": {
           "level": "workspace",
-          "targets": ["spatial frontend", "frontend tests"]
+          "targets": [
+            "spatial frontend",
+            "frontend tests"
+          ]
         },
-        "effects": ["workspace_files", "user_visible_behavior", "test_suite"],
-        "surfaces": ["source", "frontend", "tests"],
-        "domains": ["code", "frontend", "spatial_canvas"],
+        "effects": [
+          "workspace_files",
+          "user_visible_behavior",
+          "test_suite"
+        ],
+        "surfaces": [
+          "source",
+          "frontend",
+          "tests"
+        ],
+        "domains": [
+          "code",
+          "frontend",
+          "spatial_canvas"
+        ],
         "authority": {
           "run_commands": "granted",
           "write_files": "granted"
@@ -404,7 +600,8 @@
           "ui-spatial-canvas",
           "regression-prevention",
           "effective-testing-methods",
-          "scripted-command-execution"
+          "scripted-command-execution",
+          "ui-dynamic-resizing"
         ],
         "artifact_allowed": true,
         "max_selected_skills": 6
@@ -420,12 +617,18 @@
             "id": "auth-code",
             "kind": "file_change",
             "summary": "Change an auth source-code path locally.",
-            "acceptance_criteria": ["No live auth state is modified."]
+            "acceptance_criteria": [
+              "No live auth state is modified."
+            ]
           }
         ],
         "action": {
           "primary": "implement",
-          "operations": ["read", "run_commands", "write_files"],
+          "operations": [
+            "read",
+            "run_commands",
+            "write_files"
+          ],
           "execution_mode": "deterministic_workflow",
           "command_effect": "workspace",
           "test_intent": "run_existing",
@@ -433,11 +636,22 @@
         },
         "mutation": {
           "level": "workspace",
-          "targets": ["auth source"]
+          "targets": [
+            "auth source"
+          ]
         },
-        "effects": ["workspace_files", "user_visible_behavior"],
-        "surfaces": ["source", "backend"],
-        "domains": ["code", "auth"],
+        "effects": [
+          "workspace_files",
+          "user_visible_behavior"
+        ],
+        "surfaces": [
+          "source",
+          "backend"
+        ],
+        "domains": [
+          "code",
+          "auth"
+        ],
         "authority": {
           "run_commands": "granted",
           "write_files": "granted"
@@ -445,7 +659,9 @@
         "constraints": {
           "read_only": false,
           "artifact_policy": "allow_required",
-          "non_goals": ["Do not touch live sessions."]
+          "non_goals": [
+            "Do not touch live sessions."
+          ]
         },
         "evidence": {
           "tests": "pending"
@@ -453,7 +669,10 @@
       },
       "expected": {
         "decision": "allow",
-        "selected_skills": ["regression-prevention", "scripted-command-execution"],
+        "selected_skills": [
+          "regression-prevention",
+          "scripted-command-execution"
+        ],
         "artifact_allowed": true,
         "max_selected_skills": 2
       }
@@ -468,23 +687,40 @@
             "id": "auth-operation",
             "kind": "operation",
             "summary": "Apply an authorized auth runtime operation.",
-            "acceptance_criteria": ["Rollback evidence is current before deployment."]
+            "acceptance_criteria": [
+              "Rollback evidence is current before deployment."
+            ]
           }
         ],
         "action": {
           "primary": "operate",
-          "operations": ["read", "run_commands", "deploy"],
+          "operations": [
+            "read",
+            "run_commands",
+            "deploy"
+          ],
           "execution_mode": "deterministic_workflow",
           "command_effect": "external",
           "test_intent": "run_existing"
         },
         "mutation": {
           "level": "external",
-          "targets": ["auth runtime"]
+          "targets": [
+            "auth runtime"
+          ]
         },
-        "effects": ["runtime_environment"],
-        "surfaces": ["cli", "runtime", "external_service"],
-        "domains": ["auth", "operations"],
+        "effects": [
+          "runtime_environment"
+        ],
+        "surfaces": [
+          "cli",
+          "runtime",
+          "external_service"
+        ],
+        "domains": [
+          "auth",
+          "operations"
+        ],
         "authority": {
           "run_commands": "granted",
           "deploy": "granted"
@@ -498,7 +734,12 @@
           "backup": "passed",
           "restore": "passed",
           "artifacts": [
-            {"kind": "governance_plan", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"}
+            {
+              "kind": "governance_plan",
+              "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json",
+              "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146",
+              "status": "passed"
+            }
           ]
         },
         "checkpoint": "pre_external_action"
@@ -519,12 +760,18 @@
             "id": "migration-source",
             "kind": "file_change",
             "summary": "Prepare migration source and tests without applying it.",
-            "acceptance_criteria": ["No live data changes."]
+            "acceptance_criteria": [
+              "No live data changes."
+            ]
           }
         ],
         "action": {
           "primary": "implement",
-          "operations": ["read", "run_commands", "write_files"],
+          "operations": [
+            "read",
+            "run_commands",
+            "write_files"
+          ],
           "execution_mode": "deterministic_workflow",
           "command_effect": "workspace",
           "test_intent": "design_or_change",
@@ -534,11 +781,26 @@
         },
         "mutation": {
           "level": "workspace",
-          "targets": ["migration source", "migration tests"]
+          "targets": [
+            "migration source",
+            "migration tests"
+          ]
         },
-        "effects": ["workspace_files", "test_suite"],
-        "surfaces": ["source", "backend", "tests"],
-        "domains": ["code", "migration", "data", "testing"],
+        "effects": [
+          "workspace_files",
+          "test_suite"
+        ],
+        "surfaces": [
+          "source",
+          "backend",
+          "tests"
+        ],
+        "domains": [
+          "code",
+          "migration",
+          "data",
+          "testing"
+        ],
         "authority": {
           "run_commands": "granted",
           "write_files": "granted"
@@ -573,25 +835,43 @@
             "id": "migration-operation",
             "kind": "operation",
             "summary": "Apply the approved live-data migration.",
-            "acceptance_criteria": ["Backup, restore, and rollback gates pass first."]
+            "acceptance_criteria": [
+              "Backup, restore, and rollback gates pass first."
+            ]
           }
         ],
         "action": {
           "primary": "operate",
-          "operations": ["read", "run_commands", "migrate"],
+          "operations": [
+            "read",
+            "run_commands",
+            "migrate"
+          ],
           "execution_mode": "deterministic_workflow",
           "command_effect": "external"
         },
         "mutation": {
           "level": "irreversible",
-          "targets": ["production data"] ,
+          "targets": [
+            "production data"
+          ],
           "destructive": true,
           "data_loss_risk": "credible",
           "recovery_requirement": "required"
         },
-        "effects": ["live_data"],
-        "surfaces": ["cli", "live_data", "external_service"],
-        "domains": ["migration", "data", "operations"],
+        "effects": [
+          "live_data"
+        ],
+        "surfaces": [
+          "cli",
+          "live_data",
+          "external_service"
+        ],
+        "domains": [
+          "migration",
+          "data",
+          "operations"
+        ],
         "authority": {
           "run_commands": "granted",
           "migrate": "granted"
@@ -604,9 +884,24 @@
           "backup": "passed",
           "restore": "passed",
           "artifacts": [
-            {"kind": "governance_plan", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"},
-            {"kind": "backup_evidence", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"},
-            {"kind": "restore_evidence", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"}
+            {
+              "kind": "governance_plan",
+              "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json",
+              "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146",
+              "status": "passed"
+            },
+            {
+              "kind": "backup_evidence",
+              "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json",
+              "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146",
+              "status": "passed"
+            },
+            {
+              "kind": "restore_evidence",
+              "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json",
+              "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146",
+              "status": "passed"
+            }
           ]
         },
         "checkpoint": "pre_external_action"
@@ -634,28 +929,44 @@
             "id": "audit",
             "kind": "review",
             "summary": "Audit semantic policy behavior without mutation.",
-            "acceptance_criteria": ["No files, trackers, or governance artifacts are written."]
+            "acceptance_criteria": [
+              "No files, trackers, or governance artifacts are written."
+            ]
           }
         ],
         "action": {
           "primary": "inspect",
-          "operations": ["read", "run_commands"],
+          "operations": [
+            "read",
+            "run_commands"
+          ],
           "execution_mode": "incidental_validation",
           "command_effect": "read_only"
         },
-        "surfaces": ["response", "governance"],
-        "domains": ["policy"],
+        "surfaces": [
+          "response",
+          "governance"
+        ],
+        "domains": [
+          "policy"
+        ],
         "authority": {
           "run_commands": "granted"
         },
         "constraints": {
-          "explicit": ["Remain strictly read-only."],
-          "non_goals": ["Do not generate governance artifacts."]
+          "explicit": [
+            "Remain strictly read-only."
+          ],
+          "non_goals": [
+            "Do not generate governance artifacts."
+          ]
         }
       },
       "expected": {
         "decision": "allow",
-        "selected_skills": ["semantic-policy-audit"],
+        "selected_skills": [
+          "semantic-policy-audit"
+        ],
         "artifact_allowed": false,
         "max_selected_skills": 2
       }
@@ -670,7 +981,9 @@
             "id": "login-request",
             "kind": "operation",
             "summary": "Handle a login-related request whose intended state effect is unknown.",
-            "acceptance_criteria": ["Clarify whether source code or live state is in scope."]
+            "acceptance_criteria": [
+              "Clarify whether source code or live state is in scope."
+            ]
           }
         ],
         "action": {
@@ -679,8 +992,13 @@
         "mutation": {
           "level": "unknown"
         },
-        "surfaces": ["response", "external_service"],
-        "domains": ["auth"],
+        "surfaces": [
+          "response",
+          "external_service"
+        ],
+        "domains": [
+          "auth"
+        ],
         "constraints": {
           "read_only": false
         },
@@ -695,9 +1013,12 @@
       },
       "expected": {
         "decision": "needs_clarification",
-        "selected_skills": ["requirement-clarifier"],
+        "selected_skills": [
+          "requirement-clarifier",
+          "eliminate-assumptions"
+        ],
         "artifact_allowed": false,
-        "max_selected_skills": 1
+        "max_selected_skills": 2
       }
     },
     {
@@ -710,24 +1031,35 @@
             "id": "code",
             "kind": "file_change",
             "summary": "Implement the coupled code change.",
-            "acceptance_criteria": ["Implementation is complete."]
+            "acceptance_criteria": [
+              "Implementation is complete."
+            ]
           },
           {
             "id": "tests",
             "kind": "test_change",
             "summary": "Add proportional regression tests.",
-            "acceptance_criteria": ["Tests pass."]
+            "acceptance_criteria": [
+              "Tests pass."
+            ]
           },
           {
             "id": "commit",
             "kind": "operation",
             "summary": "Create a local commit only.",
-            "acceptance_criteria": ["No push occurs."]
+            "acceptance_criteria": [
+              "No push occurs."
+            ]
           }
         ],
         "action": {
           "primary": "implement",
-          "operations": ["read", "run_commands", "write_files", "commit"],
+          "operations": [
+            "read",
+            "run_commands",
+            "write_files",
+            "commit"
+          ],
           "execution_mode": "deterministic_workflow",
           "command_effect": "repository",
           "test_intent": "design_or_change",
@@ -737,7 +1069,11 @@
         },
         "mutation": {
           "level": "repository",
-          "targets": ["source", "tests", "local repository history"]
+          "targets": [
+            "source",
+            "tests",
+            "local repository history"
+          ]
         },
         "effects": [
           "workspace_files",
@@ -745,8 +1081,16 @@
           "user_visible_behavior",
           "test_suite"
         ],
-        "surfaces": ["source", "tests", "repository"],
-        "domains": ["code", "testing", "repository"],
+        "surfaces": [
+          "source",
+          "tests",
+          "repository"
+        ],
+        "domains": [
+          "code",
+          "testing",
+          "repository"
+        ],
         "authority": {
           "run_commands": "granted",
           "write_files": "granted",
@@ -756,8 +1100,12 @@
         "constraints": {
           "read_only": false,
           "artifact_policy": "allow_required",
-          "explicit": ["Commit locally after validation."],
-          "non_goals": ["Do not push."]
+          "explicit": [
+            "Commit locally after validation."
+          ],
+          "non_goals": [
+            "Do not push."
+          ]
         },
         "evidence": {
           "tests": "passed"
@@ -786,12 +1134,18 @@
             "id": "release",
             "kind": "release",
             "summary": "Publish the verified release.",
-            "acceptance_criteria": ["The exact published commit has green evidence."]
+            "acceptance_criteria": [
+              "The exact published commit has green evidence."
+            ]
           }
         ],
         "action": {
           "primary": "release",
-          "operations": ["read", "run_commands", "publish"],
+          "operations": [
+            "read",
+            "run_commands",
+            "publish"
+          ],
           "execution_mode": "deterministic_workflow",
           "command_effect": "external",
           "test_intent": "run_existing",
@@ -799,11 +1153,23 @@
         },
         "mutation": {
           "level": "external",
-          "targets": ["release registry", "release attestation"]
+          "targets": [
+            "release registry",
+            "release attestation"
+          ]
         },
-        "effects": ["published_artifact"],
-        "surfaces": ["cli", "repository", "release"],
-        "domains": ["release", "repository"],
+        "effects": [
+          "published_artifact"
+        ],
+        "surfaces": [
+          "cli",
+          "repository",
+          "release"
+        ],
+        "domains": [
+          "release",
+          "repository"
+        ],
         "authority": {
           "run_commands": "granted",
           "publish": "granted"
@@ -815,8 +1181,18 @@
           "tests": "passed",
           "exact_commit": "passed",
           "artifacts": [
-            {"kind": "governance_plan", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"},
-            {"kind": "release_attestation", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"}
+            {
+              "kind": "governance_plan",
+              "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json",
+              "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146",
+              "status": "passed"
+            },
+            {
+              "kind": "release_attestation",
+              "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json",
+              "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146",
+              "status": "passed"
+            }
           ]
         },
         "checkpoint": "pre_external_action"
@@ -843,12 +1219,18 @@
             "id": "release",
             "kind": "release",
             "summary": "Publish a release lacking exact-commit evidence.",
-            "acceptance_criteria": ["Publication must not proceed without evidence."]
+            "acceptance_criteria": [
+              "Publication must not proceed without evidence."
+            ]
           }
         ],
         "action": {
           "primary": "release",
-          "operations": ["read", "run_commands", "publish"],
+          "operations": [
+            "read",
+            "run_commands",
+            "publish"
+          ],
           "execution_mode": "deterministic_workflow",
           "command_effect": "external",
           "test_intent": "run_existing",
@@ -856,11 +1238,20 @@
         },
         "mutation": {
           "level": "external",
-          "targets": ["release registry"]
+          "targets": [
+            "release registry"
+          ]
         },
-        "effects": ["published_artifact"],
-        "surfaces": ["cli", "release"],
-        "domains": ["release"],
+        "effects": [
+          "published_artifact"
+        ],
+        "surfaces": [
+          "cli",
+          "release"
+        ],
+        "domains": [
+          "release"
+        ],
         "authority": {
           "run_commands": "granted",
           "publish": "granted"
@@ -872,8 +1263,18 @@
           "tests": "passed",
           "exact_commit": "unknown",
           "artifacts": [
-            {"kind": "governance_plan", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"},
-            {"kind": "release_attestation", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"}
+            {
+              "kind": "governance_plan",
+              "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json",
+              "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146",
+              "status": "passed"
+            },
+            {
+              "kind": "release_attestation",
+              "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json",
+              "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146",
+              "status": "passed"
+            }
           ]
         },
         "checkpoint": "pre_external_action"
@@ -891,15 +1292,26 @@
         "task_id": "read-only-conflict",
         "action": {
           "primary": "inspect",
-          "operations": ["read", "write_files"]
+          "operations": [
+            "read",
+            "write_files"
+          ]
         },
         "mutation": {
           "level": "workspace",
-          "targets": ["audit notes"]
+          "targets": [
+            "audit notes"
+          ]
         },
-        "effects": ["workspace_files"],
-        "surfaces": ["source"],
-        "domains": ["code"],
+        "effects": [
+          "workspace_files"
+        ],
+        "surfaces": [
+          "source"
+        ],
+        "domains": [
+          "code"
+        ],
         "authority": {
           "write_files": "granted"
         }
@@ -917,7 +1329,9 @@
       "descriptor": {
         "task_id": "quick-answer-paraphrase",
         "constraints": {
-          "explicit": ["Keep the answer quick."]
+          "explicit": [
+            "Keep the answer quick."
+          ]
         }
       },
       "expected": {
@@ -934,7 +1348,9 @@
       "descriptor": {
         "task_id": "just-answer-paraphrase",
         "constraints": {
-          "explicit": ["Just answer the question."]
+          "explicit": [
+            "Just answer the question."
+          ]
         }
       },
       "expected": {
@@ -951,7 +1367,9 @@
       "descriptor": {
         "task_id": "simple-answer-paraphrase",
         "constraints": {
-          "explicit": ["This should be simple."]
+          "explicit": [
+            "This should be simple."
+          ]
         }
       },
       "expected": {
@@ -972,25 +1390,42 @@
             "id": "migration-operation",
             "kind": "operation",
             "summary": "Apply a migration with no optional-skill budget.",
-            "acceptance_criteria": ["All mandatory safety remains active."]
+            "acceptance_criteria": [
+              "All mandatory safety remains active."
+            ]
           }
         ],
         "action": {
           "primary": "operate",
-          "operations": ["read", "run_commands", "migrate"],
+          "operations": [
+            "read",
+            "run_commands",
+            "migrate"
+          ],
           "execution_mode": "deterministic_workflow",
           "command_effect": "external"
         },
         "mutation": {
           "level": "irreversible",
-          "targets": ["production data"],
+          "targets": [
+            "production data"
+          ],
           "destructive": true,
           "data_loss_risk": "credible",
           "recovery_requirement": "required"
         },
-        "effects": ["live_data"],
-        "surfaces": ["cli", "live_data"],
-        "domains": ["migration", "data", "operations"],
+        "effects": [
+          "live_data"
+        ],
+        "surfaces": [
+          "cli",
+          "live_data"
+        ],
+        "domains": [
+          "migration",
+          "data",
+          "operations"
+        ],
         "authority": {
           "run_commands": "granted",
           "migrate": "granted"
@@ -1004,9 +1439,24 @@
           "backup": "passed",
           "restore": "passed",
           "artifacts": [
-            {"kind": "governance_plan", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"},
-            {"kind": "backup_evidence", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"},
-            {"kind": "restore_evidence", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"}
+            {
+              "kind": "governance_plan",
+              "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json",
+              "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146",
+              "status": "passed"
+            },
+            {
+              "kind": "backup_evidence",
+              "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json",
+              "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146",
+              "status": "passed"
+            },
+            {
+              "kind": "restore_evidence",
+              "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json",
+              "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146",
+              "status": "passed"
+            }
           ]
         },
         "checkpoint": "pre_external_action"
@@ -1034,22 +1484,41 @@
             "id": "branch-protection",
             "kind": "operation",
             "summary": "Configure the approved protected-branch policy.",
-            "acceptance_criteria": ["Only the approved remote settings change."]
+            "acceptance_criteria": [
+              "Only the approved remote settings change."
+            ]
           }
         ],
         "action": {
           "primary": "operate",
-          "operations": ["read", "run_commands", "configure_remote"],
+          "operations": [
+            "read",
+            "run_commands",
+            "configure_remote"
+          ],
           "execution_mode": "deterministic_workflow",
           "command_effect": "external"
         },
         "mutation": {
           "level": "external",
-          "targets": ["main branch protection"]
+          "targets": [
+            "main branch protection"
+          ]
         },
-        "effects": ["remote_repository", "governance_policy"],
-        "surfaces": ["repository", "governance", "external_service"],
-        "domains": ["repository", "policy", "operations"],
+        "effects": [
+          "remote_repository",
+          "governance_policy"
+        ],
+        "surfaces": [
+          "repository",
+          "governance",
+          "external_service"
+        ],
+        "domains": [
+          "repository",
+          "policy",
+          "operations"
+        ],
         "authority": {
           "run_commands": "granted",
           "configure_remote": "granted",
@@ -1057,19 +1526,29 @@
         },
         "constraints": {
           "read_only": false,
-          "explicit": ["Do not push or change unrelated repository settings."]
+          "explicit": [
+            "Do not push or change unrelated repository settings."
+          ]
         },
         "evidence": {
           "rollback": "passed",
           "artifacts": [
-            {"kind": "governance_plan", "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json", "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146", "status": "passed"}
+            {
+              "kind": "governance_plan",
+              "path": "skills/skill-governance/fixtures/passed-artifact-evidence.json",
+              "sha256": "11e32c3d91c1e2a71518c7cf6f355449032fa1986eb82c0422e336ce890d6146",
+              "status": "passed"
+            }
           ]
         },
         "checkpoint": "pre_external_action"
       },
       "expected": {
         "decision": "allow",
-        "selected_skills": ["skill-governance", "scripted-command-execution"],
+        "selected_skills": [
+          "skill-governance",
+          "scripted-command-execution"
+        ],
         "artifact_allowed": false,
         "max_selected_skills": 2
       }
@@ -1084,26 +1563,41 @@
             "id": "message",
             "kind": "operation",
             "summary": "Send one explicitly authorized external message.",
-            "acceptance_criteria": ["Only the approved message is sent."]
+            "acceptance_criteria": [
+              "Only the approved message is sent."
+            ]
           }
         ],
         "action": {
           "primary": "operate",
-          "operations": ["read", "message"]
+          "operations": [
+            "read",
+            "message"
+          ]
         },
         "mutation": {
           "level": "external",
-          "targets": ["approved recipient"]
+          "targets": [
+            "approved recipient"
+          ]
         },
-        "effects": ["external_message"],
-        "surfaces": ["external_service"],
-        "domains": ["operations"],
+        "effects": [
+          "external_message"
+        ],
+        "surfaces": [
+          "external_service"
+        ],
+        "domains": [
+          "operations"
+        ],
         "authority": {
           "message": "granted"
         },
         "constraints": {
           "read_only": false,
-          "explicit": ["Send only the approved content."]
+          "explicit": [
+            "Send only the approved content."
+          ]
         },
         "checkpoint": "pre_external_action"
       },
@@ -1124,20 +1618,33 @@
             "id": "message",
             "kind": "operation",
             "summary": "Send an external message without known authority.",
-            "acceptance_criteria": ["Do not send without explicit authority."]
+            "acceptance_criteria": [
+              "Do not send without explicit authority."
+            ]
           }
         ],
         "action": {
           "primary": "operate",
-          "operations": ["read", "message"]
+          "operations": [
+            "read",
+            "message"
+          ]
         },
         "mutation": {
           "level": "external",
-          "targets": ["recipient"]
+          "targets": [
+            "recipient"
+          ]
         },
-        "effects": ["external_message"],
-        "surfaces": ["external_service"],
-        "domains": ["operations"],
+        "effects": [
+          "external_message"
+        ],
+        "surfaces": [
+          "external_service"
+        ],
+        "domains": [
+          "operations"
+        ],
         "authority": {
           "message": "unknown"
         },

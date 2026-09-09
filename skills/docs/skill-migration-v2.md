@@ -1,5 +1,7 @@
 # Skill Migration Version 2
 
+[Documentation home](./README.md) · [Routing architecture](./routing-architecture-v2.md) · [Install profiles](./install-profiles.md)
+
 ## Policy
 
 Version 2 narrows activation and introduces typed routing without immediately deleting public skill names. The canonical catalog remains schema v2, its current router contract is 2.1, and new governance artifacts use schema v3. Existing explicit commands and supported names continue through the observation window.
@@ -8,7 +10,7 @@ Version 2 narrows activation and introduces typed routing without immediately de
 
 1. Universal behavior moves into core policy instead of automatic skill selection.
 2. `process-budget-controller` becomes a compatibility wrapper for router budget policy.
-3. `internal-lang` remains available through explicit `/internal-lang` commands.
+3. `internal-lang` uses explicit `--internal-lang` commands so every user-facing activation flag has the `--` prefix.
 4. `hyperfocus-discovery` becomes an explicit bounded branch-management mode.
 5. Plain review no longer activates weighted scoring.
 6. Spatial Canvas activates only when explicitly requested or established by repository policy.

@@ -1,4 +1,4 @@
-# Agent Command Center
+# Got Skills?
 
 This directory is the actual skillpack. The root README explains the project from the outside; this README is for people who are installing, editing, or reviewing the skills themselves.
 
@@ -9,11 +9,12 @@ The pack gives AI assistants and similar coding agents a reusable operating syst
 If you are new to the pack, use these in order:
 
 1. [../START_HERE.md](../START_HERE.md) for the fastest orientation
-2. [USAGE.md](./USAGE.md) for setup and day-to-day use
-3. [docs/install-profiles.md](./docs/install-profiles.md) to choose how much process to install
-4. [docs/routing-architecture-v2.md](./docs/routing-architecture-v2.md) for the canonical routing contract
-5. [docs/skill-decision-tree.md](./docs/skill-decision-tree.md) to pick skills without overloading a task
-6. [docs/known-limitations.md](./docs/known-limitations.md) for the tradeoffs
+2. [docs/README.md](./docs/README.md) for the website-style guide and complete site map
+3. [USAGE.md](./USAGE.md) for setup and day-to-day use
+4. [docs/install-profiles.md](./docs/install-profiles.md) to choose how much process to install
+5. [docs/routing-architecture-v2.md](./docs/routing-architecture-v2.md) for the canonical routing contract
+6. [docs/skill-decision-tree.md](./docs/skill-decision-tree.md) to pick skills without overloading a task
+7. [docs/known-limitations.md](./docs/known-limitations.md) for the tradeoffs
 
 ## What A Skill Is
 
@@ -49,10 +50,15 @@ For most tasks, route from zero and add only skills with active triggers:
 3. use `order-of-operations` when dependencies or sequencing risk matter
 4. add `scripted-command-execution` for repeatable local command workflows
 5. add governance only when risk, ambiguity, audit, or release impact justifies it
+6. use `agent-humility` when evidence challenges the current method, then test a genuinely different path instead of retrying unchanged
 
 Routine selection targets a median of no more than two skills and a normal cap of five. Mandatory safety skills and gates are never capped. Startup declarations are required only when explicitly requested or when governed or audited work needs a durable routing record.
 
 `process-budget-controller` remains only as a deprecated compatibility wrapper; the router owns process budgeting.
+
+Send `--help` for the catalog-derived inventory and command guide. A leading `*` means that a skill requires direct user activation. Advanced research intensity, non-trivial SVG work, unresolved uncertainty, and an evidence-challenged approach route automatically through `advanced-r-and-d`, `advanced-svg`, `eliminate-assumptions`, and `agent-humility` respectively. Use `--clean-slate` only when you want optional history excluded from fresh tasks.
+
+Hosts with local Python execution can enforce startup and mode state through `help/scripts/runtime_adapter.py`; the matching conformance suite prevents prose-only command claims. Advanced SVG work can use `advanced-svg/scripts/render_svg.py` for multi-size librsvg and Chromium verification.
 
 The decision tree and install profiles exist because too much process can be just as harmful as too little process.
 

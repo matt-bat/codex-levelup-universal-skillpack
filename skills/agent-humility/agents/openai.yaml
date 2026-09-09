@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Humility"
+  short_description: "Pivot from failed approaches with evidence"
+  default_prompt: "Use $agent-humility to reassess this stalled approach and choose an evidence-backed pivot."

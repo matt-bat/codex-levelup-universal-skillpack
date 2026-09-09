@@ -1,5 +1,7 @@
 # Usage
 
+[Project home](../README.md) · [Start here](../START_HERE.md) · [Documentation home](./docs/README.md)
+
 I built this skillpack for people using ChatGPT, Claude, Gemini, Cursor, GitHub Copilot, or another assistant that can read repo instructions and follow them consistently.
 
 The short version:
@@ -26,6 +28,16 @@ The assistant uses those files as task-specific operating instructions. A skill 
 This pack is intentionally more structured than a single prompt. It is meant to slow the assistant down on the parts where mistakes are expensive: requirements, sequencing, validation, documentation drift, policy changes, and release readiness.
 
 Router contract 2.1 implements the architecture-version-2 process budget, typed explicit-skill requests, verified artifact evidence, and separate remote-configuration authority. Version 2.0 descriptors and frozen results remain accepted for compatibility; new results use 2.1. The legacy `process-budget-controller` skill is deprecated and remains only as a compatibility wrapper.
+
+## Skillpack Help
+
+When the pack loads, it prints `send --help to learn more about available tools in agent-command-center` once. Send `--help` to list every active skill, its description, and supported commands. A leading `*` marks a skill whose catalog routing mode requires direct user activation; unmarked skills route automatically when their typed conditions apply.
+
+For a host that can execute local Python, pass pack-load and user-message events through `help/scripts/runtime_adapter.py` and preserve its returned state only within that conversation. The adapter enforces the one-time hint, exact command grammar, mode transitions, message digests, and router-ready descriptor patches. Run `python3 -m unittest skills.skill-governance.tests.test_runtime_adapter -v` before claiming host conformance.
+
+## Clean Slate Mode
+
+Send `--clean-slate` to exclude optional cross-conversation history, preferences, indexes, summaries, and prior-task caches from subsequent greenfield work. Current instructions, current decisions, safety rules, authority boundaries, and task-local repository evidence remain applicable. Send `--clean-slate off` to disable the boundary. The mode does not delete history or reset repository state.
 
 ## Quizme Clarification Mode
 
@@ -56,7 +68,7 @@ Rules:
 4. `--record` persists the approved contract when a suitable artifact exists and implies `--confirm`
 5. arguments must appear directly after `--quizme`, may appear in any order, and can be combined
 6. duplicate arguments are harmless
-7. unsupported arguments are ignored and briefly reported
+7. unsupported arguments leave the mode unchanged and the message unconsumed, with a brief exact-grammar notice
 8. every option clears when quizme mode is toggled off
 9. destructive, public, production, payment, authentication, or irreversible tasks require confirmation automatically
 10. the agent should use the plan-mode interactive clarification console when available and concise conversational questions otherwise
@@ -74,15 +86,15 @@ Combined example:
 Controls:
 
 ```text
-/internal-lang on
-/internal-lang off
-/internal-lang --response on
-/internal-lang --response off
+--internal-lang on
+--internal-lang off
+--internal-lang --response on
+--internal-lang --response off
 ```
 
 Rules:
 
-1. private scratch compression starts only after `/internal-lang on`
+1. private scratch compression starts only after `--internal-lang on`
 2. compressed user-facing responses default off when the mode is first activated
 3. normal clear language remains the default response style
 4. high-risk or action-critical details should stay fully written out
@@ -151,6 +163,18 @@ For a repeatable deterministic command workflow, add:
 For browser or GUI automation, add:
 
 1. `pseudo-agentic-automation`
+
+For advanced or high-intensity work that depends on current external evidence, the typed descriptor selects `advanced-r-and-d` before substantive implementation. For non-trivial SVG work, classify the domain as `vector_graphics` to select `advanced-svg`. Any unresolved uncertainty selects the mandatory `eliminate-assumptions` gate and pauses execution for a user decision.
+
+When a current method is contradicted by concrete evidence, repeats the same failure without measurable progress, or rests on a premise the user has materially corrected, set `action.approach_state` to `challenged` or `failed`. That selects `agent-humility`: preserve the requested goal, record the disconfirming evidence, compare a small number of structurally different alternatives, and run the cheapest discriminating probe. A first routine error remains `viable`; the skill is not an invitation to add reflection to every correction.
+
+For compatibility-sensitive SVG output, run structural validation and then require the independent render matrix:
+
+```sh
+python3 skills/advanced-svg/scripts/validate_svg.py path/to/image.svg
+python3 skills/advanced-svg/scripts/render_svg.py path/to/image.svg \
+  --renderer rsvg --renderer chromium --require-renderers 2
+```
 
 ## Basic Task Prompt
 
@@ -223,6 +247,7 @@ python3 -m pip install --disable-pip-version-check -r skills/skill-governance/re
 python3 skills/skill-governance/scripts/validate_skill_policy.py --agents-path AGENTS.md --skills-root skills --repo-root .
 python3 skills/skill-governance/scripts/validate_skill_order_sync.py --skills-root skills
 python3 -m unittest discover -s skills/skill-governance/tests -p 'test_*.py'
+python3 skills/advanced-svg/scripts/render_svg.py skills/advanced-svg/assets/render-smoke.svg --renderer rsvg --renderer chromium --require-renderers 2
 ```
 
 The policy validator checks the desired-state file against its closed schema. That is a repository check, not a live remote-state observation.

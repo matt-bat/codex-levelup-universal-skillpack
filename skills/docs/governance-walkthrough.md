@@ -1,5 +1,7 @@
 # Governance Walkthrough
 
+[Documentation home](./README.md) · [Validation profiles](./validation-profiles.md) · [Release provenance](./release-provenance.md)
+
 Use this flow for a new governed change or release. It records the exact scope, authority, catalog contract, evidence, and recommendation without granting any operation by itself.
 
 ## When to Use It

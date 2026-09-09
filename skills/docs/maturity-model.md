@@ -1,5 +1,7 @@
 # Maturity Model
 
+[Documentation home](./README.md) · [Field notes](./field-notes.md) · [Pruning policy](./pruning-policy.md)
+
 Adopt capabilities gradually. An installed or available skill is not an active skill: the task router may select zero skills, and each package activates only when its catalog trigger matches.
 
 Keep the version surfaces distinct: the catalog uses schema v2, the current router contract is 2.1, and new governance artifacts use schema v3. Schema-v1 and schema-v2 governance artifacts remain readable historical evidence.

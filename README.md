@@ -1,12 +1,16 @@
-# Agent Command Center
+# Got Skills?
 
-Agent Command Center is the workflow layer I use to make AI assistants more consistent, more careful, and easier to audit.
+Got Skills? is the governed skillpack I use to make AI assistants more consistent, more careful, and easier to audit.
 
 > Like this project? You can [support ongoing development on Ko-fi](https://ko-fi.com/matt0bat), helping me maintain existing tools and release more public projects.
 
 At a high level, it gives the assistant a set of reusable operating habits: plan in the right order, keep scope under control, validate risky work, update docs when behavior changes, and leave behind enough evidence that future work can pick up cleanly.
 
 If you are looking for `agent skills`, an `ai agent skillpack`, or an `agent workflow governance` setup, this repo is meant to be a practical starting point rather than a theoretical prompt collection.
+
+## Why agents forget less
+
+Got Skills? turns common agent pain points into reusable, routed skills: fewer forgotten instructions, fewer risky guesses, cleaner handoffs, and validation that matches the change. Its lightweight principles keep routine work fast while governance activates when evidence and risk require it.
 
 ## How it works
 
@@ -23,6 +27,8 @@ This repository contains no AI model, model inference backend, training pipeline
 2. Load `AGENTS.md`, the schema-v2 catalog and router contract 2.1, and only the selected skill files.
 3. Let the router select zero or more skills.
 4. Request a startup declaration only when you want one explicitly or the work is governed or audited and needs a durable routing record.
+5. Send `--help` for the installed skill and command inventory; a leading `*` marks skills that require direct activation.
+6. Use the bundled host runtime adapter when local Python execution is available so startup and conversation commands are enforced rather than inferred.
 
 ## Start Here
 
@@ -34,6 +40,8 @@ If you are new to the pack, start with [START_HERE.md](./START_HERE.md). It give
 4. add or change a skill
 5. reduce over-process
 6. improve the pack over time
+
+For the full website-style guide, use the [documentation home](./skills/docs/README.md). It links every guide by learning path and topic.
 
 ## Using With Common AIs
 
@@ -47,6 +55,7 @@ Use [Common AI Instructions](./skills/docs/adapters/common-ai.md) as the shared 
 4. ask for a startup declaration only when you explicitly want one or governed/audited work needs a durable routing record
 5. use the assistant's project instructions or custom prompt area for the repo policy summary
 6. when a task needs exhaustive clarification, use `--quizme` or the assistant's equivalent clarification flow if it has one
+7. run `skills/help/scripts/runtime_adapter.py` or an equivalent conformance-tested host adapter for lifecycle and exact-command state
 
 ## Why I Built This
 
@@ -68,6 +77,7 @@ This pack is designed to improve:
 - `main` is protected as verified on 2026-07-18. Changes should use a feature branch and pull request; see [release-provenance.md](./skills/docs/release-provenance.md) for the dated remote-control snapshot.
 - [branch-protection-policy.json](./.github/branch-protection-policy.json) records the closed desired state for `main`; a read-only verifier compares live GitHub evidence with it and fails closed on drift or unsupported fields.
 - Start here: [START_HERE.md](./START_HERE.md)
+- Documentation home: [skills/docs/README.md](./skills/docs/README.md)
 - Usage guide: [USAGE.md](./skills/USAGE.md)
 - Changelog: [CHANGELOG.md](./skills/CHANGELOG.md)
 - License: [LICENSE](./skills/LICENSE)
@@ -114,6 +124,10 @@ Router contract 2.1 keeps the architecture-version-2 restraint model and adds ty
 5. skill activation never grants file-write, external-action, release, or deployment authority
 6. artifact creation permission is separate from evidence that an artifact exists and matches its recorded digest
 7. `process-budget-controller` remains only as a deprecated compatibility wrapper; the router owns process restraint
+8. advanced research intensity activates source-grounded R&D before substantive work
+9. unresolved ambiguity activates the no-assumption safety gate and pauses execution
+10. `vector_graphics` work routes through the advanced SVG reference and validation workflow
+11. challenged or failed approaches route through `agent-humility` for an evidence-backed pivot without expanding authority
 
 ## Who This Is For
 
@@ -166,24 +180,33 @@ Use this shortcut:
 4. repeatable command orchestration: add `scripted-command-execution`
 5. implementation or risky code change: add the applicable implementation and regression owners
 6. governed or release-affecting work: use the governance path and uncapped mandatory safety gates
+7. repeated failure or disconfirming evidence: mark the approach challenged and test a structurally different pivot through `agent-humility`
 
 For routine work, target a median of at most two selected skills and normally no more than five. Compatibility wrappers do not count as active selections.
 
 Optional internal language control:
 
-1. `/internal-lang on` enables compact private scratch notation
-2. `/internal-lang off` disables it
-3. `/internal-lang --response on` allows compact notation in user-facing responses
-4. `/internal-lang --response off` keeps responses in normal language
+1. `--internal-lang on` enables compact private scratch notation
+2. `--internal-lang off` disables it
+3. `--internal-lang --response on` allows compact notation in user-facing responses
+4. `--internal-lang --response off` keeps responses in normal language
 
 Optional clarification control:
 
-1. write `--quizme` to toggle persistent conversation-local exhaustive clarification on or off
+1. write `--quizme` to toggle persistent exhaustive clarification on or off
 2. write `--quizme --mc` to prefer interactive multiple-choice questions
 3. write `--quizme --one-at-a-time` for one adaptive question per round
 4. write `--quizme --confirm` to approve the final task contract before execution
 5. write `--quizme --record` to persist the approved contract when a suitable artifact exists; this implies confirmation
 6. combine supported arguments in any order directly after `--quizme`
+
+Skillpack help and fresh-context controls:
+
+1. `--help` lists every active skill and supported command; `*` means direct user activation is required
+2. `--clean-slate` ignores optional history sources for subsequent fresh tasks
+3. `--clean-slate off` restores normal optional-history retrieval
+
+The reference runtime adapter makes these state transitions deterministic with explicit preferences persisted across conversations. The advanced SVG package also includes a librsvg/Chromium render matrix for multi-size visual regression checks.
 
 ## Intended Outcomes
 
@@ -201,7 +224,7 @@ The pack should help produce:
 
 Use these tags for discoverability:
 
-- `agent-command-center`
+- `got-skills`
 - `ai-agent`
 - `agent-skills`
 - `skillpack`

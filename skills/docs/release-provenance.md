@@ -1,5 +1,7 @@
 # Release Provenance
 
+[Documentation home](./README.md) · [Governance walkthrough](./governance-walkthrough.md) · [Release-readiness rubric](./rubrics/release-readiness-rubric.md)
+
 ## Version 1.0.0 Record
 
 The published `v1.0.0` release is retained as historical evidence and must not be retagged or rewritten.

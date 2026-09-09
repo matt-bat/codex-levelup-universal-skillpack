@@ -1,5 +1,7 @@
 # Example: Release-Readiness Change
 
+[Documentation home](../README.md) · [Quizme clarification](./quizme-clarification.md) · [Governance walkthrough](../governance-walkthrough.md)
+
 ## Scenario
 
 The user asks to prepare governed skillpack, CI, policy, or release artifacts for push.

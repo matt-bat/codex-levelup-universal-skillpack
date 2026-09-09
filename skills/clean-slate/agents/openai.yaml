@@ -1,0 +1,4 @@
+interface:
+  display_name: "Clean Slate"
+  short_description: "Ignore optional history for fresh tasks"
+  default_prompt: "Use $clean-slate to create a fresh-context boundary for a new task."

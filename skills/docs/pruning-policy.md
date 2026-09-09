@@ -1,5 +1,7 @@
 # Pruning Policy
 
+[Documentation home](./README.md) · [Maturity model](./maturity-model.md) · [Field notes](./field-notes.md)
+
 Use this policy to prevent uncontrolled skillpack growth. A new skill should earn its place by making future work clearer, safer, or easier to validate.
 
 ## Rule For New Skills

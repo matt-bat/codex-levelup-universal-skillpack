@@ -1,5 +1,7 @@
 # Field Notes
 
+[Documentation home](./README.md) · [Maturity model](./maturity-model.md) · [Pruning policy](./pruning-policy.md)
+
 Use this file to capture real usage evidence that should influence future changes.
 
 ## Purpose
@@ -79,6 +81,34 @@ Keep entries short. The goal is a useful pattern over time, not a transcript.
 - User corrections: The user repeatedly required maximum effort, no shortcuts, continued work, full metadata, and documentation updates.
 - Validation run: 163 governance tests and all 26 routing scenarios passed after adding failure-path and byte-stable-fixture coverage; the policy validator, generated-view check, exact-head enforcement, and live read-only branch-protection verification also passed.
 - Follow-up candidate: Accumulate at least 30 representative routed tasks or two releases before retiring compatibility behavior; reverify mutable remote state at every external-action checkpoint.
+
+## FIELD-20260816-05
+- Date: 2026-08-16
+- Task: Post-expansion usage review and operational hardening of the five advanced-skill additions.
+- Install profile: Internal, governed, cross-cutting policy and tooling change.
+- Skills selected: `advanced-r-and-d`, `skill-usage-review`, `skill-governance`, `governance-enforcement`, `interdependent-change-planning`, `regression-prevention`, `effective-testing-methods`, `scripted-command-execution`, and `doc-maintenance`.
+- Skills skipped: Deployment, publication, deletion, migration, backup, restore, and remote-configuration controls were outside the requested effect.
+- Evidence reviewed: 10 committed governance records, the canonical catalog, the 26 routing scenarios, the new-skill contract tests, adapters, known limitations, and the prior 92/100 rubric review.
+- What helped: The five additions own distinct domains—research evidence, vector quality, help discovery, assumption resolution, and history boundaries—so no merge candidate was found. Typed routing and exact-command tests kept automatic and explicit activation separate.
+- What slowed work: The one-time hint and conversation modes had prose but no executable host state machine; SVG validation did not render pixels; and five skills had been added since the previous recorded usage review.
+- User corrections: The user requested that the pack close every identified scoring gap and reach the rubric's perfect-score standard.
+- Validation run: Added host lifecycle/command conformance, multi-size librsvg/Chromium rendering, blank-output detection, pixel comparison, and mandatory CI coverage. Final exact-head results belong in the matching governance record rather than this field note.
+- Disposition: Retain all five additions. Treat the controlled-growth review threshold as satisfied for this expansion, add no further skill solely from this task, and continue collecting representative live usage before lifecycle promotion or pruning.
+- Follow-up candidate: Compare bounded routing observations after 30 representative tasks or two releases; do not mistake synthetic conformance scenarios for live adoption evidence.
+
+## FIELD-20260816-06
+- Date: 2026-08-16
+- Task: Add a bounded workflow for abandoning disproven approaches without losing the user's goal or expanding authority.
+- Install profile: Internal, governed, cross-cutting routing and policy change.
+- Skills selected: `skill-creator`, `advanced-r-and-d`, `interdependent-change-planning`, `skill-governance`, `governance-enforcement`, `regression-prevention`, `effective-testing-methods`, `doc-maintenance`, and `scripted-command-execution`.
+- Skills skipped: Deployment, publication, deletion, migration, backup, restore, and remote-configuration controls were outside the requested effect.
+- Evidence reviewed: User reports of repeated agent path attachment; peer-reviewed work on escalation, intellectual humility, failure learning, open-minded thinking, and analogical transfer; and primary LLM self-correction evaluations emphasizing reliable external feedback.
+- What helped: A distinct `approach_reassessment` decision domain separates goal preservation and method selection from root-cause diagnosis, requirement clarification, product judgment, and implementation-quality ownership.
+- What slowed work: A broad “be humble” instruction would be subjective, over-trigger on routine errors, and invite token-heavy introspection without improving correctness.
+- User corrections: The user required free-thinking, openness to nontraditional connections, faster satisfactory outcomes, reduced token use, full integration, and a GitHub push.
+- Validation run: Typed challenged and failed scenarios, negative viable-state coverage, catalog-derived views, policy validation, forward tests, governance evidence, and hosted CI are required before completion.
+- Disposition: Retain as a new automatic skill because it owns a missing decision—whether current evidence justifies continuing, pivoting, or stopping—while a typed trigger and explicit exclusions constrain overuse.
+- Follow-up candidate: Review representative `approach_state` classifications after 30 routed tasks or two releases; merge or narrow the skill if it becomes a generic retry checklist or duplicates diagnosis.
 
 ## Pruning Signal
 Consider pruning or merging when field notes show:

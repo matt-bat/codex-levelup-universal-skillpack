@@ -6,7 +6,7 @@ on:
       - main
   push:
     branches:
-      - main
+      - '**'
     tags:
       - 'v*'
   release:
@@ -34,6 +34,17 @@ jobs:
       - name: Install pinned governance dependencies
         run: python3 -m pip install --disable-pip-version-check -r skills/skill-governance/requirements.txt
 
+      - name: Install independent SVG renderer
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes librsvg2-bin
+
+      - name: Install pinned Chrome for Testing
+        id: setup-chrome
+        uses: browser-actions/setup-chrome@2e1d749697dd1612b833dba4a722266286fbefcd # v2.1.2
+        with:
+          chrome-version: '152.0.7977.42'
+
       - name: Compile governance scripts
         run: |
           python3 -m py_compile \
@@ -46,13 +57,34 @@ jobs:
             skills/skill-governance/scripts/validate_skill_policy.py \
             skills/skill-governance/scripts/validate_skill_order_sync.py \
             skills/skill-governance/scripts/validate_governance_artifact.py \
-            skills/skill-governance/scripts/enforce_governance_ci.py
+            skills/skill-governance/scripts/enforce_governance_ci.py \
+            skills/help/scripts/runtime_adapter.py \
+            skills/advanced-svg/scripts/render_svg.py
 
       - name: Run governance validator regression tests
         run: |
           python3 -m unittest discover \
             -s skills/skill-governance/tests \
             -p 'test_*.py' -v
+
+      - name: Verify SVG across independent renderers
+        env:
+          CHROME_BIN: ${{ steps.setup-chrome.outputs.chrome-path }}
+        run: |
+          python3 skills/advanced-svg/scripts/render_svg.py \
+            skills/advanced-svg/assets/render-smoke.svg \
+            --renderer rsvg \
+            --renderer chromium \
+            --size 32x32 \
+            --size 128x128 \
+            --size 512x512 \
+            --require-renderers 2 \
+            --max-mean-channel-diff 0.12 \
+            --max-visible-region-diff 0.18 \
+            --max-mask-mismatch 0.08 \
+            --max-normalized-bbox-delta 0.05 \
+            --min-transparent-margin 1 \
+            --chromium-no-sandbox
 
       - name: Enforce governance and skill policy (pull request)
         if: github.event_name == 'pull_request'
@@ -67,7 +99,7 @@ jobs:
             --attestation-out "${RUNNER_TEMP}/governance-attestation.json"
 
       - name: Enforce governance and skill policy (main push)
-        if: github.event_name == 'push' && github.ref_type == 'branch'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           python3 skills/skill-governance/scripts/enforce_governance_ci.py \
             --base-sha "${{ github.event.before }}" \
@@ -91,7 +123,7 @@ jobs:
             --attestation-out "${RUNNER_TEMP}/governance-attestation.json"
 
       - name: Upload exact-head governance attestation
-        if: success()
+        if: success() && (github.event_name != 'push' || github.ref == 'refs/heads/main' || github.ref_type == 'tag')
         uses: actions/upload-artifact@v4
         with:
           name: governance-attestation-${{ github.run_id }}-${{ github.run_attempt }}

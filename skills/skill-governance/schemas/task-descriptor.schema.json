@@ -174,6 +174,18 @@
         },
         "sequencing_required": {
           "type": "boolean"
+        },
+        "research_intensity": {
+          "description": "Evidence depth required before substantive work; advanced activates source-grounded R&D.",
+          "enum": ["standard", "advanced"]
+        },
+        "help_requested": {
+          "description": "True only for the exact Agent Command Center --help command.",
+          "type": "boolean"
+        },
+        "approach_state": {
+          "description": "Whether observable evidence still supports the current approach. Challenged or failed activates evidence-backed reassessment; routine first errors remain viable.",
+          "enum": ["not_applicable", "viable", "challenged", "failed"]
         }
       }
     },
@@ -277,6 +289,7 @@
           "testing",
           "frontend",
           "spatial_canvas",
+          "vector_graphics",
           "auth",
           "migration",
           "release",

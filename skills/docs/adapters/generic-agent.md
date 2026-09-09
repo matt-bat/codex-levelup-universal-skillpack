@@ -1,5 +1,7 @@
 # Generic Agent Adapter
 
+[Documentation home](../README.md) · [Common AI setup](./common-ai.md) · [Agent adapter](./agent.md)
+
 Use this adapter when an agent cannot load the repository's skills directly.
 
 The portable idea is simple: turn the skills into operating modes, keep the routing rules, and replace agent-specific tool behavior with the target agent's own command and approval flow.
@@ -23,11 +25,14 @@ The agent should:
 4. maintain docs when behavior or workflow changes
 5. record validation evidence for governed changes
 6. support persistent conversation-local `--quizme` clarification mode when the target agent can preserve turn state
+7. preserve the startup and exact-command state machine from `skills/help/references/runtime-protocol.md`; use the bundled adapter when Python execution is available
 
 ## Non-Portable Assumptions
 Some commands, approval flows, sandbox rules, and skill-loading behavior are implementation-specific. Replace them with the target agent's local command, approval, and artifact mechanisms.
 
 If a feature cannot be ported cleanly, document the gap instead of pretending the agent has the same controls.
+
+Run the runtime-adapter conformance suite before claiming startup, `--help`, or conversation-mode compatibility. A target that cannot preserve conversation-local state must report those modes as unsupported.
 
 Preserve the contract boundaries: the catalog is schema v2, the router contract is 2.1, and new governance artifacts are schema v3. Keep schema-v1 and schema-v2 governance artifacts readable as historical evidence. When publication is authorized and `main` is protected, use the target platform's feature-branch and pull-request flow rather than bypassing required checks.
 

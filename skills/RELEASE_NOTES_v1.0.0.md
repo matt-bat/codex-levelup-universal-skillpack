@@ -43,3 +43,8 @@ Commercial use requires prior written permission.
 ## Upgrade and Compatibility Notes
 - Baseline operation expects startup declaration discipline and governance validators to be part of release readiness checks.
 - Any new skill must be reflected in both `SKILL-MAP.md` and `docs/skill-index.md` in the same change.
+
+## Current Catalog Metadata
+- Skill count: `39`
+- Catalog version: `2.3.0`
+- Repository branding: `Got Skills?` (target repository name: `got-skills`)
