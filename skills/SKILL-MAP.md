@@ -25,15 +25,21 @@
 
 | Skill | Status | Routing | Role | Decision domains | Relations |
 |---|---|---|---|---|---|
+| `advanced-r-and-d` | active | automatic / required | owner | research_evidence | consumes: `task_contract`; supports: `regression-prevention` |
+| `advanced-svg` | active | automatic / required | owner | vector_graphics_quality | consumes: `task_contract`; runs_after: `advanced-r-and-d`; supports: `ui-design-skills` |
+| `agent-humility` | active | automatic / required | owner | approach_reassessment | consumes: `diagnostic_evidence`, `task_contract`; runs_after: `diagnose-before-fix`; supports: `advanced-r-and-d`, `regression-prevention`, `thoughtful-approach` |
 | `artifact-budget-enforcement` | active | explicit_only / required | owner | artifact_retention | consumes: `bounded_artifact`; supports: `file-maintenance` |
+| `clean-slate` | active | explicit_only / required | mode | history_context_boundary | supports: `requirement-clarifier` |
 | `conversation-retention-summary` | active | explicit_only / required | owner | conversation_retention | consumes: `repository_evidence`; requires: `artifact-budget-enforcement`; supports: `history-indexing` |
 | `deprecation-management` | active | explicit_only / required | owner | lifecycle | consumes: `routing_observations`; runs_after: `semantic-policy-audit`; supports: `doc-maintenance` |
 | `diagnose-before-fix` | active | automatic / required | owner | diagnosis | consumes: `repository_evidence`; supports: `regression-prevention` |
 | `doc-maintenance` | active | automatic / required | owner | documentation_accuracy | consumes: `authorized_change_contract`; supports: `regression-prevention` |
 | `effective-testing-methods` | active | automatic / required | owner | test_design | consumes: `authorized_change_contract`; supports: `regression-prevention` |
+| `eliminate-assumptions` | active | safety_only / required | safety | assumption_resolution | consumes: `task_contract`; gates: `material_uncertainty`; requires: `requirement-clarifier`; runs_after: `requirement-clarifier` |
 | `file-maintenance` | active | explicit_only / required | owner | file_hygiene | consumes: `repository_evidence` |
 | `file-structure-optimization` | active | explicit_only / required | owner | repository_structure | consumes: `repository_evidence`; supports: `doc-maintenance` |
 | `governance-enforcement` | active | safety_only / required | safety | governance_enforcement | consumes: `governance_plan`, `change_evidence`; gates: `exact_commit`, `governance_evidence`; requires: `skill-governance` |
+| `help` | active | automatic / required | support | None | None |
 | `history-indexing` | active | explicit_only / required | owner | history_retrieval | consumes: `repository_evidence`; requires: `artifact-budget-enforcement` |
 | `hyperfocus-discovery` | active | explicit_only / optional | support | branch_control | consumes: `task_contract`; runs_after: `order-of-operations` |
 | `interdependent-change-planning` | active | automatic / required | owner | change_coherence | consumes: `task_contract`; runs_after: `requirement-clarifier`; supports: `regression-prevention` |
@@ -54,5 +60,7 @@
 | `thoughtful-approach` | active | automatic / optional | owner | product_behavior | consumes: `task_contract`; runs_after: `requirement-clarifier`; supports: `regression-prevention`, `ui-design-skills` |
 | `token-reduction` | active | explicit_only / optional | support | context_and_output_budget | supports: `response-compositor` |
 | `ui-design-skills` | active | automatic / required | owner | general_ui_quality | consumes: `task_contract`; runs_after: `thoughtful-approach`; supports: `regression-prevention` |
+| `ui-dynamic-resizing` | active | automatic / required | owner | responsive_layout | consumes: `task_contract`; runs_after: `ui-design-skills`; supports: `regression-prevention` |
 | `ui-spatial-canvas` | active | automatic / required | owner | spatial_canvas_system | consumes: `repository_evidence`, `task_contract`; runs_after: `thoughtful-approach`; supports: `regression-prevention` |
 | `user-instructions-tracker` | active | explicit_only / required | owner | instruction_lifecycle | consumes: `instruction_ledger`; supports: `doc-maintenance` |
+| `user-run-scripts` | active | explicit_only / optional | mode | execution_control | None |

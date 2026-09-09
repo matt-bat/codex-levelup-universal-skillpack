@@ -1,5 +1,7 @@
 # Routing Architecture: Contract 2.1
 
+[Documentation home](./README.md) · [Skill index](./skill-index.md) · [Decision tree](./skill-decision-tree.md)
+
 `skills/skill-catalog.json` is the machine-readable source of truth. Treat this document and the generated routing views as explanatory surfaces; never edit a generated view independently.
 
 ## Layers
@@ -29,6 +31,10 @@ Contract 2.1 adds:
 1. `constraints.explicit_skills`: canonical names explicitly requested by the user or an active conversation mode.
 2. `evidence.artifacts`: typed artifact records containing catalog kind, repository-relative path, SHA-256, and status.
 3. `configure_remote`: a distinct operation and authority surface.
+4. `action.research_intensity`: `standard` or `advanced`; advanced intensity activates source-grounded R&D.
+5. `action.help_requested`: a typed exact-command signal for Agent Command Center `--help`.
+6. `vector_graphics`: a domain for non-trivial SVG composition and review.
+7. `action.approach_state`: `not_applicable`, `viable`, `challenged`, or `failed`; the final two derive `approach_reassessment` and select `agent-humility`.
 
 Do not infer explicit skills or artifact evidence from free-form text.
 
@@ -43,6 +49,8 @@ Represent important distinctions as typed fields:
 5. `data_loss_risk`: `none`, `credible`, or `unknown`.
 6. `recovery_requirement`: `not_required`, `required`, or `unknown`.
 7. Each operation, effect, mutation level, target, and authority as an internally consistent set.
+8. Every unresolved uncertainty, including noncritical ambiguity, as an explicit descriptor item that activates the no-assumption safety gate.
+9. Current-method viability as `approach_state`; mark it challenged or failed only from observable evidence, repeated non-progress, or a material correction—not from a routine first error.
 
 Reject unknown command or recovery effects at a mutation boundary. Running existing tests never selects the test-design owner. Incidental read-only validation does not select an execution workflow. Deployment requires rollback evidence but selects backup or restore controls only when typed risk independently requires them.
 

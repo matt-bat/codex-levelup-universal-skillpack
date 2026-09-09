@@ -1,4 +1,4 @@
 interface:
   display_name: "Internal Lang"
-  short_description: "Optional /internal-lang notation controls."
+  short_description: "Optional --internal-lang notation controls."
   default_prompt: "Use $internal-lang because I explicitly want compact notation or need to change its conversation-local toggle state."

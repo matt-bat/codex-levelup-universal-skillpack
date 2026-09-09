@@ -402,6 +402,9 @@ def _normalize_task_descriptor(descriptor: Mapping[str, Any]) -> dict[str, Any]:
     """Upgrade accepted legacy descriptor omissions without mutating caller data."""
 
     normalized = copy.deepcopy(dict(descriptor))
+    normalized["action"].setdefault("research_intensity", "standard")
+    normalized["action"].setdefault("help_requested", False)
+    normalized["action"].setdefault("approach_state", "not_applicable")
     normalized["constraints"].setdefault("explicit_skills", [])
     normalized["evidence"].setdefault("artifacts", [])
     return normalized
@@ -449,6 +452,8 @@ def _derive_flags(descriptor: Mapping[str, Any], contract: CatalogContract) -> f
     )
     values = {
         "adaptive_workflow": action["execution_mode"] == "adaptive_browser",
+        "advanced_research": action["research_intensity"] == "advanced",
+        "approach_reassessment": action["approach_state"] in {"challenged", "failed"},
         "coupled_change": action["coupled_change"],
         "credible_data_loss": mutation["data_loss_risk"] == "credible",
         "deterministic_workflow": action["execution_mode"] == "deterministic_workflow",
@@ -458,6 +463,7 @@ def _derive_flags(descriptor: Mapping[str, Any], contract: CatalogContract) -> f
         "governance_boundary": governance_change or release_boundary or live_or_destructive,
         "governance_change": governance_change,
         "governance_tooling": action["governance_tooling"],
+        "help_requested": action["help_requested"],
         "incidental_commands": action["execution_mode"] == "incidental_validation",
         "live_or_destructive": live_or_destructive,
         "material_uncertainty": unresolved_material,
@@ -479,6 +485,9 @@ def _derive_flags(descriptor: Mapping[str, Any], contract: CatalogContract) -> f
         "test_activity": action["test_intent"] != "none",
         "test_design": action["test_intent"] == "design_or_change",
         "ui_quality_judgment": action["ui_quality_judgment"],
+        "unresolved_uncertainty": any(
+            item["status"] != "resolved" for item in descriptor["material_uncertainties"]
+        ),
     }
     vocabulary = set(contract.payload["routing_vocabulary"]["flags"])
     implemented = set(values)
@@ -789,30 +798,38 @@ def _add_uncertainty_gate(state: RouteState) -> None:
     unresolved = [
         item for item in state.descriptor["material_uncertainties"] if item["status"] != "resolved"
     ]
+    assumption_gate = "eliminate-assumptions" in state.skills
     mutating = _has_mutating_request(state.descriptor)
-    blocking = [
-        item
-        for item in unresolved
+    blocking = unresolved if assumption_gate else [
+        item for item in unresolved
         if item["severity"] == "critical" or (item["severity"] == "material" and mutating)
     ]
     for item in blocking:
         disposition = "block" if item["status"] == "conflicting" else "clarify"
         state.add_veto(
-            "critical_state_unresolved",
+            "assumption_unresolved" if assumption_gate else "critical_state_unresolved",
             operation=None,
             disposition=disposition,
             reason=f"{item['id']}: {item['description']}",
         )
     if blocking:
         status = "blocked" if any(item["status"] == "conflicting" for item in blocking) else "needs_resolution"
-        reason = "Critical or mutation-material uncertainty must be resolved before execution."
+        reason = (
+            "Every unresolved ambiguity must be resolved before execution."
+            if assumption_gate
+            else "Critical or mutation-material uncertainty must be resolved before execution."
+        )
     elif unresolved:
         status = "required"
         reason = "Non-blocking uncertainty remains and must be surfaced."
     else:
         status = "passed"
         reason = "No unresolved material uncertainty blocks this checkpoint."
-    owner = "requirement-clarifier" if "requirement-clarifier" in state.skills else "task-router-v2"
+    owner = (
+        "eliminate-assumptions"
+        if assumption_gate
+        else "requirement-clarifier" if "requirement-clarifier" in state.skills else "task-router-v2"
+    )
     state.add_gate(
         "material-uncertainty",
         "material_uncertainty",

@@ -189,7 +189,7 @@ def v3_release_artifact() -> dict:
                 "version_path": "skills/VERSION",
                 "changelog_path": "skills/CHANGELOG.md",
                 "release_notes_path": "skills/RELEASE_NOTES_v2.0.0.md",
-                "skill_count": 31,
+                "skill_count": 39,
                 "governance_test_count": generate.count_governance_test_methods(REPO_ROOT),
             },
             "execution_scope": "external",
@@ -303,6 +303,23 @@ class TestWorkflowIntegrity(unittest.TestCase):
         self.assertIn("    branches:\n      - main", pull_request)
         self.assertNotIn("    paths:", pull_request)
         self.assertIn("jobs:\n  governance:", active)
+
+    def test_feature_branch_pushes_validate_without_main_only_attestation(self) -> None:
+        active = (REPO_ROOT / ".github" / "workflows" / "skills-governance-ci.yml").read_text(
+            encoding="utf-8"
+        )
+        push = self.event_block(active, "push")
+
+        self.assertIn("    branches:\n      - '**'", push)
+        self.assertIn(
+            "if: github.event_name == 'push' && github.ref == 'refs/heads/main'",
+            active,
+        )
+        self.assertIn(
+            "if: success() && (github.event_name != 'push' || "
+            "github.ref == 'refs/heads/main' || github.ref_type == 'tag')",
+            active,
+        )
 
 
 class TestRepositoryRootDiscovery(unittest.TestCase):
@@ -926,7 +943,7 @@ class TestV3Generator(unittest.TestCase):
                 encoding="utf-8",
             )
             (repo / "skills" / "RELEASE_NOTES_v2.0.0.md").write_text(
-                "# v2.0.0\n\n- Skill count: `31`\n- Governance test count: `1`\n",
+                "# v2.0.0\n\n- Skill count: `39`\n- Governance test count: `1`\n",
                 encoding="utf-8",
             )
             tests = repo / "skills" / "skill-governance" / "tests"
@@ -1232,7 +1249,7 @@ class TestChangeBindingAndAttestation(unittest.TestCase):
                 encoding="utf-8",
             )
             (repo / "skills" / "RELEASE_NOTES_v2.0.0.md").write_text(
-                "# v2.0.0\n\n- Skill count: `31`\n- Governance test count: `1`\n",
+                "# v2.0.0\n\n- Skill count: `39`\n- Governance test count: `1`\n",
                 encoding="utf-8",
             )
             tests = repo / "skills" / "skill-governance" / "tests"

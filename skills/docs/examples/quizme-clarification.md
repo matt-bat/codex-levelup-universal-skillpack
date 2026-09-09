@@ -1,5 +1,7 @@
 # Example: Quizme Clarification
 
+[Documentation home](../README.md) · [Documentation update](./documentation-only-update.md) · [Release readiness](./release-readiness-change.md)
+
 ## Scenario
 The user wants exhaustive clarification before any substantive work and writes:
 

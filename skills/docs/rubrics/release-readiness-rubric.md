@@ -1,5 +1,7 @@
 # Release Readiness Rubric
 
+[Documentation home](../README.md) · [Documentation quality](./documentation-quality-rubric.md) · [Skillpack quality](./skillpack-quality-rubric.md)
+
 Use this rubric before making a local ready-to-push or ready-to-release claim for governed changes.
 
 The question is not "did the edit look right?" The question is whether the repository state, validation evidence, documentation, authority, and residual risk support the exact claim being made.

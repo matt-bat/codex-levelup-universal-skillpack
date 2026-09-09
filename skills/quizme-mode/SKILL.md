@@ -21,7 +21,7 @@ Trigger parsing is exact:
 5. supported arguments are `--mc`, `--one-at-a-time`, `--confirm`, and `--record`
 6. arguments may appear in any order
 7. duplicate arguments are harmless
-8. unsupported arguments are ignored and briefly reported
+8. unsupported arguments make the command invalid; briefly report them, leave state unchanged, and do not consume the message
 9. toggling quizme mode off clears every option
 10. while mode is active, plain `--quizme` toggles it off; `--quizme` with supported arguments keeps it on and replaces active options
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Eliminate Assumptions"
+  short_description: "Stop and resolve every unresolved ambiguity"
+  default_prompt: "Use $eliminate-assumptions to resolve every ambiguity before continuing the task."

@@ -1,5 +1,7 @@
 # Start Here
 
+[Project home](./README.md) · [Documentation home](./skills/docs/README.md) · [Usage](./skills/USAGE.md)
+
 This is the fastest way to figure out how much of the skillpack you actually need.
 
 The short version: do not start by turning everything on. Pick the smallest profile that fits the work, then grow from there only when the task needs more safety, evidence, or continuity.
@@ -18,6 +20,8 @@ Basic setup:
 4. install the pinned governance dependencies and run policy validation once the files are in place
 
 Ask for a startup skill declaration only when you explicitly want one or when governed or audited work needs a durable routing record.
+
+Send `--help` at any time to list installed skills and commands. In that list, `*` marks a skill that requires direct user activation.
 
 ```sh
 python3 -m pip install --disable-pip-version-check -r skills/skill-governance/requirements.txt
@@ -58,6 +62,10 @@ Combine options directly after `--quizme`, for example:
 ```text
 --quizme --mc --one-at-a-time --confirm
 ```
+
+## I Want A Fresh Greenfield Context
+
+Install `clean-slate`, then send `--clean-slate`. Optional history, stored preferences, and prior-task summaries will be excluded while current instructions, current decisions, safety rules, and task-local repository evidence remain in force. Send `--clean-slate off` to disable the boundary.
 
 ## I Want Governed Release Readiness
 

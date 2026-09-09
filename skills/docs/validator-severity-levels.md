@@ -1,5 +1,7 @@
 # Validator Severity Levels
 
+[Documentation home](./README.md) · [Validation profiles](./validation-profiles.md) · [Known limitations](./known-limitations.md)
+
 Use severity levels so validation stays useful without blocking harmless work.
 
 Validators should be strict about things that can break routing, safety, governance evidence, or release claims. They should be lighter about style suggestions and future improvements.

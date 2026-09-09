@@ -1,5 +1,7 @@
 # Constrained Environment Verification
 
+[Documentation home](../README.md) · [Validation profiles](../validation-profiles.md) · [Known limitations](../known-limitations.md)
+
 ## Purpose
 Use this fallback path when the right validation cannot run because the local environment is missing something.
 

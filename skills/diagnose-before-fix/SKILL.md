@@ -86,3 +86,8 @@ When using this skill, provide:
 - [Order of Operations](../order-of-operations/SKILL.md): sequence diagnosis before mutation.
 - [Thoughtful Approach](../thoughtful-approach/SKILL.md): avoid overfitting the fix to a symptom.
 - [Scripted Command Execution](../scripted-command-execution/SKILL.md): run deterministic reproductions and probes.
+
+
+## Least-resistance reasoning
+
+Prefer the simplest explanation that fits the evidence. Test the cheapest reversible hypothesis first, and add complexity only when a failed test or new evidence requires it. Keep the claim falsifiable by naming what would confirm or disconfirm it.

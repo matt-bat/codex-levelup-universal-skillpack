@@ -1,5 +1,7 @@
 # Known Limitations
 
+[Documentation home](./README.md) · [Install profiles](./install-profiles.md) · [Validation profiles](./validation-profiles.md)
+
 This skillpack improves agent consistency, but it does not remove the need for judgment. It gives the agent a better workflow; it does not prove the agent made the best possible decision.
 
 ## Process Weight
@@ -16,9 +18,13 @@ That is why the pack still relies on visible evidence: commands run, files chang
 
 `quizme-mode` is also behavioral. The policy and governed artifacts can record whether it is active and which options are enabled, but the runtime must preserve conversation state and expose an interactive clarification tool for the full experience. When that tool is unavailable, use concise conversational questions. `--record` only writes evidence when an appropriate durable artifact exists.
 
-Conversation-local mode state is a runtime responsibility. Neither `--quizme` nor `/internal-lang` implies durable cross-session persistence, and a restarted integration must not invent prior toggle state.
+Conversation-local mode state remains a runtime responsibility. The executable reference adapter now emits the startup hint exactly once, parses every supported command, and returns fail-closed state transitions plus router-ready patches. Hosts must preserve that returned state within the conversation or pass equivalent conformance tests. Neither `--quizme` nor `--internal-lang` implies durable cross-session persistence, and a restarted integration must not invent prior toggle state.
 
-The router contract 2.1 resolver also expects a caller to normalize free-form requests into the typed task descriptor. It validates and routes that descriptor; it does not prove the normalization captured the user's intent. Material uncertainty, unknown command effects, and unknown recovery exposure fail closed, but a confidently incorrect descriptor still requires human or model review.
+The router contract 2.1 resolver also expects a caller to normalize free-form requests into the typed task descriptor. The runtime adapter binds exact commands to the source-message SHA-256 and emits deterministic descriptor patches, but semantic normalization still requires host judgment. Material uncertainty, unknown command effects, and unknown recovery exposure fail closed; a confidently incorrect semantic descriptor remains an irreducible review risk rather than an executable-command gap.
+
+`agent-humility` is an evidence-and-pivot workflow, not a persistent personality change or a guarantee that a replacement idea is correct. It depends on the host accurately classifying `approach_state` and on observable feedback that can distinguish alternatives. Without tests, tool output, specifications, repository evidence, or a precise user correction, the skill stops instead of manufacturing confidence through repeated self-reflection.
+
+SVG renderer verification exercises librsvg and Chromium at multiple sizes and compares decoded pixels, but it cannot prove compatibility with every renderer, font stack, assistive technology, theme, or application embedding. Use target-specific browser and accessibility checks when those surfaces are material.
 
 Version 2.0 descriptors and frozen results remain readable for compatibility, while new results use 2.1. Explicit skill requests and artifact evidence depend on correctly populated 2.1 fields. Artifact evidence proves only that a repository-contained path and digest matched at routing time; it does not prove the evidence was sufficient or meaningful.
 

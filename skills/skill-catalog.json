@@ -1,7 +1,7 @@
 {
   "$schema": "./skill-catalog.schema.json",
   "schema_version": 2,
-  "catalog_version": "2.0.1",
+  "catalog_version": "2.3.0",
   "router_contract": "2.1",
   "components": [
     "core-policy",
@@ -23,13 +23,18 @@
       "material_risk"
     ],
     "selection_order": [
+      "help",
       "requirement-clarifier",
+      "eliminate-assumptions",
+      "advanced-r-and-d",
       "order-of-operations",
       "diagnose-before-fix",
+      "agent-humility",
       "skill-governance",
       "governance-enforcement",
       "interdependent-change-planning",
       "thoughtful-approach",
+      "advanced-svg",
       "ui-design-skills",
       "ui-spatial-canvas",
       "semantic-policy-audit",
@@ -40,7 +45,8 @@
       "restore-drill",
       "scripted-command-execution",
       "pseudo-agentic-automation",
-      "doc-maintenance"
+      "doc-maintenance",
+      "ui-dynamic-resizing"
     ],
     "zero_skill_valid": true,
     "skill_budget": {
@@ -68,12 +74,112 @@
     ]
   },
   "routing_vocabulary": {
-    "actions": ["answer", "diagnose", "edit", "implement", "inspect", "operate", "release", "review", "score", "test"],
-    "operations": ["commit", "configure_remote", "delete", "deploy", "message", "migrate", "publish", "push", "read", "run_commands", "write_files"],
-    "effects": ["deletion", "documentation", "external_message", "governance_policy", "live_data", "published_artifact", "remote_repository", "repository_history", "runtime_environment", "test_suite", "unknown", "user_visible_behavior", "workspace_files"],
-    "surfaces": ["backend", "browser", "cli", "documentation", "external_service", "frontend", "governance", "live_data", "release", "repository", "response", "runtime", "source", "tests"],
-    "domains": ["auth", "code", "data", "documentation", "frontend", "general", "migration", "operations", "policy", "release", "repository", "spatial_canvas", "testing"],
-    "flags": ["adaptive_workflow", "coupled_change", "credible_data_loss", "deterministic_workflow", "documentation_candidate", "documentation_sync", "frontend_work", "governance_boundary", "governance_change", "governance_tooling", "incidental_commands", "live_or_destructive", "material_uncertainty", "mutation_unknown", "product_judgment", "recovery_considered", "recovery_required", "recovery_unknown", "regression_risk", "release_boundary", "release_enforcement", "run_existing_tests", "sequencing_required", "source_only_sensitive", "spatial_canvas", "test_activity", "test_design", "ui_quality_judgment"]
+    "actions": [
+      "answer",
+      "diagnose",
+      "edit",
+      "implement",
+      "inspect",
+      "operate",
+      "release",
+      "review",
+      "score",
+      "test"
+    ],
+    "operations": [
+      "commit",
+      "configure_remote",
+      "delete",
+      "deploy",
+      "message",
+      "migrate",
+      "publish",
+      "push",
+      "read",
+      "run_commands",
+      "write_files"
+    ],
+    "effects": [
+      "deletion",
+      "documentation",
+      "external_message",
+      "governance_policy",
+      "live_data",
+      "published_artifact",
+      "remote_repository",
+      "repository_history",
+      "runtime_environment",
+      "test_suite",
+      "unknown",
+      "user_visible_behavior",
+      "workspace_files"
+    ],
+    "surfaces": [
+      "backend",
+      "browser",
+      "cli",
+      "documentation",
+      "external_service",
+      "frontend",
+      "governance",
+      "live_data",
+      "release",
+      "repository",
+      "response",
+      "runtime",
+      "source",
+      "tests"
+    ],
+    "domains": [
+      "auth",
+      "code",
+      "data",
+      "documentation",
+      "frontend",
+      "general",
+      "migration",
+      "operations",
+      "policy",
+      "release",
+      "repository",
+      "spatial_canvas",
+      "testing",
+      "vector_graphics"
+    ],
+    "flags": [
+      "adaptive_workflow",
+      "advanced_research",
+      "approach_reassessment",
+      "coupled_change",
+      "credible_data_loss",
+      "deterministic_workflow",
+      "documentation_candidate",
+      "documentation_sync",
+      "frontend_work",
+      "governance_boundary",
+      "governance_change",
+      "governance_tooling",
+      "help_requested",
+      "incidental_commands",
+      "live_or_destructive",
+      "material_uncertainty",
+      "mutation_unknown",
+      "product_judgment",
+      "recovery_considered",
+      "recovery_required",
+      "recovery_unknown",
+      "regression_risk",
+      "release_boundary",
+      "release_enforcement",
+      "run_existing_tests",
+      "sequencing_required",
+      "source_only_sensitive",
+      "spatial_canvas",
+      "test_activity",
+      "test_design",
+      "ui_quality_judgment",
+      "unresolved_uncertainty"
+    ]
   },
   "relation_types": {
     "requires": "Hard prerequisite. The requires graph must be acyclic.",
@@ -116,7 +222,9 @@
   ],
   "decision_domains": [
     "adaptive_execution",
+    "approach_reassessment",
     "artifact_retention",
+    "assumption_resolution",
     "backup_readiness",
     "branch_control",
     "change_coherence",
@@ -125,11 +233,13 @@
     "deterministic_execution",
     "diagnosis",
     "documentation_accuracy",
+    "execution_control",
     "execution_order",
     "file_hygiene",
     "general_ui_quality",
     "governance_decision",
     "governance_enforcement",
+    "history_context_boundary",
     "history_retrieval",
     "implementation_quality",
     "instruction_lifecycle",
@@ -140,27 +250,240 @@
     "qualitative_code_review",
     "quality_scoring",
     "repository_structure",
+    "research_evidence",
+    "responsive_layout",
     "restore_verification",
     "routing_quality_review",
     "semantic_policy_conformance",
     "spatial_canvas_system",
     "task_meaning",
-    "test_design"
+    "test_design",
+    "vector_graphics_quality"
   ],
   "skills": [
+    {
+      "name": "advanced-r-and-d",
+      "status": "active",
+      "role": "owner",
+      "routing_mode": "automatic",
+      "description": "Perform source-grounded research before advanced or high-intensity analysis, design, or implementation across any domain. Use when research_intensity is advanced, including niche libraries, unfamiliar APIs, standards-sensitive behavior, consequential recommendations, or work whose correctness depends on current external documentation; do not use for routine tasks fully answered by stable local evidence.",
+      "triggers": [
+        "The normalized task has advanced research intensity because current external evidence is necessary before consequential work."
+      ],
+      "exclusions": [
+        "The task is routine and stable local evidence fully answers the material questions."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "flags_any": [
+              "advanced_research"
+            ]
+          }
+        ],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "research_evidence"
+      ],
+      "artifact_policy": {
+        "durability": "conversation_local",
+        "artifacts": [
+          "repository_evidence"
+        ]
+      },
+      "risk_level": "medium",
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [],
+        "supports": [
+          "regression-prevention"
+        ],
+        "conflicts_with": [],
+        "consumes": [
+          "task_contract"
+        ],
+        "superseded_by": []
+      }
+    },
+    {
+      "name": "advanced-svg",
+      "status": "active",
+      "role": "owner",
+      "routing_mode": "automatic",
+      "description": "Design, generate, review, or repair sophisticated SVG assets and SVG-based interfaces using reusable geometry, composition, paint, filter, accessibility, security, and validation patterns. Use for vector_graphics tasks that need more than a basic icon or isolated shape; do not use for raster image generation or trivial edits to an established SVG asset.",
+      "triggers": [
+        "The task designs, generates, reviews, or repairs a non-trivial SVG or SVG-based visual system."
+      ],
+      "exclusions": [
+        "The task is raster image generation, a trivial edit, or an established SVG component already supplies the needed pattern."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "domains_any": [
+              "vector_graphics"
+            ]
+          }
+        ],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "vector_graphics_quality"
+      ],
+      "artifact_policy": {
+        "durability": "authorized_only",
+        "artifacts": [
+          "change_evidence"
+        ]
+      },
+      "risk_level": "medium",
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [
+          "advanced-r-and-d"
+        ],
+        "supports": [
+          "ui-design-skills"
+        ],
+        "conflicts_with": [],
+        "consumes": [
+          "task_contract"
+        ],
+        "superseded_by": []
+      }
+    },
+    {
+      "name": "agent-humility",
+      "status": "active",
+      "role": "owner",
+      "routing_mode": "automatic",
+      "description": "Reassess and pivot a current approach when disconfirming evidence, repeated failure, user correction, or lack of measurable progress shows that continued investment is unjustified. Use when approach_state is challenged or failed; preserve the user's goal while dropping attachment to the method, seek falsifying evidence and structurally different alternatives, and do not use for a routine first error, an unverified debugging cause, or open-ended ideation with no failing approach.",
+      "triggers": [
+        "Concrete disconfirming evidence, repeated failure, user correction, or lost progress challenges the current approach."
+      ],
+      "exclusions": [
+        "No approach is challenged, or a routine first error has an obvious evidence-backed correction."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "flags_any": [
+              "approach_reassessment"
+            ]
+          }
+        ],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "approach_reassessment"
+      ],
+      "artifact_policy": {
+        "durability": "conversation_local",
+        "artifacts": []
+      },
+      "risk_level": "medium",
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [
+          "diagnose-before-fix"
+        ],
+        "supports": [
+          "advanced-r-and-d",
+          "regression-prevention",
+          "thoughtful-approach"
+        ],
+        "conflicts_with": [],
+        "consumes": [
+          "diagnostic_evidence",
+          "task_contract"
+        ],
+        "superseded_by": []
+      }
+    },
     {
       "name": "artifact-budget-enforcement",
       "status": "active",
       "role": "owner",
       "routing_mode": "explicit_only",
       "description": "Use for enforcing hard limits on cached artifacts, summaries, indexes, and other compact metadata files so they stay bounded and high-signal.",
-      "triggers": ["A bounded cache, summary, index, or metadata artifact needs an explicit size or retention limit."],
-      "exclusions": ["No bounded artifact exists or ordinary source/document maintenance is sufficient."],
-      "routing": {"selection_strength": "required", "triggers": [], "exclusions": []},
-      "decision_domains": ["artifact_retention"],
-      "artifact_policy": {"durability": "authorized_only", "artifacts": ["bounded_artifact"]},
+      "triggers": [
+        "A bounded cache, summary, index, or metadata artifact needs an explicit size or retention limit."
+      ],
+      "exclusions": [
+        "No bounded artifact exists or ordinary source/document maintenance is sufficient."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "artifact_retention"
+      ],
+      "artifact_policy": {
+        "durability": "authorized_only",
+        "artifacts": [
+          "bounded_artifact"
+        ]
+      },
       "risk_level": "low",
-      "relations": {"requires": [], "gates": [], "runs_after": [], "supports": ["file-maintenance"], "conflicts_with": [], "consumes": ["bounded_artifact"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [],
+        "supports": [
+          "file-maintenance"
+        ],
+        "conflicts_with": [],
+        "consumes": [
+          "bounded_artifact"
+        ],
+        "superseded_by": []
+      }
+    },
+    {
+      "name": "clean-slate",
+      "status": "active",
+      "role": "mode",
+      "routing_mode": "explicit_only",
+      "description": "Provide an explicit conversation-local fresh-context boundary when the user sends --clean-slate, excluding optional user-history, memory, preference, summary, and history-index sources from subsequent greenfield tasks. Use only after direct activation; never ignore the current request, current conversation decisions, applicable instructions, repository evidence, safety controls, or authority boundaries.",
+      "triggers": [
+        "The user sends --clean-slate or the mode remains active in the current conversation."
+      ],
+      "exclusions": [
+        "The user has not activated clean-slate mode or has disabled it with --clean-slate off."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "history_context_boundary"
+      ],
+      "artifact_policy": {
+        "durability": "conversation_local",
+        "artifacts": []
+      },
+      "risk_level": "low",
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [],
+        "supports": [
+          "requirement-clarifier"
+        ],
+        "conflicts_with": [],
+        "consumes": [],
+        "superseded_by": []
+      }
     },
     {
       "name": "conversation-retention-summary",
@@ -168,13 +491,42 @@
       "role": "owner",
       "routing_mode": "explicit_only",
       "description": "Use for maintaining a rolling summary of only the last 10 conversations and refreshing matched history entries instead of appending unbounded cache.",
-      "triggers": ["The requested work is specifically to refresh the bounded ten-conversation retention summary."],
-      "exclusions": ["The task needs a full transcript, archive reconstruction, or no summary maintenance."],
-      "routing": {"selection_strength": "required", "triggers": [], "exclusions": []},
-      "decision_domains": ["conversation_retention"],
-      "artifact_policy": {"durability": "authorized_only", "artifacts": ["bounded_artifact"]},
+      "triggers": [
+        "The requested work is specifically to refresh the bounded ten-conversation retention summary."
+      ],
+      "exclusions": [
+        "The task needs a full transcript, archive reconstruction, or no summary maintenance."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "conversation_retention"
+      ],
+      "artifact_policy": {
+        "durability": "authorized_only",
+        "artifacts": [
+          "bounded_artifact"
+        ]
+      },
       "risk_level": "low",
-      "relations": {"requires": ["artifact-budget-enforcement"], "gates": [], "runs_after": [], "supports": ["history-indexing"], "conflicts_with": [], "consumes": ["repository_evidence"], "superseded_by": []}
+      "relations": {
+        "requires": [
+          "artifact-budget-enforcement"
+        ],
+        "gates": [],
+        "runs_after": [],
+        "supports": [
+          "history-indexing"
+        ],
+        "conflicts_with": [],
+        "consumes": [
+          "repository_evidence"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "deprecation-management",
@@ -182,13 +534,42 @@
       "role": "owner",
       "routing_mode": "explicit_only",
       "description": "Manage an explicitly approved rename, merge, supersession, discouragement, deprecation, or removal with compatibility routing and evidence-based exit criteria. Do not activate for ordinary edits, speculative consolidation, or a direct correction with no lifecycle impact.",
-      "triggers": ["An approved lifecycle change needs compatibility routing, migration guidance, or removal criteria."],
-      "exclusions": ["A direct correction resolves the issue without changing lifecycle status."],
-      "routing": {"selection_strength": "required", "triggers": [], "exclusions": []},
-      "decision_domains": ["lifecycle"],
-      "artifact_policy": {"durability": "authorized_only", "artifacts": ["change_evidence"]},
+      "triggers": [
+        "An approved lifecycle change needs compatibility routing, migration guidance, or removal criteria."
+      ],
+      "exclusions": [
+        "A direct correction resolves the issue without changing lifecycle status."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "lifecycle"
+      ],
+      "artifact_policy": {
+        "durability": "authorized_only",
+        "artifacts": [
+          "change_evidence"
+        ]
+      },
       "risk_level": "medium",
-      "relations": {"requires": [], "gates": [], "runs_after": ["semantic-policy-audit"], "supports": ["doc-maintenance"], "conflicts_with": [], "consumes": ["routing_observations"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [
+          "semantic-policy-audit"
+        ],
+        "supports": [
+          "doc-maintenance"
+        ],
+        "conflicts_with": [],
+        "consumes": [
+          "routing_observations"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "diagnose-before-fix",
@@ -196,13 +577,46 @@
       "role": "owner",
       "routing_mode": "automatic",
       "description": "Use for debugging or remediation work when reported symptoms may not be the true root cause; verify the cause independently before applying fixes, even when the user suggests one.",
-      "triggers": ["A defect or remediation request has an unverified cause."],
-      "exclusions": ["The cause is already proven and the task is a fixed mechanical patch."],
-      "routing": {"selection_strength": "required", "triggers": [{"actions_any": ["diagnose"]}], "exclusions": []},
-      "decision_domains": ["diagnosis"],
-      "artifact_policy": {"durability": "conversation_local", "artifacts": ["diagnostic_evidence"]},
+      "triggers": [
+        "A defect or remediation request has an unverified cause."
+      ],
+      "exclusions": [
+        "The cause is already proven and the task is a fixed mechanical patch."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "actions_any": [
+              "diagnose"
+            ]
+          }
+        ],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "diagnosis"
+      ],
+      "artifact_policy": {
+        "durability": "conversation_local",
+        "artifacts": [
+          "diagnostic_evidence"
+        ]
+      },
       "risk_level": "medium",
-      "relations": {"requires": [], "gates": [], "runs_after": [], "supports": ["regression-prevention"], "conflicts_with": [], "consumes": ["repository_evidence"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [],
+        "supports": [
+          "regression-prevention"
+        ],
+        "conflicts_with": [],
+        "consumes": [
+          "repository_evidence"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "doc-maintenance",
@@ -210,13 +624,52 @@
       "role": "owner",
       "routing_mode": "automatic",
       "description": "Update existing canonical documentation when an authorized change alters behavior, interfaces, commands, setup, operations, policy, or user-facing usage. Use when documentation would otherwise become inaccurate; do not create unrelated README, tracker, architecture, or runbook artifacts merely because the skill activated.",
-      "triggers": ["An authorized change makes existing canonical documentation inaccurate, or documentation is the requested deliverable."],
-      "exclusions": ["No canonical documentation becomes stale and no documentation was requested."],
-      "routing": {"selection_strength": "required", "triggers": [{"flags_any": ["documentation_candidate"]}], "exclusions": [{"flags_none": ["documentation_sync"]}]},
-      "decision_domains": ["documentation_accuracy"],
-      "artifact_policy": {"durability": "authorized_only", "artifacts": ["change_evidence"]},
+      "triggers": [
+        "An authorized change makes existing canonical documentation inaccurate, or documentation is the requested deliverable."
+      ],
+      "exclusions": [
+        "No canonical documentation becomes stale and no documentation was requested."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "flags_any": [
+              "documentation_candidate"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "flags_none": [
+              "documentation_sync"
+            ]
+          }
+        ]
+      },
+      "decision_domains": [
+        "documentation_accuracy"
+      ],
+      "artifact_policy": {
+        "durability": "authorized_only",
+        "artifacts": [
+          "change_evidence"
+        ]
+      },
       "risk_level": "medium",
-      "relations": {"requires": [], "gates": [], "runs_after": [], "supports": ["regression-prevention"], "conflicts_with": [], "consumes": ["authorized_change_contract"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [],
+        "supports": [
+          "regression-prevention"
+        ],
+        "conflicts_with": [],
+        "consumes": [
+          "authorized_change_contract"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "effective-testing-methods",
@@ -224,13 +677,103 @@
       "role": "owner",
       "routing_mode": "automatic",
       "description": "Design, add, or amend tests for changed behavior with surface-appropriate coverage. Use when test design or test-file changes are part of the task; do not activate merely to run an existing test command, and use Playwright only when a browser-visible flow changed.",
-      "triggers": ["The task requires designing, adding, or changing tests."],
-      "exclusions": ["Only an existing test command needs to run or no test design changes are required."],
-      "routing": {"selection_strength": "required", "triggers": [{"flags_any": ["test_activity"]}], "exclusions": [{"flags_any": ["run_existing_tests"]}]},
-      "decision_domains": ["test_design"],
-      "artifact_policy": {"durability": "authorized_only", "artifacts": ["test_evidence"]},
+      "triggers": [
+        "The task requires designing, adding, or changing tests."
+      ],
+      "exclusions": [
+        "Only an existing test command needs to run or no test design changes are required."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "flags_any": [
+              "test_activity"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "flags_any": [
+              "run_existing_tests"
+            ]
+          }
+        ]
+      },
+      "decision_domains": [
+        "test_design"
+      ],
+      "artifact_policy": {
+        "durability": "authorized_only",
+        "artifacts": [
+          "test_evidence"
+        ]
+      },
       "risk_level": "medium",
-      "relations": {"requires": [], "gates": [], "runs_after": [], "supports": ["regression-prevention"], "conflicts_with": [], "consumes": ["authorized_change_contract"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [],
+        "supports": [
+          "regression-prevention"
+        ],
+        "conflicts_with": [],
+        "consumes": [
+          "authorized_change_contract"
+        ],
+        "superseded_by": []
+      }
+    },
+    {
+      "name": "eliminate-assumptions",
+      "status": "active",
+      "role": "safety",
+      "routing_mode": "safety_only",
+      "description": "Block substantive execution whenever any unresolved ambiguity, conflict, missing choice, or unsupported inferred requirement could require an assumption. Use automatically when unresolved_uncertainty is present; inspect safely discoverable facts, then ask the user immediately for every decision that cannot be established from authoritative instructions or evidence.",
+      "triggers": [
+        "Any unresolved ambiguity, conflict, missing choice, or unsupported inferred requirement remains."
+      ],
+      "exclusions": [
+        "The task contract and current evidence contain no unresolved uncertainty."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "flags_any": [
+              "unresolved_uncertainty"
+            ]
+          }
+        ],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "assumption_resolution"
+      ],
+      "artifact_policy": {
+        "durability": "conversation_local",
+        "artifacts": [
+          "task_contract"
+        ]
+      },
+      "risk_level": "high",
+      "relations": {
+        "requires": [
+          "requirement-clarifier"
+        ],
+        "gates": [
+          "material_uncertainty"
+        ],
+        "runs_after": [
+          "requirement-clarifier"
+        ],
+        "supports": [],
+        "conflicts_with": [],
+        "consumes": [
+          "task_contract"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "file-maintenance",
@@ -238,13 +781,38 @@
       "role": "owner",
       "routing_mode": "explicit_only",
       "description": "Perform an explicitly requested repository file-hygiene review or maintenance pass focused on factual accuracy, freshness, consistency, and duplicate or stale file prevention; read-only audits do not authorize corrections.",
-      "triggers": ["File correctness, freshness, duplication, or stale-file cleanup is the requested maintenance outcome."],
-      "exclusions": ["The task is ordinary implementation or documentation accuracy is the actual decision domain."],
-      "routing": {"selection_strength": "required", "triggers": [], "exclusions": []},
-      "decision_domains": ["file_hygiene"],
-      "artifact_policy": {"durability": "authorized_only", "artifacts": ["change_evidence"]},
+      "triggers": [
+        "File correctness, freshness, duplication, or stale-file cleanup is the requested maintenance outcome."
+      ],
+      "exclusions": [
+        "The task is ordinary implementation or documentation accuracy is the actual decision domain."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "file_hygiene"
+      ],
+      "artifact_policy": {
+        "durability": "authorized_only",
+        "artifacts": [
+          "change_evidence"
+        ]
+      },
       "risk_level": "low",
-      "relations": {"requires": [], "gates": [], "runs_after": [], "supports": [], "conflicts_with": [], "consumes": ["repository_evidence"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [],
+        "supports": [],
+        "conflicts_with": [],
+        "consumes": [
+          "repository_evidence"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "file-structure-optimization",
@@ -252,13 +820,40 @@
       "role": "owner",
       "routing_mode": "explicit_only",
       "description": "Use for designing and maintaining repository file structure for clarity, modularity, discoverability, and low-duplication across app and documentation surfaces.",
-      "triggers": ["Repository organization or structural drift is the explicit design problem."],
-      "exclusions": ["Several files change but their locations and ownership remain coherent."],
-      "routing": {"selection_strength": "required", "triggers": [], "exclusions": []},
-      "decision_domains": ["repository_structure"],
-      "artifact_policy": {"durability": "authorized_only", "artifacts": ["impact_map"]},
+      "triggers": [
+        "Repository organization or structural drift is the explicit design problem."
+      ],
+      "exclusions": [
+        "Several files change but their locations and ownership remain coherent."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "repository_structure"
+      ],
+      "artifact_policy": {
+        "durability": "authorized_only",
+        "artifacts": [
+          "impact_map"
+        ]
+      },
       "risk_level": "medium",
-      "relations": {"requires": [], "gates": [], "runs_after": [], "supports": ["doc-maintenance"], "conflicts_with": [], "consumes": ["repository_evidence"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [],
+        "supports": [
+          "doc-maintenance"
+        ],
+        "conflicts_with": [],
+        "consumes": [
+          "repository_evidence"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "governance-enforcement",
@@ -266,13 +861,97 @@
       "role": "safety",
       "routing_mode": "safety_only",
       "description": "Generate, validate, and enforce content-bound governance plans and exact-head release attestations for governed work. Use when governance tooling or CI enforcement is being run or debugged; do not activate for policy-only decisions, ordinary project tests, or routine validation.",
-      "triggers": ["Governance artifacts, validators, CI policy enforcement, or release attestations are being generated, run, or debugged."],
-      "exclusions": ["The work is only a policy design discussion or ordinary project validation."],
-      "routing": {"selection_strength": "required", "triggers": [{"flags_any": ["governance_boundary"]}], "exclusions": [{"flags_none": ["governance_tooling", "release_enforcement"]}]},
-      "decision_domains": ["governance_enforcement"],
-      "artifact_policy": {"durability": "required_when_governed", "artifacts": ["governance_plan", "release_attestation"]},
+      "triggers": [
+        "Governance artifacts, validators, CI policy enforcement, or release attestations are being generated, run, or debugged."
+      ],
+      "exclusions": [
+        "The work is only a policy design discussion or ordinary project validation."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "flags_any": [
+              "governance_boundary"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "flags_none": [
+              "governance_tooling",
+              "release_enforcement"
+            ]
+          }
+        ]
+      },
+      "decision_domains": [
+        "governance_enforcement"
+      ],
+      "artifact_policy": {
+        "durability": "required_when_governed",
+        "artifacts": [
+          "governance_plan",
+          "release_attestation"
+        ]
+      },
       "risk_level": "high",
-      "relations": {"requires": ["skill-governance"], "gates": ["exact_commit", "governance_evidence"], "runs_after": [], "supports": [], "conflicts_with": [], "consumes": ["governance_plan", "change_evidence"], "superseded_by": []}
+      "relations": {
+        "requires": [
+          "skill-governance"
+        ],
+        "gates": [
+          "exact_commit",
+          "governance_evidence"
+        ],
+        "runs_after": [],
+        "supports": [],
+        "conflicts_with": [],
+        "consumes": [
+          "governance_plan",
+          "change_evidence"
+        ],
+        "superseded_by": []
+      }
+    },
+    {
+      "name": "help",
+      "status": "active",
+      "role": "support",
+      "routing_mode": "automatic",
+      "description": "Explain the installed Agent Command Center skillpack when the user sends --help, including every active skill, activation marker, supported command, and concise behavior description. Also supplies the exact one-line startup hint required when the pack is first loaded into a conversation; do not activate for unrelated help requests.",
+      "triggers": [
+        "The normalized task records the exact Agent Command Center --help command."
+      ],
+      "exclusions": [
+        "The user asks for ordinary domain help rather than the Agent Command Center command."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "flags_any": [
+              "help_requested"
+            ]
+          }
+        ],
+        "exclusions": []
+      },
+      "decision_domains": [],
+      "artifact_policy": {
+        "durability": "none",
+        "artifacts": []
+      },
+      "risk_level": "low",
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [],
+        "supports": [],
+        "conflicts_with": [],
+        "consumes": [],
+        "superseded_by": []
+      }
     },
     {
       "name": "history-indexing",
@@ -280,13 +959,40 @@
       "role": "owner",
       "routing_mode": "explicit_only",
       "description": "Use for building and maintaining compact chat/session indexes (`docs/chat-history-index.md`) so long conversations can be queried precisely without re-reading broad transcript history.",
-      "triggers": ["Long-session retrieval overhead makes a bounded durable index the requested or established solution."],
-      "exclusions": ["Direct context retrieval is cheaper or durable history maintenance is not authorized."],
-      "routing": {"selection_strength": "required", "triggers": [], "exclusions": []},
-      "decision_domains": ["history_retrieval"],
-      "artifact_policy": {"durability": "authorized_only", "artifacts": ["bounded_artifact"]},
+      "triggers": [
+        "Long-session retrieval overhead makes a bounded durable index the requested or established solution."
+      ],
+      "exclusions": [
+        "Direct context retrieval is cheaper or durable history maintenance is not authorized."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "history_retrieval"
+      ],
+      "artifact_policy": {
+        "durability": "authorized_only",
+        "artifacts": [
+          "bounded_artifact"
+        ]
+      },
       "risk_level": "low",
-      "relations": {"requires": ["artifact-budget-enforcement"], "gates": [], "runs_after": [], "supports": [], "conflicts_with": [], "consumes": ["repository_evidence"], "superseded_by": []}
+      "relations": {
+        "requires": [
+          "artifact-budget-enforcement"
+        ],
+        "gates": [],
+        "runs_after": [],
+        "supports": [],
+        "conflicts_with": [],
+        "consumes": [
+          "repository_evidence"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "hyperfocus-discovery",
@@ -294,13 +1000,38 @@
       "role": "support",
       "routing_mode": "explicit_only",
       "description": "Use only when the user explicitly requests bounded adjacent exploration or when a task already has multiple active branches that need resumable branch control. Do not activate for routine, single-threaded, answer-only, or one-command work.",
-      "triggers": ["The user requests bounded adjacent exploration or multiple active task branches need resumable control."],
-      "exclusions": ["The task is routine, single-threaded, answer-only, or a one-command workflow."],
-      "routing": {"selection_strength": "optional", "triggers": [], "exclusions": []},
-      "decision_domains": ["branch_control"],
-      "artifact_policy": {"durability": "conversation_local", "artifacts": []},
+      "triggers": [
+        "The user requests bounded adjacent exploration or multiple active task branches need resumable control."
+      ],
+      "exclusions": [
+        "The task is routine, single-threaded, answer-only, or a one-command workflow."
+      ],
+      "routing": {
+        "selection_strength": "optional",
+        "triggers": [],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "branch_control"
+      ],
+      "artifact_policy": {
+        "durability": "conversation_local",
+        "artifacts": []
+      },
       "risk_level": "low",
-      "relations": {"requires": [], "gates": [], "runs_after": ["order-of-operations"], "supports": [], "conflicts_with": [], "consumes": ["task_contract"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [
+          "order-of-operations"
+        ],
+        "supports": [],
+        "conflicts_with": [],
+        "consumes": [
+          "task_contract"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "interdependent-change-planning",
@@ -308,27 +1039,85 @@
       "role": "owner",
       "routing_mode": "automatic",
       "description": "Coordinate an authorized change whose coupled files, contracts, flows, or data paths must move together to remain valid. Use when a local edit would leave a known dependent surface inconsistent; do not use merely because several files are touched independently.",
-      "triggers": ["Known coupled files, contracts, flows, or data paths must change together to remain valid."],
-      "exclusions": ["Multiple files are independent or a small local edit has no coupled downstream surface."],
-      "routing": {"selection_strength": "required", "triggers": [{"flags_any": ["coupled_change"]}], "exclusions": []},
-      "decision_domains": ["change_coherence"],
-      "artifact_policy": {"durability": "conversation_local", "artifacts": ["impact_map"]},
+      "triggers": [
+        "Known coupled files, contracts, flows, or data paths must change together to remain valid."
+      ],
+      "exclusions": [
+        "Multiple files are independent or a small local edit has no coupled downstream surface."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "flags_any": [
+              "coupled_change"
+            ]
+          }
+        ],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "change_coherence"
+      ],
+      "artifact_policy": {
+        "durability": "conversation_local",
+        "artifacts": [
+          "impact_map"
+        ]
+      },
       "risk_level": "medium",
-      "relations": {"requires": [], "gates": [], "runs_after": ["requirement-clarifier"], "supports": ["regression-prevention"], "conflicts_with": [], "consumes": ["task_contract"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [
+          "requirement-clarifier"
+        ],
+        "supports": [
+          "regression-prevention"
+        ],
+        "conflicts_with": [],
+        "consumes": [
+          "task_contract"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "internal-lang",
       "status": "active",
       "role": "mode",
       "routing_mode": "explicit_only",
-      "description": "Optional compact-notation controls for explicit `/internal-lang on|off` and `/internal-lang --response on|off` commands, or when the user directly requests shorthand scratch or response notation. Do not activate for routine tasks, generic planning, or general concision.",
-      "triggers": ["The user invokes an internal-lang command or directly requests compact notation."],
-      "exclusions": ["The task merely benefits from concise planning or output."],
-      "routing": {"selection_strength": "optional", "triggers": [], "exclusions": []},
-      "decision_domains": ["notation_mode"],
-      "artifact_policy": {"durability": "conversation_local", "artifacts": []},
+      "description": "Optional compact-notation controls for explicit `--internal-lang on|off` and `--internal-lang --response on|off` commands, or when the user directly requests shorthand scratch or response notation. Do not activate for routine tasks, generic planning, or general concision.",
+      "triggers": [
+        "The user invokes an internal-lang command or directly requests compact notation."
+      ],
+      "exclusions": [
+        "The task merely benefits from concise planning or output."
+      ],
+      "routing": {
+        "selection_strength": "optional",
+        "triggers": [],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "notation_mode"
+      ],
+      "artifact_policy": {
+        "durability": "conversation_local",
+        "artifacts": []
+      },
       "risk_level": "low",
-      "relations": {"requires": [], "gates": [], "runs_after": [], "supports": ["token-reduction"], "conflicts_with": [], "consumes": [], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [],
+        "supports": [
+          "token-reduction"
+        ],
+        "conflicts_with": [],
+        "consumes": [],
+        "superseded_by": []
+      }
     },
     {
       "name": "order-of-operations",
@@ -336,13 +1125,44 @@
       "role": "support",
       "routing_mode": "automatic",
       "description": "Use only for explicit multi-step work with real dependencies, mixed or unsafe requested order, hidden prerequisites, or parallel branches that require sequencing. Do not activate for single-step tasks, routine command execution, or obvious local ordering.",
-      "triggers": ["Real dependencies, unsafe requested order, hidden prerequisites, or parallel branches require explicit sequencing."],
-      "exclusions": ["The task is single-step, routine, or its local ordering is obvious."],
-      "routing": {"selection_strength": "required", "triggers": [{"flags_any": ["sequencing_required"]}], "exclusions": []},
-      "decision_domains": ["execution_order"],
-      "artifact_policy": {"durability": "conversation_local", "artifacts": []},
+      "triggers": [
+        "Real dependencies, unsafe requested order, hidden prerequisites, or parallel branches require explicit sequencing."
+      ],
+      "exclusions": [
+        "The task is single-step, routine, or its local ordering is obvious."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "flags_any": [
+              "sequencing_required"
+            ]
+          }
+        ],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "execution_order"
+      ],
+      "artifact_policy": {
+        "durability": "conversation_local",
+        "artifacts": []
+      },
       "risk_level": "low",
-      "relations": {"requires": [], "gates": [], "runs_after": [], "supports": ["scripted-command-execution"], "conflicts_with": [], "consumes": ["task_contract"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [],
+        "supports": [
+          "scripted-command-execution"
+        ],
+        "conflicts_with": [],
+        "consumes": [
+          "task_contract"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "process-budget-controller",
@@ -350,13 +1170,34 @@
       "role": "compatibility",
       "routing_mode": "nonselectable",
       "description": "Deprecated compatibility wrapper for explicit legacy invocation of `process-budget-controller`. Do not auto-activate; use the active router's minimum-skill and process-budget policy instead.",
-      "triggers": ["The user or a legacy integration explicitly invokes the old skill name."],
-      "exclusions": ["All automatic routing and all new integrations."],
-      "routing": {"selection_strength": "optional", "triggers": [], "exclusions": []},
+      "triggers": [
+        "The user or a legacy integration explicitly invokes the old skill name."
+      ],
+      "exclusions": [
+        "All automatic routing and all new integrations."
+      ],
+      "routing": {
+        "selection_strength": "optional",
+        "triggers": [],
+        "exclusions": []
+      },
       "decision_domains": [],
-      "artifact_policy": {"durability": "none", "artifacts": []},
+      "artifact_policy": {
+        "durability": "none",
+        "artifacts": []
+      },
       "risk_level": "low",
-      "relations": {"requires": [], "gates": [], "runs_after": [], "supports": [], "conflicts_with": [], "consumes": [], "superseded_by": ["task-router"]}
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [],
+        "supports": [],
+        "conflicts_with": [],
+        "consumes": [],
+        "superseded_by": [
+          "task-router"
+        ]
+      }
     },
     {
       "name": "project-backup",
@@ -364,13 +1205,55 @@
       "role": "safety",
       "routing_mode": "safety_only",
       "description": "Establish or verify backup readiness for an explicitly authorized operation that could irreversibly alter external, production, or otherwise non-reconstructable state. Use for backup implementation/audits or real data-loss exposure; do not use for ordinary local source edits, source-only migration design, or topics such as authentication without an external-state operation.",
-      "triggers": ["An authorized operation exposes external, production, or non-reconstructable state to credible data loss, or backup work is explicitly requested."],
-      "exclusions": ["The change is an ordinary reversible local source edit or source-only migration design."],
-      "routing": {"selection_strength": "required", "triggers": [{"flags_any": ["recovery_considered"]}], "exclusions": [{"flags_none": ["credible_data_loss", "recovery_required"]}]},
-      "decision_domains": ["backup_readiness"],
-      "artifact_policy": {"durability": "required_when_governed", "artifacts": ["backup_evidence"]},
+      "triggers": [
+        "An authorized operation exposes external, production, or non-reconstructable state to credible data loss, or backup work is explicitly requested."
+      ],
+      "exclusions": [
+        "The change is an ordinary reversible local source edit or source-only migration design."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "flags_any": [
+              "recovery_considered"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "flags_none": [
+              "credible_data_loss",
+              "recovery_required"
+            ]
+          }
+        ]
+      },
+      "decision_domains": [
+        "backup_readiness"
+      ],
+      "artifact_policy": {
+        "durability": "required_when_governed",
+        "artifacts": [
+          "backup_evidence"
+        ]
+      },
       "risk_level": "high",
-      "relations": {"requires": [], "gates": ["backup_evidence"], "runs_after": [], "supports": ["restore-drill"], "conflicts_with": [], "consumes": ["operation_plan"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [
+          "backup_evidence"
+        ],
+        "runs_after": [],
+        "supports": [
+          "restore-drill"
+        ],
+        "conflicts_with": [],
+        "consumes": [
+          "operation_plan"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "pseudo-agentic-automation",
@@ -378,13 +1261,51 @@
       "role": "execution",
       "routing_mode": "automatic",
       "description": "Run an authorized browser or native-GUI workflow that requires runtime observation and adaptive interaction rather than a deterministic API, shell command, or existing test runner. Use for dynamic authenticated flows, browser extraction, or native GUI control; exclude ordinary Playwright test execution and deterministic file/API work.",
-      "triggers": ["An authorized browser or native-GUI workflow needs runtime observation and adaptive interaction."],
-      "exclusions": ["A deterministic shell/API workflow or ordinary existing browser test runner is sufficient."],
-      "routing": {"selection_strength": "required", "triggers": [{"flags_any": ["adaptive_workflow"]}], "exclusions": []},
-      "decision_domains": ["adaptive_execution"],
-      "artifact_policy": {"durability": "conversation_local", "artifacts": ["operation_plan"]},
+      "triggers": [
+        "An authorized browser or native-GUI workflow needs runtime observation and adaptive interaction."
+      ],
+      "exclusions": [
+        "A deterministic shell/API workflow or ordinary existing browser test runner is sufficient."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "flags_any": [
+              "adaptive_workflow"
+            ]
+          }
+        ],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "adaptive_execution"
+      ],
+      "artifact_policy": {
+        "durability": "conversation_local",
+        "artifacts": [
+          "operation_plan"
+        ]
+      },
       "risk_level": "medium",
-      "relations": {"requires": [], "gates": ["authorization", "external_checkpoint"], "runs_after": [], "supports": ["regression-prevention"], "conflicts_with": ["scripted-command-execution"], "consumes": ["task_contract"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [
+          "authorization",
+          "external_checkpoint"
+        ],
+        "runs_after": [],
+        "supports": [
+          "regression-prevention"
+        ],
+        "conflicts_with": [
+          "scripted-command-execution"
+        ],
+        "consumes": [
+          "task_contract"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "quizme-mode",
@@ -392,13 +1313,40 @@
       "role": "mode",
       "routing_mode": "explicit_only",
       "description": "Use when the user invokes --quizme to persistently require exhaustive task clarification before substantive execution, with intuitive options for multiple-choice questions, one-at-a-time questioning, explicit confirmation, and durable contract recording.",
-      "triggers": ["The user invokes --quizme or conversation-local quizme mode remains active."],
-      "exclusions": ["Quizme mode was never enabled or has been toggled off."],
-      "routing": {"selection_strength": "required", "triggers": [], "exclusions": []},
-      "decision_domains": ["interactive_clarification"],
-      "artifact_policy": {"durability": "conversation_local_unless_record", "artifacts": ["task_contract"]},
+      "triggers": [
+        "The user invokes --quizme or conversation-local quizme mode remains active."
+      ],
+      "exclusions": [
+        "Quizme mode was never enabled or has been toggled off."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "interactive_clarification"
+      ],
+      "artifact_policy": {
+        "durability": "conversation_local_unless_record",
+        "artifacts": [
+          "task_contract"
+        ]
+      },
       "risk_level": "medium",
-      "relations": {"requires": ["requirement-clarifier"], "gates": [], "runs_after": [], "supports": [], "conflicts_with": [], "consumes": ["task_contract"], "superseded_by": []}
+      "relations": {
+        "requires": [
+          "requirement-clarifier"
+        ],
+        "gates": [],
+        "runs_after": [],
+        "supports": [],
+        "conflicts_with": [],
+        "consumes": [
+          "task_contract"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "regression-prevention",
@@ -406,13 +1354,53 @@
       "role": "owner",
       "routing_mode": "automatic",
       "description": "Implement or review non-trivial code changes while preserving contracts, repository conventions, user work, and affected behavior. Use for logic, refactors, dependencies, APIs, authentication, data, runtime, or tooling changes and for qualitative code review; exclude copy-only edits, explicit scoring requests, and test design that is fully owned by effective-testing-methods.",
-      "triggers": ["Non-trivial code, behavior, dependency, API, authentication, data, runtime, tooling, or qualitative code-review work is in scope."],
-      "exclusions": ["The change is copy-only, the user requested scoring, or the only decision domain is test design."],
-      "routing": {"selection_strength": "required", "triggers": [{"flags_any": ["regression_risk"]}], "exclusions": []},
-      "decision_domains": ["implementation_quality", "qualitative_code_review"],
-      "artifact_policy": {"durability": "conversation_local", "artifacts": ["change_evidence", "test_evidence"]},
+      "triggers": [
+        "Non-trivial code, behavior, dependency, API, authentication, data, runtime, tooling, or qualitative code-review work is in scope."
+      ],
+      "exclusions": [
+        "The change is copy-only, the user requested scoring, or the only decision domain is test design."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "flags_any": [
+              "regression_risk"
+            ]
+          }
+        ],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "implementation_quality",
+        "qualitative_code_review"
+      ],
+      "artifact_policy": {
+        "durability": "conversation_local",
+        "artifacts": [
+          "change_evidence",
+          "test_evidence"
+        ]
+      },
       "risk_level": "high",
-      "relations": {"requires": [], "gates": [], "runs_after": ["diagnose-before-fix", "interdependent-change-planning"], "supports": ["doc-maintenance", "effective-testing-methods"], "conflicts_with": [], "consumes": ["task_contract", "impact_map"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [
+          "diagnose-before-fix",
+          "interdependent-change-planning"
+        ],
+        "supports": [
+          "doc-maintenance",
+          "effective-testing-methods"
+        ],
+        "conflicts_with": [],
+        "consumes": [
+          "task_contract",
+          "impact_map"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "requirement-clarifier",
@@ -420,13 +1408,50 @@
       "role": "owner",
       "routing_mode": "automatic",
       "description": "Convert materially ambiguous or conflicting requests into a typed task contract before mutation. Use when uncertainty could change user-visible behavior, compatibility, security, data handling, authorization, or acceptance criteria; do not use for clear bounded work or to force clarification of harmless implementation details.",
-      "triggers": ["Material ambiguity or conflict could change behavior, compatibility, security, data handling, authorization, or acceptance criteria."],
-      "exclusions": ["The task is clear and bounded or uncertainty concerns harmless implementation details."],
-      "routing": {"selection_strength": "required", "triggers": [{"flags_any": ["material_uncertainty", "mutation_unknown", "recovery_unknown"]}], "exclusions": []},
-      "decision_domains": ["task_meaning"],
-      "artifact_policy": {"durability": "conversation_local", "artifacts": ["task_contract"]},
+      "triggers": [
+        "Material ambiguity or conflict could change behavior, compatibility, security, data handling, authorization, or acceptance criteria."
+      ],
+      "exclusions": [
+        "The task is clear and bounded or uncertainty concerns harmless implementation details."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "flags_any": [
+              "material_uncertainty",
+              "mutation_unknown",
+              "recovery_unknown"
+            ]
+          }
+        ],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "task_meaning"
+      ],
+      "artifact_policy": {
+        "durability": "conversation_local",
+        "artifacts": [
+          "task_contract"
+        ]
+      },
       "risk_level": "medium",
-      "relations": {"requires": [], "gates": ["authorization"], "runs_after": [], "supports": ["thoughtful-approach"], "conflicts_with": [], "consumes": ["repository_evidence"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [
+          "authorization"
+        ],
+        "runs_after": [],
+        "supports": [
+          "thoughtful-approach"
+        ],
+        "conflicts_with": [],
+        "consumes": [
+          "repository_evidence"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "restore-drill",
@@ -434,13 +1459,54 @@
       "role": "safety",
       "routing_mode": "safety_only",
       "description": "Prove that an identified backup can restore an explicitly scoped external or disaster-recovery target within required recovery objectives. Use for requested restore exercises or recovery-sensitive production operations; do not require a drill for ordinary local code changes or source-only migration design.",
-      "triggers": ["A restore exercise is requested or a recovery-sensitive external operation requires proof against recovery objectives."],
-      "exclusions": ["The task is an ordinary local code change or source-only migration design."],
-      "routing": {"selection_strength": "required", "triggers": [{"flags_any": ["recovery_considered"]}], "exclusions": [{"flags_none": ["recovery_required"]}]},
-      "decision_domains": ["restore_verification"],
-      "artifact_policy": {"durability": "required_when_governed", "artifacts": ["restore_evidence"]},
+      "triggers": [
+        "A restore exercise is requested or a recovery-sensitive external operation requires proof against recovery objectives."
+      ],
+      "exclusions": [
+        "The task is an ordinary local code change or source-only migration design."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "flags_any": [
+              "recovery_considered"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "flags_none": [
+              "recovery_required"
+            ]
+          }
+        ]
+      },
+      "decision_domains": [
+        "restore_verification"
+      ],
+      "artifact_policy": {
+        "durability": "required_when_governed",
+        "artifacts": [
+          "restore_evidence"
+        ]
+      },
       "risk_level": "high",
-      "relations": {"requires": [], "gates": ["restore_evidence"], "runs_after": ["project-backup"], "supports": [], "conflicts_with": [], "consumes": ["backup_evidence"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [
+          "restore_evidence"
+        ],
+        "runs_after": [
+          "project-backup"
+        ],
+        "supports": [],
+        "conflicts_with": [],
+        "consumes": [
+          "backup_evidence"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "scripted-command-execution",
@@ -448,13 +1514,56 @@
       "role": "execution",
       "routing_mode": "automatic",
       "description": "Use for deterministic shell automation and setup tasks (for example environment bootstrap, service orchestration, batch file operations, and repeatable local command pipelines with explicit validation).",
-      "triggers": ["The deliverable is a deterministic local shell, setup, service, batch, or repeatable command workflow."],
-      "exclusions": ["The task only incidentally runs a command or requires adaptive browser/GUI interaction."],
-      "routing": {"selection_strength": "required", "triggers": [{"operations_any": ["run_commands"]}], "exclusions": [{"flags_none": ["deterministic_workflow"]}]},
-      "decision_domains": ["deterministic_execution"],
-      "artifact_policy": {"durability": "conversation_local", "artifacts": ["operation_plan"]},
+      "triggers": [
+        "The deliverable is a deterministic local shell, setup, service, batch, or repeatable command workflow."
+      ],
+      "exclusions": [
+        "The task only incidentally runs a command or requires adaptive browser/GUI interaction."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "operations_any": [
+              "run_commands"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "flags_none": [
+              "deterministic_workflow"
+            ]
+          }
+        ]
+      },
+      "decision_domains": [
+        "deterministic_execution"
+      ],
+      "artifact_policy": {
+        "durability": "conversation_local",
+        "artifacts": [
+          "operation_plan"
+        ]
+      },
       "risk_level": "medium",
-      "relations": {"requires": [], "gates": ["authorization"], "runs_after": ["order-of-operations"], "supports": [], "conflicts_with": ["pseudo-agentic-automation"], "consumes": ["task_contract"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [
+          "authorization"
+        ],
+        "runs_after": [
+          "order-of-operations"
+        ],
+        "supports": [],
+        "conflicts_with": [
+          "pseudo-agentic-automation"
+        ],
+        "consumes": [
+          "task_contract"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "semantic-policy-audit",
@@ -462,13 +1571,54 @@
       "role": "safety",
       "routing_mode": "safety_only",
       "description": "Audit whether a task descriptor, selected skills, authority, gates, artifacts, execution, and completion claims semantically match user intent and actual effects. Use for policy-system audits or high-confidence governed review; do not use for ordinary implementation or mechanical schema checks.",
-      "triggers": ["Intent-level policy conformance or a high-confidence governed review must be assessed beyond mechanical schema checks."],
-      "exclusions": ["The task is ordinary implementation or only mechanical validation is needed."],
-      "routing": {"selection_strength": "required", "triggers": [{"actions_any": ["inspect", "review", "score"], "domains_any": ["policy"]}], "exclusions": []},
-      "decision_domains": ["semantic_policy_conformance"],
-      "artifact_policy": {"durability": "conversation_local", "artifacts": ["change_evidence"]},
+      "triggers": [
+        "Intent-level policy conformance or a high-confidence governed review must be assessed beyond mechanical schema checks."
+      ],
+      "exclusions": [
+        "The task is ordinary implementation or only mechanical validation is needed."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "actions_any": [
+              "inspect",
+              "review",
+              "score"
+            ],
+            "domains_any": [
+              "policy"
+            ]
+          }
+        ],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "semantic_policy_conformance"
+      ],
+      "artifact_policy": {
+        "durability": "conversation_local",
+        "artifacts": [
+          "change_evidence"
+        ]
+      },
       "risk_level": "medium",
-      "relations": {"requires": [], "gates": ["governance_evidence"], "runs_after": [], "supports": ["skill-governance"], "conflicts_with": [], "consumes": ["task_contract", "governance_plan"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [
+          "governance_evidence"
+        ],
+        "runs_after": [],
+        "supports": [
+          "skill-governance"
+        ],
+        "conflicts_with": [],
+        "consumes": [
+          "task_contract",
+          "governance_plan"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "skill-governance",
@@ -476,13 +1626,60 @@
       "role": "safety",
       "routing_mode": "safety_only",
       "description": "Govern release-affecting, policy-changing, externally mutating, destructive, or otherwise high-risk work through typed effects, mandatory evidence, independent safety gates, and an explicit go/no-go decision. Do not use for ordinary answers, read-only inspection, tiny reversible edits, or a task made \"multi-skill\" only by optional process helpers.",
-      "triggers": ["Work affects release policy, governance policy, external state, destructive operations, or another explicitly high-risk boundary."],
-      "exclusions": ["The task is an ordinary answer, read-only inspection, tiny reversible edit, or only appears complex because optional helpers were added."],
-      "routing": {"selection_strength": "required", "triggers": [{"flags_any": ["governance_change", "release_boundary", "live_or_destructive", "credible_data_loss", "recovery_required", "recovery_unknown"]}, {"operations_any": ["configure_remote"]}], "exclusions": []},
-      "decision_domains": ["governance_decision"],
-      "artifact_policy": {"durability": "required_when_governed", "artifacts": ["governance_plan"]},
+      "triggers": [
+        "Work affects release policy, governance policy, external state, destructive operations, or another explicitly high-risk boundary."
+      ],
+      "exclusions": [
+        "The task is an ordinary answer, read-only inspection, tiny reversible edit, or only appears complex because optional helpers were added."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "flags_any": [
+              "governance_change",
+              "release_boundary",
+              "live_or_destructive",
+              "credible_data_loss",
+              "recovery_required",
+              "recovery_unknown"
+            ]
+          },
+          {
+            "operations_any": [
+              "configure_remote"
+            ]
+          }
+        ],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "governance_decision"
+      ],
+      "artifact_policy": {
+        "durability": "required_when_governed",
+        "artifacts": [
+          "governance_plan"
+        ]
+      },
       "risk_level": "high",
-      "relations": {"requires": [], "gates": ["authorization", "exact_commit", "external_checkpoint", "governance_evidence"], "runs_after": [], "supports": [], "conflicts_with": [], "consumes": ["task_contract", "change_evidence"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [
+          "authorization",
+          "exact_commit",
+          "external_checkpoint",
+          "governance_evidence"
+        ],
+        "runs_after": [],
+        "supports": [],
+        "conflicts_with": [],
+        "consumes": [
+          "task_contract",
+          "change_evidence"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "skill-usage-review",
@@ -490,13 +1687,41 @@
       "role": "owner",
       "routing_mode": "explicit_only",
       "description": "Use for periodically reviewing which skills are overused, underused, missing, or creating friction by examining recent governance artifacts, handoffs, instruction trackers, and task outcomes.",
-      "triggers": ["Recent task evidence is available and skill overuse, underuse, missing triggers, or friction is the requested review subject."],
-      "exclusions": ["No usage evidence exists or the request concerns one skill's content rather than observed routing performance."],
-      "routing": {"selection_strength": "required", "triggers": [], "exclusions": []},
-      "decision_domains": ["routing_quality_review"],
-      "artifact_policy": {"durability": "authorized_only", "artifacts": ["routing_observations"]},
+      "triggers": [
+        "Recent task evidence is available and skill overuse, underuse, missing triggers, or friction is the requested review subject."
+      ],
+      "exclusions": [
+        "No usage evidence exists or the request concerns one skill's content rather than observed routing performance."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "routing_quality_review"
+      ],
+      "artifact_policy": {
+        "durability": "authorized_only",
+        "artifacts": [
+          "routing_observations"
+        ]
+      },
       "risk_level": "low",
-      "relations": {"requires": [], "gates": [], "runs_after": [], "supports": ["deprecation-management"], "conflicts_with": [], "consumes": ["routing_observations", "governance_plan"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [],
+        "supports": [
+          "deprecation-management"
+        ],
+        "conflicts_with": [],
+        "consumes": [
+          "routing_observations",
+          "governance_plan"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "thoroughly-rate-review",
@@ -504,13 +1729,42 @@
       "role": "owner",
       "routing_mode": "automatic",
       "description": "Use only when the user explicitly asks to rate, score, grade, benchmark, or assign a numeric or weighted quality rating. Do not activate for a plain review, audit, assessment, evaluation, comparison, critique, or feedback request unless the user also requests scoring or a formal rubric.",
-      "triggers": ["The user explicitly requests a rating, score, grade, benchmark, or numeric/weighted rubric."],
-      "exclusions": ["The request is a qualitative review, audit, assessment, evaluation, comparison, critique, or feedback without scoring."],
-      "routing": {"selection_strength": "required", "triggers": [{"actions_any": ["score"]}], "exclusions": []},
-      "decision_domains": ["quality_scoring"],
-      "artifact_policy": {"durability": "conversation_local", "artifacts": []},
+      "triggers": [
+        "The user explicitly requests a rating, score, grade, benchmark, or numeric/weighted rubric."
+      ],
+      "exclusions": [
+        "The request is a qualitative review, audit, assessment, evaluation, comparison, critique, or feedback without scoring."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "actions_any": [
+              "score"
+            ]
+          }
+        ],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "quality_scoring"
+      ],
+      "artifact_policy": {
+        "durability": "conversation_local",
+        "artifacts": []
+      },
       "risk_level": "low",
-      "relations": {"requires": [], "gates": [], "runs_after": [], "supports": [], "conflicts_with": [], "consumes": ["repository_evidence"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [],
+        "supports": [],
+        "conflicts_with": [],
+        "consumes": [
+          "repository_evidence"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "thoughtful-approach",
@@ -518,13 +1772,49 @@
       "role": "owner",
       "routing_mode": "automatic",
       "description": "Model end-user goals, expected baseline behavior, and product tradeoffs when a feature request requires product judgment. Use for feature planning or authorized implementation with meaningful user-experience choices; do not use for fixed mechanical work, and never treat a plausible enhancement as authorized scope.",
-      "triggers": ["A feature decision requires product judgment about user goals, baseline expectations, or meaningful tradeoffs."],
-      "exclusions": ["Requirements are fixed and mechanical or a proposed enhancement is merely adjacent value."],
-      "routing": {"selection_strength": "optional", "triggers": [{"flags_any": ["product_judgment"]}], "exclusions": []},
-      "decision_domains": ["product_behavior"],
-      "artifact_policy": {"durability": "conversation_local", "artifacts": ["task_contract"]},
+      "triggers": [
+        "A feature decision requires product judgment about user goals, baseline expectations, or meaningful tradeoffs."
+      ],
+      "exclusions": [
+        "Requirements are fixed and mechanical or a proposed enhancement is merely adjacent value."
+      ],
+      "routing": {
+        "selection_strength": "optional",
+        "triggers": [
+          {
+            "flags_any": [
+              "product_judgment"
+            ]
+          }
+        ],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "product_behavior"
+      ],
+      "artifact_policy": {
+        "durability": "conversation_local",
+        "artifacts": [
+          "task_contract"
+        ]
+      },
       "risk_level": "medium",
-      "relations": {"requires": [], "gates": [], "runs_after": ["requirement-clarifier"], "supports": ["regression-prevention", "ui-design-skills"], "conflicts_with": [], "consumes": ["task_contract"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [
+          "requirement-clarifier"
+        ],
+        "supports": [
+          "regression-prevention",
+          "ui-design-skills"
+        ],
+        "conflicts_with": [],
+        "consumes": [
+          "task_contract"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "token-reduction",
@@ -532,13 +1822,36 @@
       "role": "support",
       "routing_mode": "explicit_only",
       "description": "Use when the user explicitly requests shorter or lower-token output, or when long context is causing concrete retrieval or response overhead. Limit this skill to context selection and output efficiency; do not activate it for routine tasks, project intake, testing ownership, deployment policy, or repository bookkeeping.",
-      "triggers": ["The user requests lower-token output or concrete context/response overhead needs bounded compression."],
-      "exclusions": ["The task is routine or the need is project intake, testing, deployment policy, or repository bookkeeping."],
-      "routing": {"selection_strength": "optional", "triggers": [], "exclusions": []},
-      "decision_domains": ["context_and_output_budget"],
-      "artifact_policy": {"durability": "none", "artifacts": []},
+      "triggers": [
+        "The user requests lower-token output or concrete context/response overhead needs bounded compression."
+      ],
+      "exclusions": [
+        "The task is routine or the need is project intake, testing, deployment policy, or repository bookkeeping."
+      ],
+      "routing": {
+        "selection_strength": "optional",
+        "triggers": [],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "context_and_output_budget"
+      ],
+      "artifact_policy": {
+        "durability": "none",
+        "artifacts": []
+      },
       "risk_level": "low",
-      "relations": {"requires": [], "gates": [], "runs_after": [], "supports": ["response-compositor"], "conflicts_with": [], "consumes": [], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [],
+        "supports": [
+          "response-compositor"
+        ],
+        "conflicts_with": [],
+        "consumes": [],
+        "superseded_by": []
+      }
     },
     {
       "name": "ui-design-skills",
@@ -546,13 +1859,99 @@
       "role": "owner",
       "routing_mode": "automatic",
       "description": "Use for building or reviewing UI design quality using principles synthesized from trusted UX sources (Apple HIG, Google Material, MIT HCI, Nielsen heuristics, WCAG).",
-      "triggers": ["Authorized frontend work or UI review requires general interaction, accessibility, or visual-quality judgment."],
-      "exclusions": ["The task is backend/CLI-only or an explicit established design-system owner fully determines the decisions."],
-      "routing": {"selection_strength": "required", "triggers": [{"flags_any": ["frontend_work"]}], "exclusions": [{"flags_none": ["ui_quality_judgment"]}]},
-      "decision_domains": ["general_ui_quality"],
-      "artifact_policy": {"durability": "conversation_local", "artifacts": []},
+      "triggers": [
+        "Authorized frontend work or UI review requires general interaction, accessibility, or visual-quality judgment."
+      ],
+      "exclusions": [
+        "The task is backend/CLI-only or an explicit established design-system owner fully determines the decisions."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "flags_any": [
+              "frontend_work"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "flags_none": [
+              "ui_quality_judgment"
+            ]
+          }
+        ]
+      },
+      "decision_domains": [
+        "general_ui_quality"
+      ],
+      "artifact_policy": {
+        "durability": "conversation_local",
+        "artifacts": []
+      },
       "risk_level": "medium",
-      "relations": {"requires": [], "gates": [], "runs_after": ["thoughtful-approach"], "supports": ["regression-prevention"], "conflicts_with": [], "consumes": ["task_contract"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [
+          "thoughtful-approach"
+        ],
+        "supports": [
+          "regression-prevention"
+        ],
+        "conflicts_with": [],
+        "consumes": [
+          "task_contract"
+        ],
+        "superseded_by": []
+      }
+    },
+    {
+      "name": "ui-dynamic-resizing",
+      "status": "active",
+      "role": "owner",
+      "routing_mode": "automatic",
+      "description": "Apply fluid, proportional UI sizing with separate mobile and desktop tuning, readable wrapping, and accessible zoom unless the user explicitly requests static dimensions.",
+      "triggers": [
+        "Frontend UI implementation or review includes layout, typography, controls, or containers."
+      ],
+      "exclusions": [
+        "The user explicitly requests static dimensions or a platform contract requires fixed dimensions."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "flags_any": [
+              "frontend_work"
+            ]
+          }
+        ],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "responsive_layout"
+      ],
+      "artifact_policy": {
+        "durability": "conversation_local",
+        "artifacts": []
+      },
+      "risk_level": "medium",
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [
+          "ui-design-skills"
+        ],
+        "supports": [
+          "regression-prevention"
+        ],
+        "conflicts_with": [],
+        "consumes": [
+          "task_contract"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "ui-spatial-canvas",
@@ -560,13 +1959,53 @@
       "role": "owner",
       "routing_mode": "automatic",
       "description": "Use only when the user explicitly requests the Spatial Canvas design system or when repository evidence establishes Spatial Canvas as the existing interface architecture being modified. Do not activate for generic frontend, UI, UX, layout, navigation, interaction, or visual-system work.",
-      "triggers": ["The user explicitly requests Spatial Canvas or repository evidence establishes it as the current interface architecture."],
-      "exclusions": ["The task is generic frontend, UI, UX, layout, navigation, interaction, or visual-system work."],
-      "routing": {"selection_strength": "required", "triggers": [{"flags_any": ["frontend_work"]}], "exclusions": [{"flags_none": ["spatial_canvas"]}]},
-      "decision_domains": ["spatial_canvas_system"],
-      "artifact_policy": {"durability": "conversation_local", "artifacts": []},
+      "triggers": [
+        "The user explicitly requests Spatial Canvas or repository evidence establishes it as the current interface architecture."
+      ],
+      "exclusions": [
+        "The task is generic frontend, UI, UX, layout, navigation, interaction, or visual-system work."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [
+          {
+            "flags_any": [
+              "frontend_work"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "flags_none": [
+              "spatial_canvas"
+            ]
+          }
+        ]
+      },
+      "decision_domains": [
+        "spatial_canvas_system"
+      ],
+      "artifact_policy": {
+        "durability": "conversation_local",
+        "artifacts": []
+      },
       "risk_level": "medium",
-      "relations": {"requires": [], "gates": [], "runs_after": ["thoughtful-approach"], "supports": ["regression-prevention"], "conflicts_with": [], "consumes": ["repository_evidence", "task_contract"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [
+          "thoughtful-approach"
+        ],
+        "supports": [
+          "regression-prevention"
+        ],
+        "conflicts_with": [],
+        "consumes": [
+          "repository_evidence",
+          "task_contract"
+        ],
+        "superseded_by": []
+      }
     },
     {
       "name": "user-instructions-tracker",
@@ -574,13 +2013,75 @@
       "role": "owner",
       "routing_mode": "explicit_only",
       "description": "Use only when the user explicitly asks to record or audit instructions, when a durable cross-task directive changes in a repository that already opts into tracking, or when maintaining an existing instruction ledger is the requested work. Do not activate for ordinary task requests, transient acceptance criteria, status questions without a ledger, or merely because a tracker file is missing.",
-      "triggers": ["The user asks to record/audit instructions, an opted-in durable directive changes, or ledger maintenance is the task."],
-      "exclusions": ["The request is transient, a status question has no ledger, or a tracker file is merely absent."],
-      "routing": {"selection_strength": "required", "triggers": [], "exclusions": []},
-      "decision_domains": ["instruction_lifecycle"],
-      "artifact_policy": {"durability": "authorized_only", "artifacts": ["instruction_ledger"]},
+      "triggers": [
+        "The user asks to record/audit instructions, an opted-in durable directive changes, or ledger maintenance is the task."
+      ],
+      "exclusions": [
+        "The request is transient, a status question has no ledger, or a tracker file is merely absent."
+      ],
+      "routing": {
+        "selection_strength": "required",
+        "triggers": [],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "instruction_lifecycle"
+      ],
+      "artifact_policy": {
+        "durability": "authorized_only",
+        "artifacts": [
+          "instruction_ledger"
+        ]
+      },
       "risk_level": "medium",
-      "relations": {"requires": [], "gates": [], "runs_after": [], "supports": ["doc-maintenance"], "conflicts_with": [], "consumes": ["instruction_ledger"], "superseded_by": []}
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [],
+        "supports": [
+          "doc-maintenance"
+        ],
+        "conflicts_with": [],
+        "consumes": [
+          "instruction_ledger"
+        ],
+        "superseded_by": []
+      }
+    },
+    {
+      "name": "user-run-scripts",
+      "status": "active",
+      "role": "mode",
+      "routing_mode": "explicit_only",
+      "description": "When enabled by `--ill-run-scripts`, pause before running easily executable scripts and provide exact copy-paste commands with the required working directory for the user to run.",
+      "triggers": [
+        "The user invokes the exact `--ill-run-scripts` toggle."
+      ],
+      "exclusions": [
+        "The mode is off."
+      ],
+      "routing": {
+        "selection_strength": "optional",
+        "triggers": [],
+        "exclusions": []
+      },
+      "decision_domains": [
+        "execution_control"
+      ],
+      "artifact_policy": {
+        "durability": "conversation_local",
+        "artifacts": []
+      },
+      "risk_level": "low",
+      "relations": {
+        "requires": [],
+        "gates": [],
+        "runs_after": [],
+        "supports": [],
+        "conflicts_with": [],
+        "consumes": [],
+        "superseded_by": []
+      }
     }
   ]
 }

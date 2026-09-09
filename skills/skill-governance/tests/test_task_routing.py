@@ -266,9 +266,9 @@ class TestTaskRouting(unittest.TestCase):
             )
         )
 
-    def test_all_26_scenarios_match_declared_expectations_and_schemas(self) -> None:
+    def test_all_28_scenarios_match_declared_expectations_and_schemas(self) -> None:
         evaluation = router.evaluate_fixture_file(FIXTURE_PATH)
-        self.assertEqual(evaluation["scenario_count"], 26)
+        self.assertEqual(evaluation["scenario_count"], 28)
         self.assertEqual(evaluation["failed"], 0, evaluation["failures"])
         for scenario_id, result in self.results.items():
             with self.subTest(scenario=scenario_id):
@@ -308,6 +308,36 @@ class TestTaskRouting(unittest.TestCase):
         self.assertEqual(result["permissions"], permission_set(read=True, run_commands=True))
         self.assertFalse(result["artifact_allowance"]["allowed"])
         self.assertEqual(self.veto_codes("diagnose-only-cli"), [])
+
+    def test_failed_approach_routes_reassessment_after_diagnosis(self) -> None:
+        challenged = self.results["challenged-approach"]
+        self.assertEqual(challenged["selected_skills"], ["agent-humility"])
+        self.assertEqual(
+            challenged["decision_domain_owners"]["approach_reassessment"],
+            "agent-humility",
+        )
+
+        failed = self.results["failed-diagnostic-approach"]
+        self.assertEqual(
+            failed["selected_skills"],
+            ["diagnose-before-fix", "agent-humility"],
+        )
+        self.assertEqual(failed["permissions"], permission_set(read=True))
+
+    def test_approach_state_omission_is_backward_compatible_and_invalid_states_fail(self) -> None:
+        descriptor = self.descriptor("simple-answer")
+        descriptor["action"].pop("approach_state")
+        snapshot = copy.deepcopy(descriptor)
+
+        result = router.resolve_task_route(descriptor)
+
+        self.assertEqual(result["selected_skills"], [])
+        self.assertEqual(descriptor, snapshot)
+
+        malformed = copy.deepcopy(descriptor)
+        malformed["action"]["approach_state"] = "stubborn"
+        with self.assertRaisesRegex(router.DescriptorError, "approach_state"):
+            router.resolve_task_route(malformed)
 
     def test_test_design_is_selected_only_for_explicit_test_changes(self) -> None:
         without_tests = self.results["cli-code-implementation"]
@@ -351,6 +381,7 @@ class TestTaskRouting(unittest.TestCase):
                 "regression-prevention",
                 "effective-testing-methods",
                 "scripted-command-execution",
+                "ui-dynamic-resizing",
             ],
         )
         self.assertEqual(self.excluded_routes("generic-ui-implementation"), ["ui-spatial-canvas"])
@@ -362,6 +393,7 @@ class TestTaskRouting(unittest.TestCase):
                 "regression-prevention",
                 "effective-testing-methods",
                 "scripted-command-execution",
+                "ui-dynamic-resizing",
             ],
         )
 
@@ -451,9 +483,12 @@ class TestTaskRouting(unittest.TestCase):
     def test_ambiguous_auth_request_fails_closed_for_clarification(self) -> None:
         result = self.results["ambiguous-login-request"]
         self.assertEqual(result["decision"], "needs_clarification")
-        self.assertEqual(result["selected_skills"], ["requirement-clarifier"])
+        self.assertEqual(
+            result["selected_skills"],
+            ["requirement-clarifier", "eliminate-assumptions"],
+        )
         self.assertEqual(result["permissions"], permission_set(read=True))
-        self.assertEqual(self.veto_codes("ambiguous-login-request"), ["critical_state_unresolved"])
+        self.assertEqual(self.veto_codes("ambiguous-login-request"), ["assumption_unresolved"])
         self.assertEqual(self.gate_statuses("ambiguous-login-request")["material-uncertainty"], "needs_resolution")
         self.assertIn(
             "It is unclear whether the request changes source code or live account state.",
@@ -709,6 +744,7 @@ class TestTaskRouting(unittest.TestCase):
                 "regression-prevention",
                 "effective-testing-methods",
                 "scripted-command-execution",
+                "ui-dynamic-resizing",
             ],
         )
         self.assertNotIn("thoughtful-approach", result["selected_skills"])
@@ -1021,7 +1057,7 @@ class TestTaskRouting(unittest.TestCase):
         self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
         payload = json.loads(completed.stdout)
         self.assertEqual(payload["schema_version"], router.SCHEMA_VERSION)
-        self.assertEqual(payload["passed"], 26)
+        self.assertEqual(payload["passed"], 28)
         self.assertEqual(payload["failed"], 0)
 
 

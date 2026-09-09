@@ -9,11 +9,35 @@
 
 ## Route Conditions
 
+- `advanced-r-and-d` (active; automatic; required)
+  - Requires: none
+  - Conflicts: none
+  - Include: The normalized task has advanced research intensity because current external evidence is necessary before consequential work.
+  - Exclude: The task is routine and stable local evidence fully answers the material questions.
+
+- `advanced-svg` (active; automatic; required)
+  - Requires: none
+  - Conflicts: none
+  - Include: The task designs, generates, reviews, or repairs a non-trivial SVG or SVG-based visual system.
+  - Exclude: The task is raster image generation, a trivial edit, or an established SVG component already supplies the needed pattern.
+
+- `agent-humility` (active; automatic; required)
+  - Requires: none
+  - Conflicts: none
+  - Include: Concrete disconfirming evidence, repeated failure, user correction, or lost progress challenges the current approach.
+  - Exclude: No approach is challenged, or a routine first error has an obvious evidence-backed correction.
+
 - `artifact-budget-enforcement` (active; explicit_only; required)
   - Requires: none
   - Conflicts: none
   - Include: A bounded cache, summary, index, or metadata artifact needs an explicit size or retention limit.
   - Exclude: No bounded artifact exists or ordinary source/document maintenance is sufficient.
+
+- `clean-slate` (active; explicit_only; required)
+  - Requires: none
+  - Conflicts: none
+  - Include: The user sends --clean-slate or the mode remains active in the current conversation.
+  - Exclude: The user has not activated clean-slate mode or has disabled it with --clean-slate off.
 
 - `conversation-retention-summary` (active; explicit_only; required)
   - Requires: `artifact-budget-enforcement`
@@ -45,6 +69,12 @@
   - Include: The task requires designing, adding, or changing tests.
   - Exclude: Only an existing test command needs to run or no test design changes are required.
 
+- `eliminate-assumptions` (active; safety_only; required)
+  - Requires: `requirement-clarifier`
+  - Conflicts: none
+  - Include: Any unresolved ambiguity, conflict, missing choice, or unsupported inferred requirement remains.
+  - Exclude: The task contract and current evidence contain no unresolved uncertainty.
+
 - `file-maintenance` (active; explicit_only; required)
   - Requires: none
   - Conflicts: none
@@ -62,6 +92,12 @@
   - Conflicts: none
   - Include: Governance artifacts, validators, CI policy enforcement, or release attestations are being generated, run, or debugged.
   - Exclude: The work is only a policy design discussion or ordinary project validation.
+
+- `help` (active; automatic; required)
+  - Requires: none
+  - Conflicts: none
+  - Include: The normalized task records the exact Agent Command Center --help command.
+  - Exclude: The user asks for ordinary domain help rather than the Agent Command Center command.
 
 - `history-indexing` (active; explicit_only; required)
   - Requires: `artifact-budget-enforcement`
@@ -183,6 +219,12 @@
   - Include: Authorized frontend work or UI review requires general interaction, accessibility, or visual-quality judgment.
   - Exclude: The task is backend/CLI-only or an explicit established design-system owner fully determines the decisions.
 
+- `ui-dynamic-resizing` (active; automatic; required)
+  - Requires: none
+  - Conflicts: none
+  - Include: Frontend UI implementation or review includes layout, typography, controls, or containers.
+  - Exclude: The user explicitly requests static dimensions or a platform contract requires fixed dimensions.
+
 - `ui-spatial-canvas` (active; automatic; required)
   - Requires: none
   - Conflicts: none
@@ -194,3 +236,9 @@
   - Conflicts: none
   - Include: The user asks to record/audit instructions, an opted-in durable directive changes, or ledger maintenance is the task.
   - Exclude: The request is transient, a status question has no ledger, or a tracker file is merely absent.
+
+- `user-run-scripts` (active; explicit_only; optional)
+  - Requires: none
+  - Conflicts: none
+  - Include: The user invokes the exact `--ill-run-scripts` toggle.
+  - Exclude: The mode is off.

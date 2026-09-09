@@ -12,6 +12,9 @@ This file defines repository-local defaults. Follow higher-priority instructions
 6. Preserve user work and unrelated dirty-tree changes. Use local-first execution and do not deploy, publish, push, or alter remote settings unless explicitly authorized.
 7. Reclassify the task after material inspection, after planning, after the final diff, and before any external or irreversible action. New effects can add gates; they cannot broaden authority.
 8. Validate in proportion to the affected surface and report residual uncertainty, skipped checks, and external blockers accurately.
+9. Record `action.research_intensity=advanced` when advanced or high-intensity work depends on current external evidence, and run `advanced-r-and-d` before substantive design or implementation.
+10. Record every unresolved ambiguity or conflict in the task descriptor. When any remains, route through `eliminate-assumptions`, pause substantive execution, and ask the user instead of choosing a default.
+11. Record `action.approach_state=challenged` or `failed` when concrete evidence, repeated failure, or a material correction undermines the current method. Route through `agent-humility`, preserve the goal and constraints, stop unchanged retries, and choose the next approach by discriminating evidence rather than sunk effort.
 
 ## Skill Routing
 
@@ -33,7 +36,11 @@ Create or update a durable tracker, index, summary, governance artifact, or gene
 
 ## Conversation Modes
 
-- `--quizme` toggles conversation-local exhaustive clarification. Supported immediate options are `--mc`, `--one-at-a-time`, `--confirm`, and `--record`. Run clarification before substantive execution while the mode is active.
-- `/internal-lang on|off` controls private compact notation. `/internal-lang --response on|off` separately controls user-facing shorthand. Both states are conversation-local.
+- Once when this skillpack is first loaded into a new or existing conversation, print exactly: `send --help to learn more about available tools in agent-command-center`.
+- Hosts that can execute local adapters must process lifecycle and exact-command events through `skills/help/scripts/runtime_adapter.py`, or pass its conformance tests with an equivalent implementation. Preserve returned state only within the active conversation.
+- `--help` prints the active skill inventory, activation markers, commands, and descriptions from the canonical catalog.
+- `--quizme` toggles exhaustive clarification with its preference persisted across conversations. Supported immediate options are `--mc`, `--one-at-a-time`, `--confirm`, and `--record`. Run clarification before substantive execution while the mode is active.
+- `--internal-lang on|off` controls private compact notation. `--internal-lang --response on|off` separately controls user-facing shorthand. Both preferences persist across conversations until changed.
+- `--clean-slate` enables a fresh-context boundary; `--clean-slate off` disables it, with the preference persisted across conversations. While active, exclude optional history sources but retain current instructions, current decisions, task-local evidence, safety controls, and authority boundaries.
 
 Keep user-facing responses concise and avoid unexplained abbreviations.

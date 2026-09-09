@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skillpack Help"
+  short_description: "Explain installed skills and commands"
+  default_prompt: "Use $help to show Agent Command Center skills, commands, and activation markers."

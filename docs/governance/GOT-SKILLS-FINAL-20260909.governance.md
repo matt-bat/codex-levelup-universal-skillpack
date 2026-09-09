@@ -1,0 +1,171 @@
+# Governance Artifact: GOT-SKILLS-FINAL-20260909
+
+- `schema_version`: 3
+- `created_at_utc`: 2026-09-09T14:47:36.699074+00:00
+- `project_id`: agent-command-center
+- `purpose`: change
+- `authorized_operations`: none
+- `release_metadata`: none
+- `profile`: internal
+- `project_language`: Python/Markdown
+- `project_description_max4`: Governed agent skillpack
+- `model_runs_test_build_default`: yes
+- `execution_scope`: local_only
+- `deployment_requested`: false
+- `execution_skill`: scripted-command-execution
+- `uncertainty_high`: false
+- `requires_backup`: false
+- `requires_restore`: false
+- `quizme_mode`: off
+- `quizme_multiple_choice`: false
+- `quizme_one_at_a_time`: false
+- `quizme_confirm`: false
+- `quizme_record`: false
+- `selected_mode`: standard
+- `total_score`: 7
+- `recommendation`: go
+
+## Scores
+- `data_impact`: 1
+- `business_impact`: 1
+- `change_complexity`: 3
+- `dependency_uncertainty`: 1
+- `recoverability`: 1
+
+## Critical Overrides
+- none
+
+## Required Gates
+- [ ] `scripted-command-execution` (status: pass)
+  - evidence: [{'kind': 'command', 'reference': 'Pinned local validation commands completed successfully', 'result': 'pass', 'observed_at_utc': '2026-09-09T14:45:00Z', 'revision_sha': 'ff5828bf424164eec6f7e3790108dd00d7c7c99f', 'sha256': None}]
+  - waiver_reason:
+- [ ] `regression-prevention` (status: pass)
+  - evidence: [{'kind': 'test', 'reference': 'Runtime and routing tests passed; governance regression suite is exercised in CI', 'result': 'pass', 'observed_at_utc': '2026-09-09T14:45:00Z', 'revision_sha': 'ff5828bf424164eec6f7e3790108dd00d7c7c99f', 'sha256': None}]
+  - waiver_reason:
+- [ ] `doc-maintenance` (status: pass)
+  - evidence: [{'kind': 'review', 'reference': 'Canonical docs, adapters, catalog views, and installation guidance cross-checked', 'result': 'pass', 'observed_at_utc': '2026-09-09T14:45:00Z', 'revision_sha': 'ff5828bf424164eec6f7e3790108dd00d7c7c99f', 'sha256': None}]
+  - waiver_reason:
+
+## Startup Declaration
+### Skills In Use
+- `requirement-clarifier`
+- `skill-governance`
+- `interdependent-change-planning`
+- `scripted-command-execution`
+- `regression-prevention`
+- `effective-testing-methods`
+- `doc-maintenance`
+### Skill Selection Rationale
+Rebased cross-cutting skillpack, governance, runtime, documentation, and branding changes require one exact current-base artifact.
+### Skill Execution Order
+- `requirement-clarifier`
+- `skill-governance`
+- `interdependent-change-planning`
+- `scripted-command-execution`
+- `regression-prevention`
+- `effective-testing-methods`
+- `doc-maintenance`
+
+## Evidence Requirements
+- [ ] mode + score
+- [ ] impact map
+- [ ] validation scope by layer
+- [ ] residual risks
+
+## Break Glass
+- enabled: false
+
+## Notes
+Final current-main rebuild of Got Skills package with persistent modes and responsive UI defaults.
+
+## Catalog Binding
+- `path`: skills/skill-catalog.json
+- `sha256`: 0d476038db03398727f12be0de35e1b9d8e699f91a94e2bd6f25e0a71e033290
+- `catalog_version`: 2.3.0
+- `router_contract`: 2.1
+
+## Change Binding
+- `base_sha`: fb1c03fb4158655e3f56d9350e0960d54c9537ce
+- `manifest_sha256`: d0c06e4cf2086167c947cf87b8f1f4814435c91bb308b25c06690ffb84f39acd
+- `manifest`:
+  - `M` `.github/workflows/skills-governance-ci.yml` (`sha256`: aa14be101a28c735811692c3456a3df039452d4486a11f6a9c87d5fe4c964279)
+  - `M` `AGENTS.md` (`sha256`: 2d471753d61bd1f60c4d24fe94e4afe53a5320af84bea8a3d36966203e247485)
+  - `M` `docs/project-index.md` (`sha256`: 17bdf3400aab2057adee4ab1175da18f95290ded576d787d89facb106c401de6)
+  - `M` `skills/CHANGELOG.md` (`sha256`: 9e72ed8366bbe5df55139f21507caf504b8a07c2e2bb404ecd39def5abda629d)
+  - `M` `skills/README.md` (`sha256`: 8e575f2a38d1f0800a0522d888013033328aea7ec6531301a086b32b8e2956b3)
+  - `M` `skills/RELEASE_NOTES_v1.0.0.md` (`sha256`: 174ff548ee7566d8675d6d0e940bdbfcc6c5f457eb569c7de2921edd4f1e5f8d)
+  - `M` `skills/SKILL-MAP.md` (`sha256`: 68e6d3445ad82943a9b14d2a5cc4a47debde0efe1bdeb2b34ebb637321037bc9)
+  - `M` `skills/USAGE.md` (`sha256`: 851e529ed239806376c50e18d7039a94699af26e0d30f3364ca8d2ad78c33723)
+  - `A` `skills/advanced-r-and-d/SKILL.md` (`sha256`: 23c746922d1607d49779069f8a9d0bbc1b8330ab7c26299e99252e368c458f57)
+  - `A` `skills/advanced-r-and-d/agents/openai.yaml` (`sha256`: 17084087a85f759f83716da88d502838ebee0240328af0f56d911185c46fe03f)
+  - `A` `skills/advanced-r-and-d/references/source-strategy.md` (`sha256`: d2cb19d9091f1c8f8efb151f83b8bf98cdb68591c14f1018ce802490baea4f8f)
+  - `A` `skills/advanced-r-and-d/references/technical-research.md` (`sha256`: 51d0a834111af8c8058af69cfe62c335959b40e1770e17e1db9df3055b051683)
+  - `A` `skills/advanced-svg/SKILL.md` (`sha256`: c64b3ab7c2d15c6c3322cf49d80178fd384c72d7d5746c03f9449fe86d313fd1)
+  - `A` `skills/advanced-svg/agents/openai.yaml` (`sha256`: 9cfb74eb511ac935e5e7f10a50b4b54e74ae1f88b99cfbacc58dc5128091b16f)
+  - `A` `skills/advanced-svg/assets/render-smoke.svg` (`sha256`: eb23411232450ee31e617596bbaf36130138f956b8eee553c23f5277477752f4)
+  - `A` `skills/advanced-svg/references/authoritative-sources.md` (`sha256`: ad2c917775238b47a9bc1399f968237260367d28cbc4cc013a25d3fdcb6dd734)
+  - `A` `skills/advanced-svg/references/components-and-composition.md` (`sha256`: d663712cff858cf9806bc7805c96c42d5bba4c2084fecf9e107771096823d9c9)
+  - `A` `skills/advanced-svg/references/geometry-and-paths.md` (`sha256`: 46a739f39e665246e6af986f4b61431594bb3735d025f47b803f2bf255aa0551)
+  - `A` `skills/advanced-svg/references/paint-and-effects.md` (`sha256`: eccc3a01164b171140d316a3f1579e0ba19eb0ddd12488c71145dd5510c171fe)
+  - `A` `skills/advanced-svg/references/quality-accessibility-security.md` (`sha256`: 466f8713ad20df917a4b35ccdc5e89651bdfc2a22c56b334a3398dbe19736f60)
+  - `A` `skills/advanced-svg/scripts/render_svg.py` (`sha256`: f203552365f41cd5e3ac207abd52b45718ea18979208d47ee5796b0ae0dba0e5)
+  - `A` `skills/advanced-svg/scripts/validate_svg.py` (`sha256`: 71a8d0c52a0f289aeec136f499b0ff4d56baca59290220af0025b0a671273244)
+  - `A` `skills/agent-humility/SKILL.md` (`sha256`: a9c09d91289dfc9cd85a9d972d95ee1e99e42ba42c444900d439a88089b210bd)
+  - `A` `skills/agent-humility/agents/openai.yaml` (`sha256`: d5f3eca0cc17075ae853b34e0c2b639043d84a1af5aecdea418ed8916eb98ad7)
+  - `A` `skills/agent-humility/references/evidence-and-pivot-patterns.md` (`sha256`: ddd30426a7c58d1d48a26408730840946362ba90be2c6d6366ac87fa7389d92d)
+  - `A` `skills/clean-slate/SKILL.md` (`sha256`: c87cc7f5e25a121558d6b35dfcf37dda72adb99cadef5f43e2b984e939c8900a)
+  - `A` `skills/clean-slate/agents/openai.yaml` (`sha256`: c6d39112dce2207201fdd1792863168a1fd9801994d4565a4c859aa59bc11bf3)
+  - `M` `skills/diagnose-before-fix/SKILL.md` (`sha256`: a92739669c22d561f25ad78c155865be1ef55c13570a4bedffca0bdb084d0a06)
+  - `A` `skills/docs/README.md` (`sha256`: 647407764794c0187866929af331ed91f46f4c4873d7a84f1017727d45ebdba0)
+  - `M` `skills/docs/adapters/agent.md` (`sha256`: e768331fec1cb0dc5497a9a41f6199766ce76515ea0c23db996ec53a74ea8932)
+  - `M` `skills/docs/adapters/common-ai.md` (`sha256`: d1b6d3510137b85c0a006213948f4b3d9d949f34b3726f45286e9edbeeaaa5ae)
+  - `M` `skills/docs/adapters/generic-agent.md` (`sha256`: 5d0dbbfdc69a2a71c3cea955b7d10e8438b9b6e5167219361c289e72938444ce)
+  - `M` `skills/docs/cache-budgets.md` (`sha256`: 40be77e69381f4f1266f769b540ba6d29bf3cfcbb6278b86e5630d9702f8a19b)
+  - `M` `skills/docs/ci/skills-governance-ci.yml` (`sha256`: aa14be101a28c735811692c3456a3df039452d4486a11f6a9c87d5fe4c964279)
+  - `M` `skills/docs/conflict-resolution-matrix.md` (`sha256`: f9b23f4a1d6591dc736a0da85cdb7b7e944da8c0510d085ecd517eb6055515f4)
+  - `M` `skills/docs/examples/bug-investigation.md` (`sha256`: cd7112e26c2da73271868297379f9c0bcddc62d984e83811e83240308bb1a4ee)
+  - `M` `skills/docs/examples/documentation-only-update.md` (`sha256`: cfcba041fc7769870c623fa4ae11669044a4c637891dd3d11165c0dda43cae5e)
+  - `M` `skills/docs/examples/frontend-layout-task.md` (`sha256`: 21bfa740c875f5bf8ed14e37672434aeb01be6de2a38b4bd7e44d547a7661f11)
+  - `M` `skills/docs/examples/quizme-clarification.md` (`sha256`: fad9f7c16fb9553aff1561adcf26b76828b7be8d6d74771404f0ef1d4feb4f86)
+  - `M` `skills/docs/examples/release-readiness-change.md` (`sha256`: 8c7fb461414d3ad1ecc587a297404135e1228ea575c66ed2d7cf365a580bcfa1)
+  - `M` `skills/docs/examples/simple-code-fix.md` (`sha256`: 8424b12affdc8a2e6c387e6f07cbfa6bcca9be83725253fc7cad84c1f83f2b57)
+  - `M` `skills/docs/field-notes.md` (`sha256`: 3ddf894913bf371049d7f6307fc9a077c13934303faa763718473727bfea2406)
+  - `M` `skills/docs/governance-walkthrough.md` (`sha256`: 9caefb99551017024127efea459659b2fe3358337b367181ad0132a44b8f3c13)
+  - `M` `skills/docs/install-profiles.md` (`sha256`: 967dcf81709a652625af1e43550c85fc8b4945eee19fb4cad70884fc14e6a7d4)
+  - `M` `skills/docs/known-limitations.md` (`sha256`: f856a97c601d038ddd9746edcc63a467877b1abaf0e1be1e03a28268af087042)
+  - `M` `skills/docs/maturity-model.md` (`sha256`: b996fc7365490aa20f87890f66491b56cec70302dd9940041494277cbe953e67)
+  - `M` `skills/docs/pruning-policy.md` (`sha256`: 277a32c8f879d6307075244f356c90e581fa60119b821cc0937aebfb645d5e81)
+  - `M` `skills/docs/release-provenance.md` (`sha256`: db428b1e19b78e27b7a4723f27c943fdba26b9427f702e524a93ba0d3843ba4b)
+  - `M` `skills/docs/routing-architecture-v2.md` (`sha256`: df2d05b8bd644886592fad883f1e3cdb3aaf6d35051f20796dbe24b4f415280f)
+  - `M` `skills/docs/rubrics/documentation-quality-rubric.md` (`sha256`: 100b6175411195fe5467b1c2fe47c95f4174b02bd0ba1f57d2eef403eeeb520a)
+  - `M` `skills/docs/rubrics/release-readiness-rubric.md` (`sha256`: 1e22b8d29eb1512b4d4352459ad2f6d6e4a2a5e57a08061ccffa6789bd229802)
+  - `M` `skills/docs/rubrics/skillpack-quality-rubric.md` (`sha256`: 41142c5bc88d174532b9dfd0fcaff7f24e35412c74649de311c9829bf0abb068)
+  - `M` `skills/docs/skill-decision-tree.md` (`sha256`: fff16dcd45e2b873cb876a1c12dd5d71aa55b4991c146c230fab039071173ad3)
+  - `M` `skills/docs/skill-index.md` (`sha256`: 2989af2b23ac0fafaafc8ed36af1cd46f28925e332a1ffcc934b582fdb672dae)
+  - `M` `skills/docs/skill-migration-v2.md` (`sha256`: 170beb8735a01613258d20ea5e763fbd5e78da8f4444db436e3a4160dd1d6073)
+  - `M` `skills/docs/validation-profiles.md` (`sha256`: 30f2f670e9b3acfac12f4e6168016ec27c2949b372feb3b17dad929cd26f2519)
+  - `M` `skills/docs/validator-severity-levels.md` (`sha256`: 8b0428cd1ed1ae3bb6384e0ae76cfb00a5cbf0c33e18a2ba8e2262c84aac50c8)
+  - `M` `skills/docs/verification/constrained-environment-verification.md` (`sha256`: e76ecec0d8b6d2f0b92eefe5b07b0ba1eca756790a62fdff77a9ce541ac205c4)
+  - `A` `skills/eliminate-assumptions/SKILL.md` (`sha256`: d1e2bac6233c7d03f817694bc3a7d459f892faf0b800d5d6eff551304e257bb6)
+  - `A` `skills/eliminate-assumptions/agents/openai.yaml` (`sha256`: e61ae419672b88fa723a5b6f594835c8f44f486e3feba14b91569d60fafc9a29)
+  - `A` `skills/help/SKILL.md` (`sha256`: 6d323b5c11111cb5bbfea47384a44886e801c1c999955a9e718bd6a6779635e4)
+  - `A` `skills/help/agents/openai.yaml` (`sha256`: a3ac9edb1f8e3df2c1d20cbd5932935f636859437f532044ed5c02342d352a05)
+  - `A` `skills/help/references/runtime-protocol.md` (`sha256`: a35ba1c7ecb12183bd13ac7773d6870da404e2c91b6711127d288944473a345a)
+  - `A` `skills/help/scripts/runtime_adapter.py` (`sha256`: fa1a1030de465004a105490c554bfc922e07663de7c1479406265f5e0568d219)
+  - `M` `skills/internal-lang/SKILL.md` (`sha256`: a15503b7ccbf178f3026be12f9e5750fd687d852125c0eaee5bfb9fd877d7fab)
+  - `M` `skills/internal-lang/agents/openai.yaml` (`sha256`: 8b8878247f8fcac5427be0a61694733250cf75b9b50a06606c109333bd63957d)
+  - `M` `skills/quizme-mode/SKILL.md` (`sha256`: 2ba4fb45445d6dec61c6d53fef7a678429cbe5f8a90bfa614ae109e7bc82e382)
+  - `M` `skills/skill-catalog.json` (`sha256`: 0d476038db03398727f12be0de35e1b9d8e699f91a94e2bd6f25e0a71e033290)
+  - `M` `skills/skill-governance/fixtures/routing-scenarios.json` (`sha256`: 9a04adad242b005a16fa48e155c2cbe65f203427f9f46998ac36ba4a181a421e)
+  - `M` `skills/skill-governance/schemas/task-descriptor.schema.json` (`sha256`: a5de3a5130431bb2a55abc374ae0d387dfac2842d40aab8e767a830e2cdd7c79)
+  - `M` `skills/skill-governance/scripts/resolve_task_route.py` (`sha256`: 0ff045407aec83a7af71b3f23adfe826dc6803c281738a96224db23dd982243a)
+  - `M` `skills/skill-governance/scripts/validate_skill_policy.py` (`sha256`: f661c9225090e242b162dbf54e3bbf4315e4d55efecdc5933edb880647cc173c)
+  - `A` `skills/skill-governance/tests/test_advanced_svg_render.py` (`sha256`: 7c0faac2e1b9e531f1009195720e39950b6f48ac5c13ae7778e3781ce9ab06b8)
+  - `M` `skills/skill-governance/tests/test_default_skill_quality_gates.py` (`sha256`: a6c62fc4dd27efab97c03d78c05402b710ffa0da41c4f2b10abb49481a68d4a9)
+  - `A` `skills/skill-governance/tests/test_docs_website_navigation.py` (`sha256`: 8fb4c22887029f11b113489356472c66b7a9b8f84ced90aa75bf62103576333a)
+  - `M` `skills/skill-governance/tests/test_governance_integrity.py` (`sha256`: 7ef3c622c01bb39a52b5ad601febdd7048d9f296cde971d60929e25000b9f760)
+  - `A` `skills/skill-governance/tests/test_new_skill_integration.py` (`sha256`: 87e26e201ea9b7d42c438140604cec4c2d17f472effebf2785f5af778b075f68)
+  - `A` `skills/skill-governance/tests/test_runtime_adapter.py` (`sha256`: 983d2d703d60a8c2edd3a153058b0f763b515a4ef06805d178aca2aa1eb568a4)
+  - `M` `skills/skill-governance/tests/test_task_routing.py` (`sha256`: daadc41bf88d0c81b4668c6d436a02cd8e21863370957f03165fd8bfd765d92a)
+  - `A` `skills/ui-dynamic-resizing/SKILL.md` (`sha256`: 9d1603d7072b3ae05a1037385841fc52cd601b61c338a0e488c5f0ffb51afd7c)
+  - `A` `skills/user-run-scripts/SKILL.md` (`sha256`: 3b337eb9e0bcc46b8c82549e910a1d53259a4ca59aef0d6c7ec21e9930f9db3e)

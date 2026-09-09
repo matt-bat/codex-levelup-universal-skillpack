@@ -1,5 +1,7 @@
 # Example: Simple Code Fix
 
+[Documentation home](../README.md) · [Bug investigation](./bug-investigation.md) · [Frontend layout](./frontend-layout-task.md)
+
 ## Scenario
 The user asks for a narrow bug fix with a clear file and expected behavior.
 

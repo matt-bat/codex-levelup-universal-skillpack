@@ -1,5 +1,7 @@
 # Documentation Quality Rubric
 
+[Documentation home](../README.md) · [Release readiness](./release-readiness-rubric.md) · [Skillpack quality](./skillpack-quality-rubric.md)
+
 Use this rubric when reviewing public docs or skill docs.
 
 The best docs in this pack should help someone start quickly, understand why the process exists, and know exactly what to update when behavior changes.
